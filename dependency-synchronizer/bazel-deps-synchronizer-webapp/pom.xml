@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.wix.build</groupId>
+    <artifactId>bazel-deps-synchronizer-webapp</artifactId>
+    <version>1.10.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>com.wix</groupId>
+        <artifactId>wix-server-bootstrap-parent</artifactId>
+        <version>100.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+    <developers>
+        <developer>
+            <name>Or Shachar</name>
+            <email>ors@wix.com</email>
+            <roles>
+                <role>owner</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ittai Zeidman</name>
+            <email>ittaiz@wix.com</email>
+            <roles>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Natan Silintsky</name>
+            <email>natans@wix.com</email>
+            <roles>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <properties>
+        <server.mainClass>com.wix.build.sync.BazelMavenSynchronizerServer</server.mainClass>
+        <mrm.version>1.1.0</mrm.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wix.build</groupId>
+            <artifactId>maven-dependency-resolver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.build</groupId>
+            <artifactId>bazel-deps-synchronizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.iptf</groupId>
+            <artifactId>greyhound-clients</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.framework</groupId>
+            <artifactId>wix-cache-folder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.hoopoe</groupId>
+            <artifactId>hoopoe-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.ci</groupId>
+            <artifactId>domain</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wix.framework</groupId>
+            <artifactId>petri-integration-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.iptf</groupId>
+            <artifactId>greyhound-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wix</groupId>
+            <artifactId>bootstrap-server-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.build</groupId>
+            <artifactId>bazel-deps-synchronizer</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wix.build</groupId>
+            <artifactId>maven-dependency-resolver-testkit</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.framework</groupId>
+            <artifactId>io-test-kit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
