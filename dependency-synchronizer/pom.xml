@@ -7,6 +7,7 @@
 
     <modules>
         <module>bazel-deps-synchronizer</module>
+        <module>bazel-deps-synchronizer-cli</module>
         <module>bazel-deps-synchronizer-webapp</module>
     </modules>
 

@@ -22,7 +22,8 @@ object BazelMavenSynchronizerServer extends BootstrapServer {
 class SynchronizerConfiguration {
   private val configuration = BazelMavenSynchronizerConfig.root
   private val ciTopic = TeamcityTopic.TeamcityEvents
-  private val synchronizedTopic = s"${ciTopic}_${Coordinates.deserialize(configuration.dependencyManagementArtifact).asTopic}"
+  private val dependencyManagementArtifact: Coordinates = Coordinates.deserialize(configuration.dependencyManagementArtifact)
+  private val synchronizedTopic = s"${ciTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
 
   @Bean
   def dependencyResolver: MavenDependencyResolver =
@@ -44,7 +45,6 @@ class SynchronizerConfiguration {
   def synchronizer(dependencyResolver: MavenDependencyResolver, bazelRepository: BazelRepository): BazelMavenSynchronizer =
     new BazelMavenSynchronizer(dependencyResolver, bazelRepository)
 
-
   @Bean
   def producerToSynchronizedTopic(producers: Producers, baseSpec: GreyhoundProducerSpec): GreyhoundProducer = {
     initTopics()
@@ -58,13 +58,9 @@ class SynchronizerConfiguration {
   }
 
   @Bean
-  def synchronizedDependencyUpdateHandler(
-                                           synchronizer: BazelMavenSynchronizer,
-                                           producerToSynchronizedTopic: GreyhoundProducer
-                                         ): DependencyUpdateHandler = {
-    val dependencyManagementArtifact = Coordinates.deserialize(configuration.dependencyManagementArtifact)
+  def synchronizedDependencyUpdateHandler(synchronizer: BazelMavenSynchronizer,
+                                           producerToSynchronizedTopic: GreyhoundProducer): DependencyUpdateHandler =
     new DependencyUpdateHandler(synchronizer, dependencyManagementArtifact, producerToSynchronizedTopic)
-  }
 
 
   @Autowired
