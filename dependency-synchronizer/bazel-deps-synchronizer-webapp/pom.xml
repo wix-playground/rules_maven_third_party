@@ -40,6 +40,7 @@
     <properties>
         <server.mainClass>com.wix.build.sync.BazelMavenSynchronizerServer</server.mainClass>
         <mrm.version>1.1.0</mrm.version>
+        <org.apache.maven.maven-artifact.version>3.5.0</org.apache.maven.maven-artifact.version>
     </properties>
 
     <dependencies>
