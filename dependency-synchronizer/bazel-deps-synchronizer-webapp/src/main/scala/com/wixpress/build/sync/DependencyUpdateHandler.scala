@@ -1,11 +1,12 @@
 package com.wix.build.sync
 
-import com.wix.build.maven.Coordinates
+import com.wix.build.maven.{Coordinates, MavenDependencyResolver}
 import com.wix.ci.greyhound.events.BuildFinished
 import com.wix.greyhound.GreyhoundProducer
 import org.slf4j.LoggerFactory
 
-class DependencyUpdateHandler(synchronizer: BazelMavenSynchronizer,
+class DependencyUpdateHandler(resolver: MavenDependencyResolver,
+                              synchronizer: BazelMavenSynchronizer,
                               dependencyManagementArtifact: Coordinates,
                               producerToSynchronizedTopic: GreyhoundProducer) {
 
@@ -18,7 +19,7 @@ class DependencyUpdateHandler(synchronizer: BazelMavenSynchronizer,
 
   def handleMessageFromSynchronizedTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized message $message")
-    synchronizer.sync(dependencyManagementArtifact)
+    synchronizer.sync(dependencyManagementArtifact,resolver.managedDependenciesOf(dependencyManagementArtifact))
   }
 
 }

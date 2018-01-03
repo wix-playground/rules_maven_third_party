@@ -58,9 +58,10 @@ class SynchronizerConfiguration {
   }
 
   @Bean
-  def synchronizedDependencyUpdateHandler(synchronizer: BazelMavenSynchronizer,
+  def synchronizedDependencyUpdateHandler(dependencyResolver: MavenDependencyResolver,
+                                          synchronizer: BazelMavenSynchronizer,
                                            producerToSynchronizedTopic: GreyhoundProducer): DependencyUpdateHandler =
-    new DependencyUpdateHandler(synchronizer, dependencyManagementArtifact, producerToSynchronizedTopic)
+    new DependencyUpdateHandler(dependencyResolver,synchronizer, dependencyManagementArtifact, producerToSynchronizedTopic)
 
 
   @Autowired
