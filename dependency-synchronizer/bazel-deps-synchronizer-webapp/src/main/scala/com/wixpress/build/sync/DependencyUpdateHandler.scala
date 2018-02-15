@@ -19,7 +19,10 @@ class DependencyUpdateHandler(resolver: MavenDependencyResolver,
 
   def handleMessageFromSynchronizedTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized message $message")
-    synchronizer.sync(dependencyManagementArtifact,resolver.managedDependenciesOf(dependencyManagementArtifact))
+    synchronizer.sync(
+      dependencyManagementSource = dependencyManagementArtifact,
+      dependencies = resolver.managedDependenciesOf(dependencyManagementArtifact)
+    )
   }
 
 }
