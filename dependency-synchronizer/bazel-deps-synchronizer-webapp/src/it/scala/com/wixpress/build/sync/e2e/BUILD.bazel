@@ -1,0 +1,68 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_specs2_junit_test(
+    name = "e2e",
+    srcs = [
+        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:sources",
+    ],
+    data = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates"],
+    javacopts = [
+        "-g",
+        "-deprecation",
+        "-XepDisableAllChecks",
+    ],
+    jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates)"],
+    prefixes = [
+        "Test",
+        "IT",
+        "E2E",
+    ],
+    suffixes = [
+        "Test",
+        "IT",
+        "E2E",
+    ],
+    tags = [
+        "E2E",
+        "IT",
+        "UT",
+        "block-network",
+    ],
+    runtime_deps = [
+    ],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
+        "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven",
+        "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
+        "//dependency-synchronizer/bazel-deps-synchronizer-webapp:tests_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/it/scala/com/wix/build/sync/e2e",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
+        "//models/maven-model/src/main/scala/com/wix/build/maven",
+        "//third_party/com/github/pathikrit:better_files_2_12",
+        "//third_party/com/wix:http_testkit_core_2_12",
+        "//third_party/com/wix:bootstrap_server_testkit",
+        "//third_party/com/wix:wix_server_bootstrap",
+        "//third_party/com/wix/ci:domain",
+        "//third_party/com/wix/framework:http_test_kit",
+        "//third_party/com/wix/framework:io_test_kit",
+        "//third_party/com/wix/framework:petri_integration_testkit",
+        "//third_party/com/wix/framework:wix_metrics_api",
+        "//third_party/com/wix/hoopoe:hoopoe_config",
+        "//third_party/com/wix/hoopoe:hoopoe_config_testkit",
+        "//third_party/com/wix/hoopoe:hoopoe_it_test",
+        "//third_party/com/wix/hoopoe:hoopoe_logging",
+        "//third_party/com/wix/hoopoe:hoopoe_scala",
+        "//third_party/com/wix/iptf:greyhound_core",
+        "//third_party/com/wix/iptf:greyhound_testkit",
+        "//third_party/javax/servlet:javax_servlet_api",
+        "//third_party/org/eclipse/jetty:jetty_servlet",
+    ],
+)
+
+filegroup(
+    name = "sources",
+    srcs = glob(["*.java"]) + glob(["*.scala"]),
+    visibility = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:__pkg__"],
+)

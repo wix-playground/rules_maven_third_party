@@ -1,0 +1,61 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "sync",
+    srcs = [
+        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:sources",
+    ],
+    javacopts = [
+        "-g",
+        "-deprecation",
+        "-XepDisableAllChecks",
+    ],
+    runtime_deps = [
+    ],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
+        "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
+        "//dependency-synchronizer/bazel-deps-synchronizer-webapp:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
+        "//models/maven-model/src/main/scala/com/wix/build/maven",
+        "//third_party/com/fasterxml/jackson/core:jackson_annotations",
+        "//third_party/com/fasterxml/jackson/core:jackson_core",
+        "//third_party/com/fasterxml/jackson/core:jackson_databind",
+        "//third_party/com/github/pathikrit:better_files_2_12",
+        "//third_party/com/wix:bootstrap_server_jetty",
+        "//third_party/com/wix:wix_server_bootstrap",
+        "//third_party/com/wix/ci:domain",
+        "//third_party/com/wix/framework:hoopoe_velocity",
+        "//third_party/com/wix/framework:wix_cache_folder",
+        "//third_party/com/wix/framework:wix_error_handling_spring",
+        "//third_party/com/wix/framework:wix_framework_aspects_api",
+        "//third_party/com/wix/framework:wix_framework_aspects_spring",
+        "//third_party/com/wix/framework:wix_metrics_api",
+        "//third_party/com/wix/framework:wix_rpc",
+        "//third_party/com/wix/framework:wix_security_management",
+        "//third_party/com/wix/hoopoe:hoopoe_config",
+        "//third_party/com/wix/hoopoe:hoopoe_json_mapper",
+        "//third_party/com/wix/hoopoe:hoopoe_management",
+        "//third_party/com/wix/hoopoe:hoopoe_rpc",
+        "//third_party/com/wix/iptf:greyhound_clients",
+        "//third_party/com/wix/iptf:greyhound_core",
+        "//third_party/javax/servlet:javax_servlet_api",
+        "//third_party/junit",
+        "//third_party/org/eclipse/jetty:jetty_server",
+        "//third_party/org/eclipse/jetty:jetty_servlet",
+        "//third_party/org/eclipse/jetty:jetty_util",
+        "//third_party/org/slf4j:slf4j_api",
+        "//third_party/org/springframework:spring_beans",
+        "//third_party/org/springframework:spring_context",
+        "//third_party/org/springframework:spring_core",
+        "//third_party/org/springframework:spring_web",
+        "//third_party/org/springframework:spring_webmvc",
+    ],
+)
+
+filegroup(
+    name = "sources",
+    srcs = glob(["*.java"]) + glob(["*.scala"]),
+    visibility = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:__pkg__"],
+)
