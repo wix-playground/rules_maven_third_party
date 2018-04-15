@@ -6,11 +6,6 @@ scala_specs2_junit_test(
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:sources",
     ],
     data = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates"],
-    javacopts = [
-        "-g",
-        "-deprecation",
-        "-XepDisableAllChecks",
-    ],
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates)"],
     prefixes = [
         "Test",
