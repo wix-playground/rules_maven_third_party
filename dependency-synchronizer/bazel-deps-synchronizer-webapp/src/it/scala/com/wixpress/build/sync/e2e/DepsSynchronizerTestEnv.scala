@@ -50,7 +50,7 @@ object DepsSynchronizerTestEnv {
   private val petri = PetriTestkit().withFreshFakeServer().build
 
   def env: TestEnv = TestEnvBuilder()
-    .withConfigurer(E2EConfigurer)
+    .withEnvironmentConfigurer(E2EConfigurer)
     .withCollaborators(kafka, fakeMavenRepository, petri)
     .withMainService(mainService)
     .build()
