@@ -26,10 +26,6 @@ class SynchronizerConfiguration {
   private val synchronizedTopic = s"${ciTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
 
   @Bean
-  def dependencyResolver: MavenDependencyResolver =
-    new AetherMavenDependencyResolver(configuration.mavenRemoteRepositoryURL)
-
-  @Bean
   def bazelRepository(artifactAwareCacheFolder: CacheFolder): BazelRepository = {
     val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "clone"
     new GitBazelRepository(
@@ -40,10 +36,6 @@ class SynchronizerConfiguration {
       Some(configuration.git.githubToken).filter(!_.isEmpty)
     )
   }
-
-  @Bean
-  def synchronizer(dependencyResolver: MavenDependencyResolver, bazelRepository: BazelRepository): BazelMavenSynchronizer =
-    new BazelMavenSynchronizer(dependencyResolver, bazelRepository)
 
   @Bean
   def producerToSynchronizedTopic(producers: Producers, baseSpec: GreyhoundProducerSpec): GreyhoundProducer = {
@@ -58,10 +50,13 @@ class SynchronizerConfiguration {
   }
 
   @Bean
-  def synchronizedDependencyUpdateHandler(dependencyResolver: MavenDependencyResolver,
-                                          synchronizer: BazelMavenSynchronizer,
-                                           producerToSynchronizedTopic: GreyhoundProducer): DependencyUpdateHandler =
-    new DependencyUpdateHandler(dependencyResolver,synchronizer, dependencyManagementArtifact, producerToSynchronizedTopic)
+  def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundProducer,
+                                          bazelRepository: BazelRepository): DependencyUpdateHandler =
+    new DependencyUpdateHandler(
+      dependencyManagementArtifact,
+      producerToSynchronizedTopic,
+      bazelRepository,
+      configuration.mavenRemoteRepositoryURL)
 
 
   @Autowired
