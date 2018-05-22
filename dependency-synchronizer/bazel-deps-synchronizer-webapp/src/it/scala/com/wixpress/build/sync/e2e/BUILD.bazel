@@ -1,28 +1,12 @@
 package(default_visibility = ["//visibility:public"])
 
-scala_specs2_junit_test(
+specs2_mixed_test(
     name = "e2e",
     srcs = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:sources",
     ],
     data = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates"],
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates)"],
-    prefixes = [
-        "Test",
-        "IT",
-        "E2E",
-    ],
-    suffixes = [
-        "Test",
-        "IT",
-        "E2E",
-    ],
-    tags = [
-        "E2E",
-        "IT",
-        "UT",
-        "block-network",
-    ],
     runtime_deps = [
     ],
     deps = [
