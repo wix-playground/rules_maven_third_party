@@ -3,12 +3,13 @@ package com.wix.build.sync
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
 import com.wix.build.bazel.{BazelRepository, GitBazelRepository}
-import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, MavenDependencyResolver}
+import com.wix.build.maven.Coordinates
 import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
 import com.wix.framework.cache.disk.CacheFolder
 import com.wix.framework.cache.spring.CacheFolderConfig
 import com.wix.framework.spring.JsonRpcServerConfiguration
 import com.wix.greyhound._
+import com.wix.greyhound.producer.builder.{GreyhoundResilientProducer, ResilientProducerMaker}
 import com.wix.hoopoe.json.JsonMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, Import}
@@ -38,9 +39,9 @@ class SynchronizerConfiguration {
   }
 
   @Bean
-  def producerToSynchronizedTopic(producers: Producers, baseSpec: GreyhoundProducerSpec): GreyhoundProducer = {
+  def producerToSynchronizedTopic(producers: Producers, resilientMaker: ResilientProducerMaker): GreyhoundResilientProducer = {
     initTopics()
-    val producer = baseSpec.withTopic(synchronizedTopic).build
+    val producer = resilientMaker.withTopic(synchronizedTopic).ordered.build
     producers.add(producer)
     producer
   }
@@ -50,7 +51,7 @@ class SynchronizerConfiguration {
   }
 
   @Bean
-  def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundProducer,
+  def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundResilientProducer,
                                           bazelRepository: BazelRepository): DependencyUpdateHandler =
     new DependencyUpdateHandler(
       dependencyManagementArtifact,

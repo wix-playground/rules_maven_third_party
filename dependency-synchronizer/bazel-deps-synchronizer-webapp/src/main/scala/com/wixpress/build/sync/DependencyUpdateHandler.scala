@@ -1,13 +1,14 @@
 package com.wix.build.sync
 
 import com.wix.build.bazel.BazelRepository
-import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, MavenDependencyResolver}
+import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates}
 import com.wix.ci.greyhound.events.BuildFinished
-import com.wix.greyhound.GreyhoundProducer
+import com.wix.greyhound.producer.ProduceTarget
+import com.wix.greyhound.producer.builder.GreyhoundResilientProducer
 import org.slf4j.LoggerFactory
 
 class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
-                              producerToSynchronizedTopic: GreyhoundProducer,
+                              producerToSynchronizedTopic: GreyhoundResilientProducer,
                               bazelRepository: BazelRepository,
                               mavenRemoteRepositoryURL: List[String]) {
 
@@ -15,7 +16,7 @@ class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
 
   def handleMessageFromCI(message: BuildFinished): Unit = {
     logger.info(s"Got message: $message")
-    producerToSynchronizedTopic.produce("key", message)
+    producerToSynchronizedTopic.produce(message, ProduceTarget.toKey("key"))
   }
 
   def handleMessageFromSynchronizedTopic(message: BuildFinished): Unit = {
