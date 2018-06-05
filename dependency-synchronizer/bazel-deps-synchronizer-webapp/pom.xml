@@ -107,4 +107,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+         
+    <mailingLists>
+        <mailingList>
+            <name>Slack</name>
+            <subscribe>bazel-tooling</subscribe>
+        </mailingList>
+    </mailingLists>
 </project>
