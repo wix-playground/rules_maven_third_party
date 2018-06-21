@@ -55,6 +55,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.wix.build</groupId>
+            <artifactId>bazel-repositories-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.wix.iptf</groupId>
             <artifactId>greyhound-clients</artifactId>
             <type>pom</type>

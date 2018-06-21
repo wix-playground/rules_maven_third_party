@@ -46,6 +46,7 @@ scala_library(
         "//third_party/org/springframework:spring_core",
         "//third_party/org/springframework:spring_web",
         "//third_party/org/springframework:spring_webmvc",
+        "//wix-bazel-repositories/bazel-repositories-core/src/main/scala/com/wix/build/bazel/repositories:repositories",
     ],
 )
 
