@@ -4,18 +4,19 @@ scala_import(
     name = "main_dependencies",
     runtime_deps = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/resources",
-        "//third_party/com/newrelic/agent/java:newrelic_agent",
+        "@com_newrelic_agent_java_newrelic_agent//jar",
     ],
     deps = [
         "//dependency-resolver/maven-dependency-resolver:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
-        "//third_party/com/wix:wix_server_bootstrap",
-        "//third_party/com/wix/ci:domain",
-        "//third_party/com/wix/framework:wix_cache_folder",
-        "//third_party/com/wix/hoopoe:hoopoe_config",
         "//third_party/com/wix/iptf:greyhound_clients",
-        "//third_party/javax/servlet:javax_servlet_api",
-        "//third_party/org/scala-lang:scala_library",
+        "//wix-bazel-repositories/bazel-repositories-core:main_dependencies",
+        "@com_wix_ci_domain//jar",
+        "@com_wix_framework_wix_cache_folder//jar",
+        "@com_wix_hoopoe_hoopoe_config//jar",
+        "@com_wix_wix_server_bootstrap//jar",
+        "@javax_servlet_javax_servlet_api//jar",
+        "@org_scala_lang_scala_library//jar",
     ],
 )
 
@@ -26,10 +27,10 @@ scala_import(
         "main_dependencies",
         "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
-        "//third_party/com/wix:bootstrap_server_testkit",
-        "//third_party/com/wix/framework:io_test_kit",
-        "//third_party/com/wix/framework:petri_integration_testkit",
-        "//third_party/com/wix/iptf:greyhound_testkit",
+        "@com_wix_bootstrap_server_testkit//jar",
+        "@com_wix_framework_io_test_kit//jar",
+        "@com_wix_framework_petri_integration_testkit//jar",
+        "@com_wix_iptf_greyhound_testkit//jar",
     ],
 )
 
