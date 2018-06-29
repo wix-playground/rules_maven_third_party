@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-scala_import(
+scala_library(
     name = "main_dependencies",
     runtime_deps = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/resources",
@@ -20,7 +20,7 @@ scala_import(
     ],
 )
 
-scala_import(
+scala_library(
     name = "tests_dependencies",
     testonly = 1,
     deps = [
