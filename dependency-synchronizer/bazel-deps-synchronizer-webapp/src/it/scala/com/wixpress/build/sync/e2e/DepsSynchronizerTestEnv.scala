@@ -2,7 +2,7 @@ package com.wix.build.sync.e2e
 
 import com.wix.bootstrap.BootstrapManagedService
 import com.wix.e2e.PortRandomizer
-import com.wix.build.maven.{Coordinates, FakeMavenRepository}
+import com.wix.build.maven.{Coordinates, FakeMavenRepository, Packaging}
 import com.wix.build.sync.{BazelMavenSynchronizerConfig, BazelMavenSynchronizerServer}
 import com.wix.ci.greyhound.events.TeamcityTopic
 import com.wix.framework.petri.PetriTestkit
@@ -16,7 +16,7 @@ object DepsSynchronizerTestEnv {
 
   val fakeMavenRepository = new FakeMavenRepository(mavenRepoPort)
 
-  val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Some("pom"))
+  val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Packaging("pom"))
   val fakeRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
   private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents)
   private val mainService = BootstrapManagedService(BazelMavenSynchronizerServer)

@@ -3,7 +3,7 @@ package com.wix.build.sync.e2e
 
 import better.files.File
 import com.wix.build.bazel.{BazelLocalWorkspace, BazelRepository, FileSystemBazelLocalWorkspace}
-import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
+import com.wix.build.maven._
 import com.wix.build.sync.BazelMavenSynchronizer
 
 object TestApp extends App {
@@ -22,7 +22,7 @@ object TestApp extends App {
     "http://repo.example.com:80/artifactory/libs-snapshots"))
 
   val s = new BazelMavenSynchronizer(resolver,bazelRepo)
-  val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Some("jar"),Some("tests")),MavenScope.Compile)
+  val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Packaging("jar"),Some("tests")),MavenScope.Compile)
   val deps = resolver.dependencyClosureOf(Set(dep),Set.empty)
   println(deps)
 
