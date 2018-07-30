@@ -5,8 +5,8 @@ import com.wix.build.maven.{Coordinates, Dependency, MavenScope}
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
 import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
 import com.wix.framework.test.env.{GlobalTestEnvSupport, TestEnv}
-import com.wix.greyhound.GreyhoundProducerBuilder.aGreyhoundProducerBuilder
 import com.wix.greyhound.GreyhoundTestingSupport
+import com.wix.greyhound.producer.builder.ProducerMaker
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
@@ -25,7 +25,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   private val otherCoordinates: Coordinates = someCoordinates.copy(groupId = "other-group")
 
   private def produceMessageAbout(coordinates: Coordinates): Unit = {
-    val producer = aGreyhoundProducerBuilder(TeamcityTopic.TeamcityEvents).build
+    val producer = ProducerMaker.aProducer().buffered.ordered.build
     val buildFinishedMessage = BuildFinished(
       buildRunId = "dont-care",
       buildConfigId = DepsSynchronizerTestEnv.buildTypeID,
@@ -34,7 +34,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
       isSuccessful = true
     )
 
-    producer.produce(buildFinishedMessage)
+    producer.produceToTopic(TeamcityTopic.TeamcityEvents, buildFinishedMessage)
   }
 
   "Bazel-Maven Deps Synchronizer," >> {
