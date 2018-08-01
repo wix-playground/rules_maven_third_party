@@ -1,10 +1,16 @@
+load("//wix-config/src/main:wix_config.bzl", "config_files")
+load("@core_server_build_tools//packager:bootstrap_packager.bzl", "bootstrap_jar")
+
 package(default_visibility = ["//visibility:public"])
 
-scala_library(
-    name = "sync",
+bootstrap_jar(
+    name = "bazel-deps-synchronizer-webapp",
     srcs = [
-        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:sources",
+        ":sources",
     ],
+    artifact_id = "bazel-deps-synchronizer-webapp",
+    group_id = "com.wix.build",
+    main_class = "com.wix.build.sync.BazelMavenSynchronizerServer",
     runtime_deps = [
     ],
     deps = [
@@ -53,4 +59,10 @@ filegroup(
     name = "sources",
     srcs = glob(["*.java"]) + glob(["*.scala"]),
     visibility = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:__pkg__"],
+)
+
+config_files(
+    name = "webapp_config",
+    artifact = ":bazel-deps-synchronizer-webapp",
+    tags = ["deployCoordinates=com.wix:avivbh-nothing-to-prod-server:zip:config"],
 )
