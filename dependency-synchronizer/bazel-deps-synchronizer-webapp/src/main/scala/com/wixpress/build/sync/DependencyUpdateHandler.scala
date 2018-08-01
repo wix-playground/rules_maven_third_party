@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory
 class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
                               producerToSynchronizedTopic: GreyhoundResilientProducer,
                               bazelRepository: BazelRepository,
-                              mavenRemoteRepositoryURL: List[String]) {
+                              mavenRemoteRepositoryURL: List[String],
+                              dependenciesRemoteStorage: DependenciesRemoteStorage) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -24,7 +25,7 @@ class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
 
     // resolver has to be re-instantiated on each update, in order to get non-cached version of managed deps snapshot
     val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
-    val synchronizer = new BazelMavenSynchronizer(resolver, bazelRepository)
+    val synchronizer = new BazelMavenSynchronizer(resolver, bazelRepository, dependenciesRemoteStorage)
 
     val managedDependencies = resolver.managedDependenciesOf(dependencyManagementArtifact)
 

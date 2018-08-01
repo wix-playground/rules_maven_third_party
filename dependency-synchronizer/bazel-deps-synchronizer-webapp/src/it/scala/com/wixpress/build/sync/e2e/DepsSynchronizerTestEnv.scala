@@ -42,7 +42,8 @@ object DepsSynchronizerTestEnv {
       }
       TestConfigFactory.aTestEnvironmentFor[BazelMavenSynchronizerConfig](
         "bazel-deps-synchronizer", mutator,
-        "databag_passwd.com.wix.build.bazel-deps-synchronizer.github_token" -> ""
+        "databag_passwd.com.wix.build.bazel-deps-synchronizer.github_token" -> "",
+        "databag_passwd.com.wix.build.bazel-deps-synchronizer.artifactory_token" -> ""
       )
     }
   }
