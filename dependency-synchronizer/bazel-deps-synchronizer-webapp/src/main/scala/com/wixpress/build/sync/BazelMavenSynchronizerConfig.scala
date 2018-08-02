@@ -10,6 +10,7 @@ case class BazelMavenSynchronizerConfig(
                                          dependencyManagementArtifact: String,
                                          dependencyManagementArtifactBuildTypeId: String,
                                          mavenRemoteRepositoryURL: List[String],
+                                         artifactoryUrl: String,
                                          artifactoryToken: String,
                                          git: GitSettings
                                        )

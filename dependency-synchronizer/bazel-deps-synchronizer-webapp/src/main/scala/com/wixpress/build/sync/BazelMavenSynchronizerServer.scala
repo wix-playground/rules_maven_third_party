@@ -53,7 +53,7 @@ class SynchronizerConfiguration {
   @Bean
   def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundResilientProducer,
                                           bazelRepository: BazelRepository): DependencyUpdateHandler = {
-    val storage = new StaticDependenciesRemoteStorage(new ArtifactoryRemoteStorage("repo.example.com:80", configuration.artifactoryToken))
+    val storage = new StaticDependenciesRemoteStorage(new ArtifactoryRemoteStorage(configuration.artifactoryUrl, configuration.artifactoryToken))
 
     new DependencyUpdateHandler(
       dependencyManagementArtifact,
