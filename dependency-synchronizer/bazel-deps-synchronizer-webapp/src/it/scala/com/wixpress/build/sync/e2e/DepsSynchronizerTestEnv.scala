@@ -4,7 +4,7 @@ import com.wix.bootstrap.BootstrapManagedService
 import com.wix.e2e.PortRandomizer
 import com.wix.e2e.http.Implicits.DefaultBaseUri
 import com.wix.build.maven.{Coordinates, FakeMavenRepository, Packaging}
-import com.wix.build.sync.{BazelMavenSynchronizerConfig, BazelMavenSynchronizerServer, WireMockTestSupport}
+import com.wix.build.sync.{BazelMavenSynchronizerConfig, BazelMavenSynchronizerServer}
 import com.wix.ci.greyhound.events.TeamcityTopic
 import com.wix.framework.petri.PetriTestkit
 import com.wix.framework.test.env.{Configurer, TestEnv, TestEnvBuilder}

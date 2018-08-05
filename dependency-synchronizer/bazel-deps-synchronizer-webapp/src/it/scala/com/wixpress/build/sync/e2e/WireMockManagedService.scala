@@ -1,7 +1,6 @@
 package com.wix.build.sync.e2e
 
-import com.wix.build.sync.WireMockTestSupport
-import com.wix.build.sync.WireMockTestSupport.wireMockServer
+import com.wix.build.sync.e2e.WireMockTestSupport.wireMockServer
 import com.wix.framework.test.env.ManagedService
 
 class WireMockManagedService extends ManagedService {
