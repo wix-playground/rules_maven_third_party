@@ -27,6 +27,7 @@ scala_library(
         "main_dependencies",
         "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
+        "@com_github_tomakehurst_wiremock//jar",
         "@com_wix_bootstrap_server_testkit//jar",
         "@com_wix_framework_io_test_kit//jar",
         "@com_wix_framework_petri_integration_testkit//jar",

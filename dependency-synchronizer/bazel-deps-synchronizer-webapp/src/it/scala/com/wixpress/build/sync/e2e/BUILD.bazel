@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 specs2_mixed_test(
     name = "e2e",
+    size = "large",
     srcs = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:sources",
     ],
@@ -15,7 +16,6 @@ specs2_mixed_test(
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp:tests_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:bazel-deps-synchronizer-webapp",
-        "//dependency-synchronizer/bazel-deps-synchronizer/src/it/scala/com/wix/build/sync",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/it/scala/com/wix/build/sync/e2e",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
@@ -29,7 +29,6 @@ specs2_mixed_test(
         "@com_wix_framework_http_test_kit//:com_wix_framework_http_test_kit",
         "@com_wix_framework_io_test_kit//:com_wix_framework_io_test_kit",
         "@com_wix_framework_petri_integration_testkit//:com_wix_framework_petri_integration_testkit",
-        "@com_wix_framework_wix_metrics_api//:com_wix_framework_wix_metrics_api",
         "@com_wix_hoopoe_hoopoe_config//:com_wix_hoopoe_hoopoe_config",
         "@com_wix_hoopoe_hoopoe_config_testkit//:com_wix_hoopoe_hoopoe_config_testkit",
         "@com_wix_hoopoe_hoopoe_it_test//:com_wix_hoopoe_hoopoe_it_test",
@@ -42,7 +41,6 @@ specs2_mixed_test(
         "@javax_servlet_javax_servlet_api//:javax_servlet_javax_servlet_api",
         "@org_eclipse_jetty_jetty_servlet//:org_eclipse_jetty_jetty_servlet",
     ],
-    size = "large",
 )
 
 filegroup(
