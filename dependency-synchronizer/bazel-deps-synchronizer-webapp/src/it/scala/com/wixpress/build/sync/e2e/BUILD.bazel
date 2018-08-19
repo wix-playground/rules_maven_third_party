@@ -7,6 +7,7 @@ specs2_mixed_test(
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/scala/com/wix/build/sync/e2e:sources",
     ],
     data = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates"],
+    flaky = True,
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates)"],
     runtime_deps = [
     ],
