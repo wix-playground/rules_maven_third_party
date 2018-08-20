@@ -20,6 +20,7 @@
 
     <logger name="com.wix.build.sync" level="DEBUG" additivity="false">
         <appender-ref ref="AUDIT"/>
+        <appender-ref ref="LOG_STASH_GENERAL"/>
     </logger>
 
 </included>
