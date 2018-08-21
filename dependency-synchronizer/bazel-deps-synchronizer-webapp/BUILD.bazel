@@ -23,7 +23,7 @@ scala_library(
 scala_library(
     name = "tests_dependencies",
     testonly = 1,
-    runtime_deps= [
+    runtime_deps = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/resources",
     ],
     deps = [
