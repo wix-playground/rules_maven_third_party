@@ -30,7 +30,7 @@ object DepsSynchronizerTestEnv {
 
 
     override def configureEnvironment(): Unit = {
-      val mutator: (BazelMavenSynchronizerConfig) => BazelMavenSynchronizerConfig = (config: BazelMavenSynchronizerConfig) => {
+      val mutator: BazelMavenSynchronizerConfig => BazelMavenSynchronizerConfig = (config: BazelMavenSynchronizerConfig) => {
         config.copy(
           dependencyManagementArtifact = dependencyManagerArtifact.serialized,
           dependencyManagementArtifactBuildTypeId = buildTypeID,
@@ -54,8 +54,8 @@ object DepsSynchronizerTestEnv {
   private val petri = PetriTestkit().withFreshFakeServer().build
 
   def env: TestEnv = TestEnvBuilder()
-    .withEnvironmentConfigurer(E2EConfigurer)
     .withCollaborators(kafka, fakeMavenRepository, petri, wiremock)
+    .withMainServiceConfigurer(E2EConfigurer)
     .withMainService(mainService)
     .build()
 }
