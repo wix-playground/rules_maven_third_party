@@ -32,7 +32,6 @@ bootstrap_jar(
         "@com_wix_framework_wix_error_handling_spring//:com_wix_framework_wix_error_handling_spring",
         "@com_wix_framework_wix_framework_aspects_api//:com_wix_framework_wix_framework_aspects_api",
         "@com_wix_framework_wix_framework_aspects_spring//:com_wix_framework_wix_framework_aspects_spring",
-        "@com_wix_framework_wix_metrics_api//:com_wix_framework_wix_metrics_api",
         "@com_wix_framework_wix_rpc//:com_wix_framework_wix_rpc",
         "@com_wix_framework_wix_security_management//:com_wix_framework_wix_security_management",
         "@com_wix_hoopoe_hoopoe_config//:com_wix_hoopoe_hoopoe_config",
