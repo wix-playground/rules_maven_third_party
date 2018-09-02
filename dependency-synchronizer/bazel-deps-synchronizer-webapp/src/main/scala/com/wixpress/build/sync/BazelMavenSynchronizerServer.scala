@@ -2,7 +2,7 @@ package com.wix.build.sync
 
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
-import com.wix.build.bazel.{BazelRepository, GitBazelRepository}
+import com.wix.build.bazel.{BazelRepository, GitAuthenticationWithToken, GitBazelRepository}
 import com.wix.build.maven.Coordinates
 import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
 import com.wix.framework.cache.disk.CacheFolder
@@ -29,13 +29,14 @@ class SynchronizerConfiguration {
   @Bean
   def bazelRepository(artifactAwareCacheFolder: CacheFolder): BazelRepository = {
     val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "clone"
+    val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
+
     new GitBazelRepository(
       configuration.git.targetRepoURL,
       checkoutDirectory,
       configuration.git.username,
-      configuration.git.email,
-      Some(configuration.git.githubToken).filter(!_.isEmpty)
-    )
+      configuration.git.email
+    )(authenticationWithToken)
   }
 
   @Bean
