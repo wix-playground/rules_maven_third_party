@@ -63,5 +63,5 @@ filegroup(
 config_files(
     name = "webapp_config",
     artifact = ":bazel-deps-synchronizer-webapp",
-    tags = ["deployCoordinates=com.wix:avivbh-nothing-to-prod-server:zip:config"],
+    tags = ["deployCoordinates=com.wix.build:bazel-deps-synchronizer-webapp:zip:config"],
 )
