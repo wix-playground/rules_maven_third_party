@@ -43,7 +43,6 @@ specs2_mixed_test(
         "@com_wix_wix_server_bootstrap//:com_wix_wix_server_bootstrap",
         "@javax_servlet_javax_servlet_api//:javax_servlet_javax_servlet_api",
         "@org_eclipse_jetty_jetty_servlet//:org_eclipse_jetty_jetty_servlet",
-        "@commons_io_commons_io",
     ],
 )
 
