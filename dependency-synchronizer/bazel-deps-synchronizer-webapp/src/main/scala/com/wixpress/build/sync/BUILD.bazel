@@ -4,7 +4,7 @@ load("@core_server_build_tools//packager:bootstrap_packager.bzl", "bootstrap_jar
 package(default_visibility = ["//visibility:public"])
 
 bootstrap_jar(
-    name = "bazel-deps-synchronizer-webapp",
+    name = "sync",
     srcs = [
         ":sources",
     ],
@@ -61,7 +61,7 @@ filegroup(
 )
 
 config_files(
-    name = "webapp_config",
-    artifact = ":bazel-deps-synchronizer-webapp",
+    name = "sync_config",
+    artifact = ":sync",
     tags = ["deployCoordinates=com.wix.build:bazel-deps-synchronizer-webapp:zip:config"],
 )
