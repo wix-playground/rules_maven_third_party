@@ -1,4 +1,4 @@
-load("//wix-config/src/main:wix_config.bzl", "config_files")
+load("@bazel_tooling//wix-config/src/main:wix_config.bzl", "config_files")
 load("@core_server_build_tools//packager:bootstrap_packager.bzl", "bootstrap_jar")
 
 package(default_visibility = ["//visibility:public"])
