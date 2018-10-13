@@ -60,8 +60,8 @@ filegroup(
     visibility = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:__pkg__"],
 )
 
-config_files(
-    name = "sync_config",
-    artifact = ":sync",
-    tags = ["deployCoordinates=com.wix.build:bazel-deps-synchronizer-webapp:zip:config"],
-)
+#config_files(
+#    name = "sync_config",
+#    artifact = ":sync",
+#    tags = ["deployCoordinates=com.wix.build:bazel-deps-synchronizer-webapp:zip:config"],
+#)
