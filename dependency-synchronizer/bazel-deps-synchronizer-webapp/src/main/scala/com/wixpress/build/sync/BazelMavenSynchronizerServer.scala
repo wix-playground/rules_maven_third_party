@@ -64,7 +64,6 @@ class SynchronizerConfiguration {
       storage)
   }
 
-
   @Autowired
   def setConsumers(consumers: Consumers,
                    dependencyUpdateHandler: DependencyUpdateHandler): Unit = {
