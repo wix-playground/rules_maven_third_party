@@ -16,6 +16,7 @@ class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def handleMessageFromCI(message: BuildFinished): Unit = {
+    
     logger.info(s"Got message: $message")
     producerToSynchronizedTopic.produce(message, ProduceTarget.toKey("key"))
   }
