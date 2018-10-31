@@ -21,6 +21,7 @@ object BazelMavenSynchronizerServer extends BootstrapServer {
 @Configuration
 @Import(Array(classOf[JsonRpcServerConfiguration], classOf[GreyhoundSpringConfig], classOf[CacheFolderConfig]))
 class SynchronizerConfiguration {
+  
   private val configuration = BazelMavenSynchronizerConfig.root
   private val ciTopic = TeamcityTopic.TeamcityEvents
   private val dependencyManagementArtifact: Coordinates = Coordinates.deserialize(configuration.dependencyManagementArtifact)
