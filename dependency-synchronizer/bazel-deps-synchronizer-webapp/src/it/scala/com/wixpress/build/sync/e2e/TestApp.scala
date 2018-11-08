@@ -7,6 +7,7 @@ import com.wix.build.maven._
 import com.wix.build.sync.BazelMavenSynchronizer
 
 object TestApp extends App {
+  
   def time[R](block: => R): R = {
     val t0 = System.currentTimeMillis()
     val result = block    // call-by-name
