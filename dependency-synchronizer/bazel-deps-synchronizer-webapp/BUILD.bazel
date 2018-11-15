@@ -16,7 +16,8 @@ scala_library(
         "@com_wix_hoopoe_hoopoe_config//jar",
         "@com_wix_wix_server_bootstrap//jar",
         "@javax_servlet_javax_servlet_api//jar",
-        "@org_scala_lang_scala_library//jar"],
+        "@org_scala_lang_scala_library//jar",
+    ],
 )
 
 scala_library(
