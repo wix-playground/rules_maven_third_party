@@ -1,6 +1,8 @@
 {
   "dependencyManagementArtifact": "com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT",
   "dependencyManagementArtifactBuildTypeId": "WixFrameworkParents_ThirdPartyDependencies",
+  "frameworkLeafArtifact": "com.wix.common:wix-framework-leaf:pom:0.0.0-SNAPSHOT",
+  "frameworkLeafArtifactBuildTypeId": "WixFrameworkLeaf_WixFrameworkLeaf",
   "mavenRemoteRepositoryURL": [
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots"
@@ -8,7 +10,8 @@
   "artifactoryUrl": "repo.example.com:80",
   "artifactoryToken": "<%= databag_passwd("com.wix.build.bazel-deps-synchronizer","artifactory_token") %>",
   "git": {
-    "targetRepoURL": "https://github.com/wix-private/core-server-build-tools.git",
+    "managedDepsRepoURL": "https://github.com/wix-private/core-server-build-tools.git",
+    "serverInfraRepoURL": "https://github.com/wix-private/server-infra.git",
     "githubToken": "<%= databag_passwd("com.wix.build.bazel-deps-synchronizer","github_token") %>",
     "username": "builduser",
     "email": "builduser@wix.com"

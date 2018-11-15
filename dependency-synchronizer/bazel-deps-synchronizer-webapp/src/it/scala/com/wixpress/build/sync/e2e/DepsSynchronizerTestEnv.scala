@@ -19,12 +19,15 @@ object DepsSynchronizerTestEnv {
   wiremock.alwaysReturnSha256Checksums()
 
   val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Packaging("pom"))
-  val fakeRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
+  val fwLeafCoordinates: Coordinates = Coordinates("some-group", "fw-leaf-artifact", "some-version", packaging = Packaging("pom"))
+  val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
+  val fakeServerInfraRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
   private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents)
   private val mainService = BootstrapManagedService(BazelMavenSynchronizerServer)
   val gitUsername = "builduser"
   val gitUserEmail = "builduser@ci.com"
-  val buildTypeID = "100x"
+  val thirdPartySyncbuildTypeID = "100x"
+  val fwSyncbuildTypeID = "200x"
 
   object E2EConfigurer extends Configurer {
 
@@ -33,11 +36,14 @@ object DepsSynchronizerTestEnv {
       val mutator: BazelMavenSynchronizerConfig => BazelMavenSynchronizerConfig = (config: BazelMavenSynchronizerConfig) => {
         config.copy(
           dependencyManagementArtifact = dependencyManagerArtifact.serialized,
-          dependencyManagementArtifactBuildTypeId = buildTypeID,
+          dependencyManagementArtifactBuildTypeId = thirdPartySyncbuildTypeID,
+          frameworkLeafArtifact = fwLeafCoordinates.serialized,
+          frameworkLeafArtifactBuildTypeId = fwSyncbuildTypeID,
           mavenRemoteRepositoryURL = List(fakeMavenRepository.url),
           artifactoryUrl = s"localhost:${WireMockTestSupport.wireMockPort}",
           git = config.git.copy(
-            targetRepoURL = fakeRemoteRepository.remoteURI,
+            managedDepsRepoURL = fakeManagedDepsRemoteRepository.remoteURI,
+            serverInfraRepoURL = fakeServerInfraRemoteRepository.remoteURI,
             username = gitUsername,
             email = gitUserEmail
           )

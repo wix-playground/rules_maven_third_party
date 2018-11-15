@@ -1,22 +1,26 @@
 package com.wix.build.sync
 
+import java.io.InputStream
+
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.wix.bazel.migrator.model.SourceModule
 import com.wix.build.bazel.BazelRepository
-import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates}
+import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
 import com.wix.ci.greyhound.events.BuildFinished
 import com.wix.greyhound.producer.ProduceTarget
 import com.wix.greyhound.producer.builder.GreyhoundResilientProducer
 import org.slf4j.LoggerFactory
 
-class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
+class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpdateHandler,
+                              frameworkGAUpdateHandler: FrameworkGAUpdateHandler,
                               producerToSynchronizedTopic: GreyhoundResilientProducer,
-                              bazelRepository: BazelRepository,
-                              mavenRemoteRepositoryURL: List[String],
-                              dependenciesRemoteStorage: DependenciesRemoteStorage) {
+                              dependencyManagementArtifactBuildTypeId: String) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def handleMessageFromCI(message: BuildFinished): Unit = {
-    
+
     logger.info(s"Got message: $message")
     producerToSynchronizedTopic.produce(message, ProduceTarget.toKey("key"))
   }
@@ -24,9 +28,24 @@ class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
   def handleMessageFromSynchronizedTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized message $message")
 
+    if (message.buildConfigId == dependencyManagementArtifactBuildTypeId) {
+      managedDependenciesUpdate.run
+    } else {
+      frameworkGAUpdateHandler.run(message.version)
+    }
+  }
+}
+
+class ManagedDependenciesUpdateHandler(dependencyManagementArtifact: Coordinates,
+                                       managedDepsBazelRepository: BazelRepository,
+                                       mavenRemoteRepositoryURL: List[String],
+                                       dependenciesRemoteStorage: DependenciesRemoteStorage) {
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
+  def run = {
     // resolver has to be re-instantiated on each update, in order to get non-cached version of managed deps snapshot
     val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
-    val synchronizer = new BazelMavenSynchronizer(resolver, bazelRepository, dependenciesRemoteStorage)
+    val synchronizer = new BazelMavenSynchronizer(resolver, managedDepsBazelRepository, dependenciesRemoteStorage)
 
     val managedDependencies = resolver.managedDependenciesOf(dependencyManagementArtifact)
 
@@ -37,5 +56,43 @@ class DependencyUpdateHandler(dependencyManagementArtifact: Coordinates,
       dependencies = managedDependencies
     )
   }
+}
 
+class FrameworkGAUpdateHandler(serverInfraBazelRepository: BazelRepository,
+                               managedDepsBazelRepository: BazelRepository,
+                               dependencyManagementArtifact: Coordinates,
+                               mavenRemoteRepositoryURL: List[String],
+                               dependenciesRemoteStorage: DependenciesRemoteStorage,
+                               fwLeafMavenCoordinates: String) {
+  def run(currentBuildVersion: String) = {
+    val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
+
+    val fwLeafDependencies = Set(toDependency(Coordinates.deserialize(fwLeafMavenCoordinates).copy(version = currentBuildVersion)))
+
+    val serverInfraModules: Set[Coordinates] = readPreLoadedServerInfraCoordinates
+
+    val synchronizer = new UserAddedDepsDiffSynchronizer(serverInfraBazelRepository,
+      managedDepsBazelRepository,
+      dependencyManagementArtifact,
+      resolver,
+      dependenciesRemoteStorage,
+      serverInfraModules.map(c => SourceModule("", c))
+    )
+
+    synchronizer.syncThirdParties(fwLeafDependencies)
+  }
+
+  private def readPreLoadedServerInfraCoordinates = {
+    val stream: InputStream = getClass.getResourceAsStream(s"/server-infra-coordinates.json")
+    val coordinates = scala.io.Source.fromInputStream(stream).mkString
+
+    val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    mapper.readValue(coordinates, classOf[Array[Coordinates]]).toSet
+  }
+
+  private def toDependency(coordinates: Coordinates): Dependency = {
+    // scope here is of no importance as it is used on third_party and workspace only
+    Dependency(coordinates, MavenScope.Compile)
+  }
 }

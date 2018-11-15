@@ -15,8 +15,6 @@ import org.specs2.specification.Scope
 class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSupport with GlobalTestEnvSupport {
   sequential
 
-  case class UpdateMessage(artifact: String, timestamp: Long)
-
   private val baseDepsManagementArtifact = anArtifact(
     coordinates = dependencyManagerArtifact
   )
@@ -24,11 +22,11 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   private val someCoordinates = Coordinates("com.wix.example", "some-artifact", "someVersion")
   private val otherCoordinates: Coordinates = someCoordinates.copy(groupId = "other-group")
 
-  private def produceMessageAbout(coordinates: Coordinates): Unit = {
+  def produceMessageAboutManagedDepsChange(coordinates: Coordinates): Unit = {
     val producer = ProducerMaker.aProducer().buffered.ordered.build
     val buildFinishedMessage = BuildFinished(
       buildRunId = "dont-care",
-      buildConfigId = DepsSynchronizerTestEnv.buildTypeID,
+      buildConfigId = DepsSynchronizerTestEnv.thirdPartySyncbuildTypeID,
       buildServerId = "dont-care",
       version = "dont-care",
       isSuccessful = true
@@ -41,13 +39,13 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
     "given pom, with new dependency X, was updated in dependency source," >> {
       "when notification was received about it," should {
         "add dependency X to target bazel repository and push to source control" in new ctx {
-          val updatedDependencyManagementArtifact = manage(someCoordinates)
+          manage(someCoordinates)
 
-          produceMessageAbout(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
 
 
           eventually {
-            fakeRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
+            fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
           }
         }
       }
@@ -58,14 +56,14 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
         "add both dependency X and dependency Y to target bazel repository" in new ctx {
           val updatedDependencyManagementArtifact = manage(someCoordinates)
 
-          produceMessageAbout(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
 
           manage(otherCoordinates)
 
-          produceMessageAbout(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
 
           eventually {
-            fakeRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)
+            fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)
           }
         }
       }
@@ -81,7 +79,6 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
       val artifactAsDependency = Dependency(coordinates, MavenScope.Compile)
       val updatedDependencyManagementArtifact = baseDepsManagementArtifact.withManagedDependency(artifactAsDependency)
       fakeMavenRepository.addArtifacts(artifact, updatedDependencyManagementArtifact)
-      updatedDependencyManagementArtifact
     }
   }
 

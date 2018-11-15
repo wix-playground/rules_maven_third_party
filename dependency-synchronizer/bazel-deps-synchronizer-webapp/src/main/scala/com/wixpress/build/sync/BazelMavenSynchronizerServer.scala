@@ -28,19 +28,6 @@ class SynchronizerConfiguration {
   private val synchronizedTopic = s"${ciTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
 
   @Bean
-  def bazelRepository(artifactAwareCacheFolder: CacheFolder): BazelRepository = {
-    val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "clone"
-    val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
-
-    new GitBazelRepository(
-      configuration.git.targetRepoURL,
-      checkoutDirectory,
-      configuration.git.username,
-      configuration.git.email
-    )(authenticationWithToken)
-  }
-
-  @Bean
   def producerToSynchronizedTopic(producers: Producers, resilientMaker: ResilientProducerMaker): GreyhoundResilientProducer = {
     initTopics()
     val producer = resilientMaker.withTopic(synchronizedTopic).ordered.build
@@ -49,19 +36,60 @@ class SynchronizerConfiguration {
   }
 
   private def messageFilter = (buildFinished: BuildFinished) => {
-    buildFinished.isSuccessful && buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
+    buildFinished.isSuccessful &&
+      (buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
+        || buildFinished.buildConfigId == configuration.frameworkLeafArtifactBuildTypeId)
   }
 
   @Bean
   def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundResilientProducer,
-                                          bazelRepository: BazelRepository): DependencyUpdateHandler = {
+                                          artifactAwareCacheFolder: CacheFolder): DependencyUpdateHandler = {
+    val managedDepsBazelRepository: BazelRepository = {
+      val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "managed_deps_clone"
+      val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
+
+      new GitBazelRepository(
+        configuration.git.managedDepsRepoURL,
+        checkoutDirectory,
+        configuration.git.username,
+        configuration.git.email
+      )(authenticationWithToken)
+    }
+
+    val serverInfraBazelRepository: BazelRepository = {
+      val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "fw_ga_clone"
+      val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
+
+      new GitBazelRepository(
+        configuration.git.serverInfraRepoURL,
+        checkoutDirectory,
+        configuration.git.username,
+        configuration.git.email
+      )(authenticationWithToken)
+    }
+
+
     val storage = new StaticDependenciesRemoteStorage(new ArtifactoryRemoteStorage(configuration.artifactoryUrl, configuration.artifactoryToken))
-    new DependencyUpdateHandler(
-      dependencyManagementArtifact,
-      producerToSynchronizedTopic,
-      bazelRepository,
+
+    val managedDependenciesUpdateHandler = new ManagedDependenciesUpdateHandler(dependencyManagementArtifact,
+      managedDepsBazelRepository,
       configuration.mavenRemoteRepositoryURL,
-      storage)
+      storage
+    )
+
+    val  frameworkGAUpdateHandler= new FrameworkGAUpdateHandler(serverInfraBazelRepository,
+      managedDepsBazelRepository,
+      dependencyManagementArtifact,
+      configuration.mavenRemoteRepositoryURL,
+      storage,
+      configuration.frameworkLeafArtifact)
+
+
+    new DependencyUpdateHandler(
+      managedDependenciesUpdateHandler,
+      frameworkGAUpdateHandler,
+      producerToSynchronizedTopic,
+      configuration.dependencyManagementArtifactBuildTypeId)
   }
 
   @Autowired
