@@ -63,7 +63,8 @@ class FrameworkGAUpdateHandler(serverInfraBazelRepository: BazelRepository,
                                dependencyManagementArtifact: Coordinates,
                                mavenRemoteRepositoryURL: List[String],
                                dependenciesRemoteStorage: DependenciesRemoteStorage,
-                               fwLeafMavenCoordinates: String) {
+                               fwLeafMavenCoordinates: String,
+                               randomString: => String) {
   def run(currentBuildVersion: String) = {
     val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
 
@@ -76,7 +77,8 @@ class FrameworkGAUpdateHandler(serverInfraBazelRepository: BazelRepository,
       dependencyManagementArtifact,
       resolver,
       dependenciesRemoteStorage,
-      serverInfraModules.map(c => SourceModule("", c))
+      serverInfraModules.map(c => SourceModule("", c)),
+      randomString
     )
 
     synchronizer.syncThirdParties(fwLeafDependencies)

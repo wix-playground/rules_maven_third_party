@@ -18,10 +18,12 @@ object DepsSynchronizerTestEnv {
   val wiremock = new WireMockManagedService
   wiremock.alwaysReturnSha256Checksums()
 
+  val newBranchSuffix = "someSuffix"
+  val userAddedDepsBranchName = s"user_added_3rd_party_deps_$newBranchSuffix"
   val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Packaging("pom"))
   val fwLeafCoordinates: Coordinates = Coordinates("some-group", "fw-leaf-artifact", "some-version", packaging = Packaging("pom"))
-  val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
-  val fakeServerInfraRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository
+  val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository()
+  val fakeServerInfraRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository(userAddedDepsBranchName)
   private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents)
   private val mainService = BootstrapManagedService(BazelMavenSynchronizerServer)
   val gitUsername = "builduser"
@@ -46,7 +48,8 @@ object DepsSynchronizerTestEnv {
             serverInfraRepoURL = fakeServerInfraRemoteRepository.remoteURI,
             username = gitUsername,
             email = gitUserEmail
-          )
+          ),
+          branchSuffix = newBranchSuffix
         )
       }
       TestConfigFactory.aTestEnvironmentFor[BazelMavenSynchronizerConfig](

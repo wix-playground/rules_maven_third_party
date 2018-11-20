@@ -46,15 +46,15 @@ class FrameworkGASynchronizerE2E extends SpecificationWithJUnit with GreyhoundTe
           produceMessageAbout(Some(newVersion))
 
           eventually {
-            fakeServerInfraRemoteRepository must haveWorkspaceRuleFor(someFWModuleCoordinates)
+            fakeServerInfraRemoteRepository must haveWorkspaceRuleFor(someFWModuleCoordinates, userAddedDepsBranchName)
           }
         }
       }
     }
   }
 
-  def haveWorkspaceRuleFor(someCoordinates: Coordinates): Matcher[FakeRemoteRepository] =
-    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates))
+  def haveWorkspaceRuleFor(someCoordinates: Coordinates, forBranch: String): Matcher[FakeRemoteRepository] =
+    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates, forBranch))
 
   trait ctx extends Scope {
     val baseDepsManagementArtifact = anArtifact(

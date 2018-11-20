@@ -14,7 +14,8 @@ case class BazelMavenSynchronizerConfig(
                                          mavenRemoteRepositoryURL: List[String],
                                          artifactoryUrl: String,
                                          artifactoryToken: String,
-                                         git: GitSettings
+                                         git: GitSettings,
+                                         branchSuffix: String,
                                        )
 
 case class GitSettings(

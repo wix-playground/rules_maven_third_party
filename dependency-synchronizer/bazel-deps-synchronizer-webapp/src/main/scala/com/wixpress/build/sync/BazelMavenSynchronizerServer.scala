@@ -1,5 +1,7 @@
 package com.wix.build.sync
 
+import java.util.UUID
+
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
 import com.wix.build.bazel.{BazelRepository, GitAuthenticationWithToken, GitBazelRepository}
@@ -82,7 +84,9 @@ class SynchronizerConfiguration {
       dependencyManagementArtifact,
       configuration.mavenRemoteRepositoryURL,
       storage,
-      configuration.frameworkLeafArtifact)
+      configuration.frameworkLeafArtifact,
+      resolveBranchSuffix
+    )
 
 
     new DependencyUpdateHandler(
@@ -90,6 +94,13 @@ class SynchronizerConfiguration {
       frameworkGAUpdateHandler,
       producerToSynchronizedTopic,
       configuration.dependencyManagementArtifactBuildTypeId)
+  }
+
+  private def resolveBranchSuffix = {
+    if (configuration.branchSuffix.isEmpty)
+      UUID.randomUUID().toString
+    else
+      configuration.branchSuffix
   }
 
   @Autowired
