@@ -18,10 +18,6 @@ class FrameworkGASynchronizerE2E extends SpecificationWithJUnit with GreyhoundTe
 
   val newVersion = "new-version"
 
-  private val fwLeafArtifact = anArtifact(
-    coordinates = fwLeafCoordinates.copy(version = newVersion)
-  )
-
   private val someFWModuleCoordinates = Coordinates("com.wix.example", "some-fw-artifact", "someVersion")
 
   def produceMessageAbout(currentVersion: Option[String] = None): Unit = {
