@@ -4,7 +4,8 @@ import com.wix.build.maven.ArtifactDescriptor._
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven._
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
-import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
+import com.wix.ci.buildserver.BuildServerId
+import com.wix.ci.greyhound.events.{GATriggeredEvent, Lifecycle}
 import com.wix.framework.test.env.{GlobalTestEnvSupport, TestEnv}
 import com.wix.greyhound.GreyhoundTestingSupport
 import com.wix.greyhound.producer.builder.ProducerMaker
@@ -22,15 +23,17 @@ class FrameworkGASynchronizerE2E extends SpecificationWithJUnit with GreyhoundTe
 
   def produceMessageAbout(currentVersion: Option[String] = None): Unit = {
     val producer = ProducerMaker.aProducer().buffered.ordered.build
-    val buildFinishedMessage = BuildFinished(
-      buildRunId = "dont-care",
-      buildConfigId = DepsSynchronizerTestEnv.fwSyncbuildTypeID,
-      buildServerId = "dont-care",
+    val promotedGaMessage = GATriggeredEvent(
+      buildName = "dont-care",
+      buildTypeId = DepsSynchronizerTestEnv.fwSyncbuildTypeID,
+      buildServerId = BuildServerId.JVM_CI,
       version = currentVersion.fold("dont-care")(v => v),
-      isSuccessful = true
+      comment = "dont-care",
+      user = "dont-care",
+      email = "dont-care"
     )
 
-    producer.produceToTopic(TeamcityTopic.TeamcityEvents, buildFinishedMessage)
+    producer.produceToTopic(Lifecycle.lifecycleGaTopic, promotedGaMessage)
   }
 
   "Bazel-Maven Deps Synchronizer," >> {

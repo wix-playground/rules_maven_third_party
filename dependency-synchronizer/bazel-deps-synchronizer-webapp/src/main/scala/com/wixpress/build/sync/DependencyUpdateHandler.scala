@@ -7,32 +7,36 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.wix.bazel.migrator.model.SourceModule
 import com.wix.build.bazel.BazelRepository
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
-import com.wix.ci.greyhound.events.BuildFinished
+import com.wix.ci.greyhound.events.{BuildFinished, GATriggeredEvent}
 import com.wix.greyhound.producer.ProduceTarget
 import com.wix.greyhound.producer.builder.GreyhoundResilientProducer
 import org.slf4j.LoggerFactory
 
 class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpdateHandler,
                               frameworkGAUpdateHandler: FrameworkGAUpdateHandler,
-                              producerToSynchronizedTopic: GreyhoundResilientProducer,
-                              dependencyManagementArtifactBuildTypeId: String) {
+                              producerToSynchronizedManagedDepsTopic: GreyhoundResilientProducer,
+                              producerToSynchronizedFrameworkLeafTopic: GreyhoundResilientProducer) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def handleMessageFromCI(message: BuildFinished): Unit = {
-
-    logger.info(s"Got message: $message")
-    producerToSynchronizedTopic.produce(message, ProduceTarget.toKey("key"))
+  def handleBuildMessage(message: BuildFinished): Unit = {
+    logger.info(s"Got Build message: $message")
+    producerToSynchronizedManagedDepsTopic.produce(message, ProduceTarget.toKey("key"))
   }
 
-  def handleMessageFromSynchronizedTopic(message: BuildFinished): Unit = {
-    logger.info(s"Got synchronized message $message")
+  def handleMessageFromSynchronizedManagedDepsTopic(message: BuildFinished): Unit = {
+    logger.info(s"Got synchronized ManagedDeps message $message")
+    managedDependenciesUpdate.run
+  }
 
-    if (message.buildConfigId == dependencyManagementArtifactBuildTypeId) {
-      managedDependenciesUpdate.run
-    } else {
-      frameworkGAUpdateHandler.run(message.version)
-    }
+  def handleGAMessage(message: GATriggeredEvent): Unit = {
+    logger.info(s"Got GA message: $message")
+    producerToSynchronizedFrameworkLeafTopic.produce(message, ProduceTarget.toKey("key"))
+  }
+
+  def handleMessageFromSynchronizedFrameworkLeafTopic(message: GATriggeredEvent): Unit = {
+    logger.info(s"Got synchronized FrameworkLeaf message $message")
+    frameworkGAUpdateHandler.run(message.version)
   }
 }
 

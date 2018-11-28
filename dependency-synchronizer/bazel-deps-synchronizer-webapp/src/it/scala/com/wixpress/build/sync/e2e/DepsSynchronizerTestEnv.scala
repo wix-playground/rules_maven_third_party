@@ -5,7 +5,7 @@ import com.wix.e2e.PortRandomizer
 import com.wix.e2e.http.Implicits.DefaultBaseUri
 import com.wix.build.maven.{Coordinates, FakeMavenRepository, Packaging}
 import com.wix.build.sync.{BazelMavenSynchronizerConfig, BazelMavenSynchronizerServer}
-import com.wix.ci.greyhound.events.TeamcityTopic
+import com.wix.ci.greyhound.events.{Lifecycle, TeamcityTopic}
 import com.wix.framework.petri.PetriTestkit
 import com.wix.framework.test.env.{Configurer, TestEnv, TestEnvBuilder}
 import com.wix.greyhound.KafkaManagedService
@@ -24,7 +24,7 @@ object DepsSynchronizerTestEnv {
   val fwLeafCoordinates: Coordinates = Coordinates("some-group", "fw-leaf-artifact", "some-version", packaging = Packaging("pom"))
   val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository()
   val fakeServerInfraRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository(userAddedDepsBranchName)
-  private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents)
+  private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents, Lifecycle.lifecycleGaTopic)
   private val mainService = BootstrapManagedService(BazelMavenSynchronizerServer)
   val gitUsername = "builduser"
   val gitUserEmail = "builduser@ci.com"

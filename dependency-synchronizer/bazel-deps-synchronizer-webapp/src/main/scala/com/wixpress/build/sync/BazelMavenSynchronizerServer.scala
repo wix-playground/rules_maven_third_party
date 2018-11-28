@@ -6,7 +6,7 @@ import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
 import com.wix.build.bazel.{BazelRepository, GitAuthenticationWithToken, GitBazelRepository}
 import com.wix.build.maven.Coordinates
-import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
+import com.wix.ci.greyhound.events.{BuildFinished, GATriggeredEvent, Lifecycle, TeamcityTopic}
 import com.wix.framework.cache.disk.CacheFolder
 import com.wix.framework.cache.spring.CacheFolderConfig
 import com.wix.framework.spring.JsonRpcServerConfiguration
@@ -25,27 +25,35 @@ object BazelMavenSynchronizerServer extends BootstrapServer {
 class SynchronizerConfiguration {
   
   private val configuration = BazelMavenSynchronizerConfig.root
-  private val ciTopic = TeamcityTopic.TeamcityEvents
+
+  private val buildTopic = TeamcityTopic.TeamcityEvents
+  private val gaTopic = Lifecycle.lifecycleGaTopic
+
   private val dependencyManagementArtifact: Coordinates = Coordinates.deserialize(configuration.dependencyManagementArtifact)
-  private val synchronizedTopic = s"${ciTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
+  private val frameworkLeafArtifact: Coordinates = Coordinates.deserialize(configuration.frameworkLeafArtifact)
 
-  @Bean
-  def producerToSynchronizedTopic(producers: Producers, resilientMaker: ResilientProducerMaker): GreyhoundResilientProducer = {
-    initTopics()
-    val producer = resilientMaker.withTopic(synchronizedTopic).ordered.build
-    producers.add(producer)
-    producer
-  }
+  private val synchronizedManagedDepsTopic = s"${buildTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
+  private val synchronizedFrameworkLeafTopic = s"${gaTopic}_${frameworkLeafArtifact.serialized.replace(":", "_")}"
 
-  private def messageFilter = (buildFinished: BuildFinished) => {
+  private def buildFinishedMessage= (buildFinished: BuildFinished) => {
     buildFinished.isSuccessful &&
-      (buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
-        || buildFinished.buildConfigId == configuration.frameworkLeafArtifactBuildTypeId)
+      buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
+  }
+
+  private def gaTriggeredMessage= (gaTriggered: GATriggeredEvent) => {
+    gaTriggered.buildTypeId == configuration.frameworkLeafArtifactBuildTypeId
   }
 
   @Bean
-  def synchronizedDependencyUpdateHandler(producerToSynchronizedTopic: GreyhoundResilientProducer,
+  def synchronizedDependencyUpdateHandler(producers: Producers, resilientMaker: ResilientProducerMaker,
                                           artifactAwareCacheFolder: CacheFolder): DependencyUpdateHandler = {
+    initTopics()
+    val managedDepsProducer = resilientMaker.withTopic(synchronizedManagedDepsTopic).ordered.build
+    producers.add(managedDepsProducer)
+
+    val fwLeafProducer = resilientMaker.withTopic(synchronizedFrameworkLeafTopic).ordered.build
+    producers.add(fwLeafProducer)
+
     val managedDepsBazelRepository: BazelRepository = {
       val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "managed_deps_clone"
       val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
@@ -91,8 +99,8 @@ class SynchronizerConfiguration {
     new DependencyUpdateHandler(
       managedDependenciesUpdateHandler,
       frameworkGAUpdateHandler,
-      producerToSynchronizedTopic,
-      configuration.dependencyManagementArtifactBuildTypeId)
+      managedDepsProducer,
+      fwLeafProducer)
   }
 
   private def resolveBranchSuffix = {
@@ -107,31 +115,61 @@ class SynchronizerConfiguration {
                    dependencyUpdateHandler: DependencyUpdateHandler): Unit = {
     initTopics()
 
-    val ciMessageHandler = MessageHandler
-      .aMessageHandler[BuildFinished](dependencyUpdateHandler.handleMessageFromCI)
-      .withMapper(JsonMapper.global)
-      .withFilter(messageFilter)
-      .build
-    val ciMessageConsumer = GreyhoundConsumerSpec
-      .aGreyhoundConsumerSpec(ciTopic, ciMessageHandler)
-      .withGroup("bazel")
+    setManagedDepsSyncMessagesConsumers(consumers, dependencyUpdateHandler)
+    setFrameworkLeafSyncConsumers(consumers, dependencyUpdateHandler)
+  }
 
-    val synchronizeHandler = MessageHandler
-      .aMessageHandler[BuildFinished](dependencyUpdateHandler.handleMessageFromSynchronizedTopic)
+  private def setFrameworkLeafSyncConsumers(consumers: Consumers, dependencyUpdateHandler: DependencyUpdateHandler) = {
+    val gaMessageHandler = MessageHandler
+      .aMessageHandler[GATriggeredEvent](dependencyUpdateHandler.handleGAMessage)
+      .withMapper(JsonMapper.global)
+      .withFilter(gaTriggeredMessage)
+      .build
+    val gaMessageConsumer = GreyhoundConsumerSpec
+      .aGreyhoundConsumerSpec(gaTopic, gaMessageHandler)
+      .withGroup("bazel-ga")
+
+    val synchronizeFrameworkLeafHandler = MessageHandler
+      .aMessageHandler[GATriggeredEvent](dependencyUpdateHandler.handleMessageFromSynchronizedFrameworkLeafTopic)
       .withMapper(JsonMapper.global)
       .build
-    val synchronizeMessageConsumer = GreyhoundConsumerSpec
-      .aGreyhoundConsumerSpec(synchronizedTopic, synchronizeHandler)
-      .withGroup("deps-synchronizer")
+    val synchronizeFrameworkLeafMessageConsumer = GreyhoundConsumerSpec
+      .aGreyhoundConsumerSpec(synchronizedFrameworkLeafTopic, synchronizeFrameworkLeafHandler)
+      .withGroup("fw-leaf-synchronizer")
       .withMaxParallelism(1)
 
-    consumers.add(ciMessageConsumer)
-    consumers.add(synchronizeMessageConsumer)
+    consumers.add(gaMessageConsumer)
+    consumers.add(synchronizeFrameworkLeafMessageConsumer)
   }
 
   private def initTopics(): Unit = {
     val kafkaAdmin = new KafkaGreyhoundAdmin()
-    kafkaAdmin.createTopicIfNotExists(ciTopic)
-    kafkaAdmin.createTopicIfNotExists(synchronizedTopic, partitions = 1)
+    kafkaAdmin.createTopicIfNotExists(buildTopic)
+    kafkaAdmin.createTopicIfNotExists(gaTopic)
+    kafkaAdmin.createTopicIfNotExists(synchronizedManagedDepsTopic, partitions = 1)
+    kafkaAdmin.createTopicIfNotExists(synchronizedFrameworkLeafTopic, partitions = 1)
+  }
+
+  private def setManagedDepsSyncMessagesConsumers(consumers: Consumers,
+                                          dependencyUpdateHandler: DependencyUpdateHandler) = {
+    val buildMessageHandler = MessageHandler
+      .aMessageHandler[BuildFinished](dependencyUpdateHandler.handleBuildMessage)
+      .withMapper(JsonMapper.global)
+      .withFilter(buildFinishedMessage)
+      .build
+    val buildMessageConsumer = GreyhoundConsumerSpec
+      .aGreyhoundConsumerSpec(buildTopic, buildMessageHandler)
+      .withGroup("bazel-build")
+
+    val synchronizeManagedDepsHandler = MessageHandler
+      .aMessageHandler[BuildFinished](dependencyUpdateHandler.handleMessageFromSynchronizedManagedDepsTopic)
+      .withMapper(JsonMapper.global)
+      .build
+    val synchronizeManagedDepsMessageConsumer = GreyhoundConsumerSpec
+      .aGreyhoundConsumerSpec(synchronizedManagedDepsTopic, synchronizeManagedDepsHandler)
+      .withGroup("managed-deps-synchronizer")
+      .withMaxParallelism(1)
+    consumers.add(buildMessageConsumer)
+    consumers.add(synchronizeManagedDepsMessageConsumer)
   }
 }
