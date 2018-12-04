@@ -36,7 +36,7 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
 
   def handleMessageFromSynchronizedFrameworkLeafTopic(message: GATriggeredEvent): Unit = {
     logger.info(s"Got synchronized FrameworkLeaf message $message")
-    frameworkGAUpdateHandler.run(message.version)
+    frameworkGAUpdateHandler.run(message.version + "-SNAPSHOT")
   }
 }
 

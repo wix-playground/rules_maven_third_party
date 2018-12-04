@@ -40,7 +40,7 @@ class FrameworkGASynchronizerE2E extends SpecificationWithJUnit with GreyhoundTe
     "given pom, with new dependency X, was updated in dependency source," >> {
       "when notification was received about it," should {
         "add dependency X to target bazel repository and push to source control" in new ctx {
-          addDep(someFWModuleCoordinates, fwLeafCoordinates.copy(version = newVersion))
+          addDep(someFWModuleCoordinates, fwLeafCoordinates.copy(version = newVersion + "-SNAPSHOT"))
 
           produceMessageAbout(Some(newVersion))
 
