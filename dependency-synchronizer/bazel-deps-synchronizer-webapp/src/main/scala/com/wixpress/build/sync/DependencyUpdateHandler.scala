@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.wix.bazel.migrator.model.SourceModule
 import com.wix.build.bazel.BazelRepository
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
-import com.wix.ci.greyhound.events.{BuildFinished, GATriggeredEvent}
+import com.wix.ci.greyhound.events.{BasePromote, BuildFinished, GATriggeredEvent}
 import com.wix.greyhound.producer.ProduceTarget
 import com.wix.greyhound.producer.builder.GreyhoundResilientProducer
 import org.slf4j.LoggerFactory
@@ -29,9 +29,12 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
     managedDependenciesUpdate.run
   }
 
-  def handleGAMessage(message: GATriggeredEvent): Unit = {
-    logger.info(s"Got GA message: $message")
-    producerToSynchronizedFrameworkLeafTopic.produce(message, ProduceTarget.toKey("key"))
+  def handleGAMessage(message: BasePromote): Unit = {
+    message match {
+      case gaMessage: GATriggeredEvent =>logger.info(s"Got GA message: $gaMessage")
+        producerToSynchronizedFrameworkLeafTopic.produce(gaMessage, ProduceTarget.toKey("key"))
+      case _ =>
+    }
   }
 
   def handleMessageFromSynchronizedFrameworkLeafTopic(message: GATriggeredEvent): Unit = {

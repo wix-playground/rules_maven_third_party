@@ -124,7 +124,7 @@ class SynchronizerConfiguration {
 
   private def setFrameworkLeafSyncConsumers(consumers: Consumers, dependencyUpdateHandler: DependencyUpdateHandler) = {
     val gaMessageHandler = MessageHandler
-      .aMessageHandler(dependencyUpdateHandler.handleGAMessage)
+      .aMessageHandler[BasePromote](dependencyUpdateHandler.handleGAMessage)
       .withMapper(JsonMapper.global)
       .withFilter(fwGaTriggeredMessage)
       .build
