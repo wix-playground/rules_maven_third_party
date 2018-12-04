@@ -4,19 +4,19 @@ scala_library(
     name = "main_dependencies",
     runtime_deps = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/resources",
-        "@com_newrelic_agent_java_newrelic_agent//jar",
+        "@com_newrelic_agent_java_newrelic_agent",
     ],
     deps = [
         "//dependency-resolver/maven-dependency-resolver:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
         "//third_party/com/wix/iptf:greyhound_clients",
         "//wix-bazel-repositories/bazel-repositories-core:main_dependencies",
-        "@com_wix_ci_domain//jar",
-        "@com_wix_framework_wix_cache_folder//jar",
-        "@com_wix_hoopoe_hoopoe_config//jar",
-        "@com_wix_wix_server_bootstrap//jar",
-        "@javax_servlet_javax_servlet_api//jar",
-        "@org_scala_lang_scala_library//jar",
+        "@com_wix_ci_domain",
+        "@com_wix_framework_wix_cache_folder",
+        "@com_wix_hoopoe_hoopoe_config",
+        "@com_wix_wix_server_bootstrap",
+        "@javax_servlet_javax_servlet_api",
+        "@org_scala_lang_scala_library",
     ],
 )
 
@@ -30,11 +30,11 @@ scala_library(
         "main_dependencies",
         "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
-        "@com_github_tomakehurst_wiremock//jar",
-        "@com_wix_bootstrap_server_testkit//jar",
-        "@com_wix_framework_io_test_kit//jar",
-        "@com_wix_framework_petri_integration_testkit//jar",
-        "@com_wix_iptf_greyhound_testkit//jar",
+        "@com_github_tomakehurst_wiremock",
+        "@com_wix_bootstrap_server_testkit",
+        "@com_wix_framework_io_test_kit",
+        "@com_wix_framework_petri_integration_testkit",
+        "@com_wix_iptf_greyhound_testkit",
     ],
 )
 
