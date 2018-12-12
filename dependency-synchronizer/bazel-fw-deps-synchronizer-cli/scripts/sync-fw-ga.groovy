@@ -52,6 +52,12 @@ pipeline {
         }
         stage('sync-fw-ga') {
             steps {
+                dir("${env.MANAGED_DEPS_REPO_NAME}") {
+                    sh 'rm -rf third_party_fw_snapshots'
+                    sh 'rm third_party_fw_snapshots.bzl'
+                    sh 'touch third_party_fw_snapshots.bzl'
+                    sh 'echo "def fw_snapshot_dependencies():\n" > third_party_fw_snapshots.bzl'
+                }
                 script {
                     sh """|stdbuf -i0 -o0 -e0 \\
                           |   java -Xmx12G \\
@@ -64,7 +70,7 @@ pipeline {
                 dir("${env.MANAGED_DEPS_REPO_NAME}"){
                     sh """|git checkout -b ${env.BRANCH_NAME}
                           |git add .
-                          |git commit --allow-empty -m "GAed FW sync by ${env.BUILD_URL}"
+                          |git commit --allow-empty -m "GAed FW sync by ${env.BUILD_URL} #automerge"
                           |git push origin ${env.BRANCH_NAME}
                           |""".stripMargin()
                 }
