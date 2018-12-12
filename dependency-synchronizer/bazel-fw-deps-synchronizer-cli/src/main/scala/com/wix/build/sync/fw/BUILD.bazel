@@ -1,0 +1,39 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "fw",
+    srcs = [
+        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw:sources",
+    ],
+    runtime_deps = [
+    ],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
+        "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
+        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
+        "//migrator/bazel-migrator-model/src/main/java/com/wix/bazel/migrator/model",
+        "//models/maven-model/src/main/scala/com/wix/build/maven",
+        "//repo-analyzer/maven-repo-analyzer/src/main/java/com/wix/build/maven/analysis",
+        "@com_fasterxml_jackson_core_jackson_annotations",
+        "@com_fasterxml_jackson_core_jackson_core",
+        "@com_fasterxml_jackson_core_jackson_databind",
+        "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
+        "@com_github_pathikrit_better_files_2_12",
+        "@junit_junit",
+        "@org_slf4j_slf4j_api",
+    ],
+)
+
+filegroup(
+    name = "sources",
+    srcs = glob(["*.java"]) + glob(["*.scala"]),
+    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw:__pkg__"],
+)
+
+java_binary(
+    name = "fw_sync_cli",
+    main_class = "com.wix.build.sync.fw.FWDependenciesSynchronizerCli",
+    runtime_deps = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw"],
+)

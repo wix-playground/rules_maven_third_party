@@ -2,7 +2,7 @@ package com.wix.build.sync.e2e
 
 
 import better.files.File
-import com.wix.build.bazel.{BazelLocalWorkspace, BazelRepository, FileSystemBazelLocalWorkspace}
+import com.wix.build.bazel._
 import com.wix.build.maven._
 import com.wix.build.sync.BazelMavenSynchronizer
 
@@ -22,7 +22,7 @@ object TestApp extends App {
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots"))
 
-  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None)
+  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None, ManagedThirdPartyPaths())
   val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Packaging("jar"),Some("tests")),MavenScope.Compile)
   val deps = resolver.dependencyClosureOf(Set(dep),Set.empty)
   println(deps)
@@ -31,7 +31,7 @@ object TestApp extends App {
 
 class MockBazelRepository(local: File) extends BazelRepository {
 
-  override def localWorkspace(branchName: String): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
+  override def localWorkspace(branchName: String, paths: ThirdPartyPaths): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
 
   override def persist(branchName: String, changedFilePaths: Set[String], message: String): Unit = {
     println(s"persisting to branch $branchName files $changedFilePaths")

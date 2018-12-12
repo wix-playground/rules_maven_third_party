@@ -5,7 +5,7 @@ import java.io.InputStream
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.wix.bazel.migrator.model.SourceModule
-import com.wix.build.bazel.BazelRepository
+import com.wix.build.bazel.{BazelRepository, ManagedThirdPartyPaths}
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
 import com.wix.ci.greyhound.events.{BasePromote, BuildFinished, GATriggeredEvent}
 import com.wix.greyhound.producer.ProduceTarget
