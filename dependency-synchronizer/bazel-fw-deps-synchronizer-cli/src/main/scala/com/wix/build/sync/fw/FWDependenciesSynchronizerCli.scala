@@ -2,7 +2,7 @@ package com.wix.build.sync.fw
 
 import better.files.File
 import com.wix.build.bazel.{BazelRepository, FWThirdPartyPaths, NoPersistenceBazelRepository}
-import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
+import com.wix.build.maven._
 import com.wix.build.sync._
 import org.slf4j.LoggerFactory
 
@@ -11,10 +11,8 @@ object FWDependenciesSynchronizerCli extends App {
 
   val parsedArgs = Args.parse(args)
   val fwArtifact = parsedArgs.fwArtifact
-  val version = parsedArgs.version
 
   log.info("fwArtifact: " + fwArtifact)
-  log.info("version: " + version)
 
   val mangaedDepsRepoLocalClone = parsedArgs.managedDepsRepoUrl
 
@@ -31,8 +29,19 @@ object FWDependenciesSynchronizerCli extends App {
 
   private val synchronizer = new BazelMavenSynchronizer(aetherResolver, bazelRepoWithManagedDependencies, dependenciesRemoteStorage, FWThirdPartyPaths())
 
-  private val dependenciesToSync = Set(toDependency(Coordinates.deserialize(fwArtifact).withVersion(version)))
-  synchronizer.sync(ManagedDependenciesArtifact, dependenciesToSync)
+  private val dependenciesToSync = Set(toDependency(Coordinates.deserialize(fwArtifact)))
+
+  val managedDependenciesFromMaven = aetherResolver
+    .managedDependenciesOf(ManagedDependenciesArtifact)
+    .forceCompileScope
+
+  log.info(s"Starting to calculate transitive dep closure for: $fwArtifact")
+
+  private val nodes: Set[DependencyNode] = aetherResolver.dependencyClosureOf(dependenciesToSync, managedDependenciesFromMaven)
+
+  log.info(s"Finished calculating transitive dep closure for: $fwArtifact")
+
+  synchronizer.sync(ManagedDependenciesArtifact, nodes.map(_.baseDependency))
 
   private def toDependency(coordinates: Coordinates): Dependency = {
     // scope here is of no importance as it is used on third_party and workspace only
@@ -42,12 +51,10 @@ object FWDependenciesSynchronizerCli extends App {
 
 case class Args(mavenRemoteRepositoryURL: List[String],
                 managedDepsRepoUrl: String,
-                fwArtifact: String, version: String)
+                fwArtifact: String)
 
 object Args {
   private val RepoFlag = "--binary-repo"
-  private val fwArtifactFlag = "--fw_dep"
-  private val versionFlag = "--version"
   //TODO: move to wix-maven-resolver module
   private val wixRepos = List(
     "http://repo.example.com:80/artifactory/libs-releases",
@@ -58,15 +65,15 @@ object Args {
   val managedDepsRepoUrl = ""
 
   private val Usage =
-    """Usage: DependencySynchronizer [--repo remoteRepoUrl] localRoot addedDependencies
-      |addedDependencies format example: com.example:artifact-a:1.0.0,com.example:artifact-b:2.0.0
+    """Usage: DependencySynchronizer [--binary-repo remoteRepoUrl] --managed_deps_repo managedDepsRepoLocalPath fw-leaf-artifact
+      |for example: --managed_deps_repo /path/to/managed/deps/repo com.wix.common:wix-framework-leaf:pom:1.0.0-SNAPSHOT
     """.stripMargin
 
 
   // consider moving to scopt.OptionParser!!!
   def parse(args: Array[String]): Args = args match {
-    case Array(RepoFlag, remoteRepoUrl, managedDepsRepoFlag, managedDepsRepoUrl, repofwArtifactFlag, fwArtifact, versionFlag, version) => Args(List(remoteRepoUrl), managedDepsRepoUrl, fwArtifact, version)
-    case Array(managedDepsRepoFlag, managedDepsRepoUrl, repofwArtifactFlag, fwArtifact, versionFlag, version) => Args(wixRepos, managedDepsRepoUrl, fwArtifact, version)
+    case Array(RepoFlag, remoteRepoUrl, managedDepsRepoFlag, managedDepsRepoUrl, fwArtifact) => Args(List(remoteRepoUrl), managedDepsRepoUrl, fwArtifact)
+    case Array(managedDepsRepoFlag, managedDepsRepoUrl, fwArtifact) => Args(wixRepos, managedDepsRepoUrl, fwArtifact)
     case _ => throw new IllegalArgumentException(Usage)
   }
 }
