@@ -1,7 +1,7 @@
 package com.wix.build.sync.fw
 
 import better.files.File
-import com.wix.build.bazel.{BazelRepository, FWThirdPartyPaths, NoPersistenceBazelRepository}
+import com.wix.build.bazel._
 import com.wix.build.maven._
 import com.wix.build.sync._
 import org.slf4j.LoggerFactory
@@ -41,11 +41,20 @@ object FWDependenciesSynchronizerCli extends App {
 
   log.info(s"Finished calculating transitive dep closure for: $fwArtifact")
 
-  synchronizer.sync(ManagedDependenciesArtifact, nodes.map(_.baseDependency))
+  val nodesToUpdate = synchronizer.calcDepNodesToSync(ManagedDependenciesArtifact, nodes.map(_.baseDependency))
+  val filteredNodes = filterNotThirdPartyArtifacts(nodesToUpdate)
+  synchronizer.persist(filteredNodes)
 
   private def toDependency(coordinates: Coordinates): Dependency = {
     // scope here is of no importance as it is used on third_party and workspace only
     Dependency(coordinates, MavenScope.Compile)
+  }
+
+  private def filterNotThirdPartyArtifacts(nodesToUpdate: Set[DependencyNode]) = {
+    val localWorkspace: BazelLocalWorkspace = bazelRepoWithManagedDependencies.localWorkspace("master")
+    val thirdPartyDependenciesFromBazel = new BazelDependenciesReader(localWorkspace).allDependenciesAsMavenDependencies()
+
+    nodesToUpdate.filterNot(n => thirdPartyDependenciesFromBazel.exists(t => t.equalsOnCoordinatesIgnoringVersion(n.baseDependency)))
   }
 }
 

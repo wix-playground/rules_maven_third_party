@@ -4,7 +4,7 @@ import java.nio.file.Files
 
 import better.files.File
 import com.wix.build.BazelWorkspaceDriver
-import com.wix.build.BazelWorkspaceDriver.{BazelWorkspaceDriverExtensions, includeImportExternalTargetWith}
+import com.wix.build.BazelWorkspaceDriver._
 import com.wix.build.bazel.{FWThirdPartyPaths, FileSystemBazelLocalWorkspace}
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven.{Coordinates, _}
@@ -35,13 +35,28 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB.withVersion("another-version")))
 
-      managedDepsWorkspace.hasDependencies(DependencyNode(dependencyA, Set(dependencyB)))
+      managedDepsFWWorkspace.hasDependencies(DependencyNode(dependencyA, Set(dependencyB)))
 
       val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, artifactA.serialized)
       FWDependenciesSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
       targetRepo must includeImportExternalTargetWith(artifactB.withVersion("another-version"))
+    }
+
+    "filter out third_party deps" in new basicCtx {
+      val dependencyA = asCompileDependency(artifactA)
+      val dependencyB = asCompileDependency(artifactB)
+
+      givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB.withVersion("another-version")))
+
+      managedDepsWorkspace.hasDependencies(aRootDependencyNode(dependencyB))
+
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, artifactA.serialized)
+      FWDependenciesSynchronizerCli.main(args)
+
+      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB.withVersion("another-version"))
     }
   }
 
@@ -56,22 +71,14 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
     val managedDepsWorkspaceRepo = Files.createTempDirectory("managed-deps")
     val managedDepsRepoPath = File(managedDepsWorkspaceRepo)
-    val managedDepsWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath, FWThirdPartyPaths())
+    val managedDepsFWWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath, FWThirdPartyPaths())
+    val managedDepsWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath)
 
     val modulePath = Files.createTempDirectory("local-module")
 
-    val targetRepo = new BazelWorkspaceDriver(managedDepsWorkspace)
+    val targetRepo = new BazelWorkspaceDriver(managedDepsFWWorkspace)
 
     def givenAetherResolverForDependency(node: SingleDependency) = {
-      val dependantDescriptor = ArtifactDescriptor.withSingleDependency(node.dependant.coordinates, node.dependency)
-      val dependencyDescriptor = ArtifactDescriptor.rootFor(node.dependency.coordinates)
-
-      remoteMavenRepo.addArtifacts(Set(dependantDescriptor,dependencyDescriptor))
-      remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
-      remoteMavenRepo.start()
-    }
-
-    def givenAetherResolverForDependency(node: SingleTransitiveDependency) = {
       val dependantDescriptor = ArtifactDescriptor.withSingleDependency(node.dependant.coordinates, node.dependency)
       val dependencyDescriptor = ArtifactDescriptor.rootFor(node.dependency.coordinates)
 
