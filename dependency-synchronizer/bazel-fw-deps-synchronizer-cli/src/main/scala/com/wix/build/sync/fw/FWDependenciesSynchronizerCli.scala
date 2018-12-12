@@ -7,6 +7,8 @@ import com.wix.build.sync._
 import org.slf4j.LoggerFactory
 
 object FWDependenciesSynchronizerCli extends App {
+  final val fwLeaf = Coordinates("com.wix.common", "wix-framework-leaf", "1.0.0", Packaging("pom"))
+
   private val log = LoggerFactory.getLogger(getClass)
 
   val parsedArgs = Args.parse(args)
@@ -54,7 +56,9 @@ object FWDependenciesSynchronizerCli extends App {
     val localWorkspace: BazelLocalWorkspace = bazelRepoWithManagedDependencies.localWorkspace("master")
     val thirdPartyDependenciesFromBazel = new BazelDependenciesReader(localWorkspace).allDependenciesAsMavenDependencies()
 
-    nodesToUpdate.filterNot(n => thirdPartyDependenciesFromBazel.exists(t => t.equalsOnCoordinatesIgnoringVersion(n.baseDependency)))
+    nodesToUpdate.filterNot(n => thirdPartyDependenciesFromBazel.exists(t => t.equalsOnCoordinatesIgnoringVersion(n.baseDependency))).filterNot(n => {
+      n.baseDependency.coordinates.equalsOnGroupIdAndArtifactId(fwLeaf)
+    })
   }
 }
 

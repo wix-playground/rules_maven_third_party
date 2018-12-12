@@ -58,6 +58,20 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB.withVersion("another-version"))
     }
+
+    "filter out wix_framework_leaf" in new basicCtx {
+      val fwLeaf = Coordinates("com.wix.common", "wix-framework-leaf", "1.0.0", Packaging("pom"))
+      val fwLeafPomDep = asCompileDependency(fwLeaf)
+      val dependencyB = asCompileDependency(artifactB)
+
+      givenAetherResolverForDependency(SingleDependency(fwLeafPomDep, dependencyB))
+
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, fwLeaf.serialized)
+      FWDependenciesSynchronizerCli.main(args)
+
+      targetRepo must includeImportExternalTargetWith(artifactB)
+      targetRepo.bazelExternalDependencyFor(fwLeaf).libraryRule must beNone
+    }
   }
 
   trait basicCtx extends Scope with After {
