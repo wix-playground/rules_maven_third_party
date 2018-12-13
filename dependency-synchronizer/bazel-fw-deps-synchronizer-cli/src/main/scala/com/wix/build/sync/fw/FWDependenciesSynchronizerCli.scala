@@ -43,8 +43,21 @@ object FWDependenciesSynchronizerCli extends App {
 
   log.info(s"Finished calculating transitive dep closure for: $fwArtifact")
 
+  log.info(s"raw fw transitive nodes list: ${nodes.map(_.baseDependency.coordinates).mkString("\n")}")
+
+  log.info(s"\n\n\n%%%%%%%%%%%%\n\n\n")
+
+
   val nodesToUpdate = synchronizer.calcDepNodesToSync(ManagedDependenciesArtifact, nodes.map(_.baseDependency))
+  log.info(s"==============")
+
+  log.info(s"unique diff fw transitive nodes list: ${nodesToUpdate.map(_.baseDependency.coordinates).mkString("\n")}")
+  log.info(s"\n\n\n##############\n\n\n")
+
   val filteredNodes = filterNotThirdPartyArtifacts(nodesToUpdate)
+
+  log.info(s"filtered fw transitive nodes list: ${nodesToUpdate.map(_.baseDependency.coordinates).mkString("\n")}")
+
   synchronizer.persist(filteredNodes)
 
   private def toDependency(coordinates: Coordinates): Dependency = {
