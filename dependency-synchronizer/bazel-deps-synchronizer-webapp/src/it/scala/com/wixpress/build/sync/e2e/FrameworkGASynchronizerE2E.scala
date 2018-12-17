@@ -30,7 +30,9 @@ class FrameworkGASynchronizerE2E extends SpecificationWithJUnit with GreyhoundTe
       version = currentVersion.fold("dont-care")(v => v),
       comment = "dont-care",
       user = "dont-care",
-      email = "dont-care"
+      email = "dont-care",
+      baseVersion = None,
+      artifacts = Set("")
     )
 
     producer.produceToTopic(Lifecycle.lifecycleGaTopic, promotedGaMessage)
