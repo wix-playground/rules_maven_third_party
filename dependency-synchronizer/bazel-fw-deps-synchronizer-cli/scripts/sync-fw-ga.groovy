@@ -57,7 +57,7 @@ pipeline {
                     sh 'rm -rf third_party_fw_snapshots'
                     sh 'rm third_party_fw_snapshots.bzl'
                     sh 'touch third_party_fw_snapshots.bzl'
-                    sh 'echo "load("@core_server_build_tools//:macros.bzl", "maven_archive", "maven_proto")\ndef fw_snapshot_dependencies():\n" > third_party_fw_snapshots.bzl'
+                    sh 'echo "load(\"@core_server_build_tools//:macros.bzl\", \"maven_archive\", \"maven_proto\")\ndef fw_snapshot_dependencies():\n" > third_party_fw_snapshots.bzl'
                 }
                 script {
                     additionalDeps = readFile("${env.WORKSPACE}/${env.ADDITIONAL_DEPS_FILE}").replaceAll('\n',',')
