@@ -22,7 +22,7 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB))
 
-      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, artifactA.serialized)
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, "--fw-leaf-artifact", artifactA.serialized)
       FWDependenciesSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
@@ -35,9 +35,9 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB.withVersion("another-version")))
 
-      managedDepsFWWorkspace.hasDependencies(DependencyNode(dependencyA, Set(dependencyB)))
+      fwManagedDepsWorkspace.hasDependencies(DependencyNode(dependencyA, Set(dependencyB)))
 
-      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, artifactA.serialized)
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, "--fw-leaf-artifact", artifactA.serialized)
       FWDependenciesSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
@@ -50,9 +50,9 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB.withVersion("another-version")))
 
-      managedDepsWorkspace.hasDependencies(aRootDependencyNode(dependencyB))
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootDependencyNode(dependencyB))
 
-      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, artifactA.serialized)
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, "--fw-leaf-artifact", artifactA.serialized)
       FWDependenciesSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
@@ -66,11 +66,29 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(fwLeafPomDep, dependencyB))
 
-      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, fwLeaf.serialized)
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString, "--fw-leaf-artifact", fwLeaf.serialized)
       FWDependenciesSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactB)
       targetRepo.bazelExternalDependencyFor(fwLeaf).libraryRule must beNone
+    }
+
+    "support syncing additional deps to managed deps repo " in new basicCtx {
+      val dependencyA = asCompileDependency(artifactA)
+      val dependencyB = asCompileDependency(artifactB)
+      val dependencyC = asCompileDependency(artifactC)
+      val dependencyD = asCompileDependency(artifactD)
+
+      givenAetherResolverForDependencies(SingleDependency(dependencyA, dependencyB), dependencyC, dependencyD)
+
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--managed_deps_repo", managedDepsRepoPath.toString,
+        "--fw-leaf-artifact", artifactA.serialized, "--additional-deps", s"${artifactC.serialized},${artifactD.serialized}")
+      FWDependenciesSynchronizerCli.main(args)
+
+      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
+      targetRepo must includeImportExternalTargetWith(artifactB)
+      targetRepo must includeImportExternalTargetWith(artifactC)
+      targetRepo must includeImportExternalTargetWith(artifactD)
     }
   }
 
@@ -82,21 +100,31 @@ class FWDependenciesSynchronizerCliE2E extends SpecWithJUnit {
     val artifactA = Coordinates("com.aaa", "A-direct", "1.0.0")
     val artifactB = Coordinates("com.bbb", "B-direct", "2.0.0")
     val artifactC = Coordinates("com.ccc", "C-direct", "3.0.0")
+    val artifactD = Coordinates("com.ccc", "D-direct", "3.0.0")
 
     val managedDepsWorkspaceRepo = Files.createTempDirectory("managed-deps")
     val managedDepsRepoPath = File(managedDepsWorkspaceRepo)
-    val managedDepsFWWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath, FWThirdPartyPaths())
-    val managedDepsWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath)
+    val fwManagedDepsWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath, FWThirdPartyPaths())
+    val thirdPartyManagedDepsWorkspace = new FileSystemBazelLocalWorkspace(managedDepsRepoPath)
 
     val modulePath = Files.createTempDirectory("local-module")
 
-    val targetRepo = new BazelWorkspaceDriver(managedDepsFWWorkspace)
+    val targetRepo = new BazelWorkspaceDriver(fwManagedDepsWorkspace)
 
     def givenAetherResolverForDependency(node: SingleDependency) = {
       val dependantDescriptor = ArtifactDescriptor.withSingleDependency(node.dependant.coordinates, node.dependency)
       val dependencyDescriptor = ArtifactDescriptor.rootFor(node.dependency.coordinates)
 
       remoteMavenRepo.addArtifacts(Set(dependantDescriptor,dependencyDescriptor))
+      remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
+      remoteMavenRepo.start()
+    }
+
+    def givenAetherResolverForDependencies(node: SingleDependency, dependency: Dependency*) = {
+      val dependantDescriptor = ArtifactDescriptor.withSingleDependency(node.dependant.coordinates, node.dependency)
+      val dependencyDescriptor = ArtifactDescriptor.rootFor(node.dependency.coordinates)
+
+      remoteMavenRepo.addArtifacts(Set(dependantDescriptor,dependencyDescriptor) ++ dependency.map(d => ArtifactDescriptor.rootFor(d.coordinates)).toSet)
       remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
       remoteMavenRepo.start()
     }

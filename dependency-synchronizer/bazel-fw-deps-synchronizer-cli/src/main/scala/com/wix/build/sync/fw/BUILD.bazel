@@ -17,6 +17,7 @@ scala_library(
         "@com_github_pathikrit_better_files_2_12",
         "@junit_junit",
         "@org_slf4j_slf4j_api",
+        "@com_github_scopt_scopt_2_12",
     ],
 )
 
