@@ -1,5 +1,6 @@
 package com.wix.build.sync.e2e
 
+import com.wix.build.sync.api.{BazelSyncGreyhoundEvents, BazelManagedDepsSyncEnded}
 import com.wix.build.maven.ArtifactDescriptor._
 import com.wix.build.maven.{Coordinates, Dependency, MavenScope}
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
@@ -64,6 +65,8 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
           eventually {
             fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)
+            sink.getMessages must contain(BazelManagedDepsSyncEnded())
+
           }
         }
       }
@@ -74,6 +77,8 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
     beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates))
 
   trait ctx extends Scope {
+    val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
+
     def manage(coordinates: Coordinates) = {
       val artifact = anArtifact(coordinates)
       val artifactAsDependency = Dependency(coordinates, MavenScope.Compile)

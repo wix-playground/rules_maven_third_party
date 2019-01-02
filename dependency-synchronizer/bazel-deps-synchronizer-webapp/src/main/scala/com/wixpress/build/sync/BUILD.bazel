@@ -18,6 +18,7 @@ bootstrap_jar(
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
+        "//dependency-synchronizer/bazel-deps-synchronizer-api/src/main/scala/com/wix/build/sync/api:api",
         "//migrator/bazel-migrator-model/src/main/java/com/wix/bazel/migrator/model",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "//third_party/com/wix/iptf:greyhound_clients",

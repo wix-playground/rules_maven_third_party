@@ -5,6 +5,7 @@ import java.io.InputStream
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.wix.bazel.migrator.model.SourceModule
+import com.wix.build.sync.api.BazelManagedDepsSyncEnded
 import com.wix.build.bazel.{BazelRepository, ManagedThirdPartyPaths}
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
 import com.wix.ci.greyhound.events.{BasePromote, BuildFinished, GATriggeredEvent}
@@ -15,7 +16,8 @@ import org.slf4j.LoggerFactory
 class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpdateHandler,
                               frameworkGAUpdateHandler: FrameworkGAUpdateHandler,
                               producerToSynchronizedManagedDepsTopic: GreyhoundResilientProducer,
-                              producerToSynchronizedFrameworkLeafTopic: GreyhoundResilientProducer) {
+                              producerToSynchronizedFrameworkLeafTopic: GreyhoundResilientProducer,
+                              syncEndedProducer : GreyhoundResilientProducer) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -27,6 +29,7 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
   def handleMessageFromSynchronizedManagedDepsTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized ManagedDeps message $message")
     managedDependenciesUpdate.run
+    syncEndedProducer.produce(BazelManagedDepsSyncEnded())
   }
 
   def handleGAMessage(message: BasePromote): Unit = {
@@ -40,6 +43,7 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
   def handleMessageFromSynchronizedFrameworkLeafTopic(message: GATriggeredEvent): Unit = {
     logger.info(s"Got synchronized FrameworkLeaf message $message")
     frameworkGAUpdateHandler.run(message.version + "-SNAPSHOT")
+
   }
 }
 

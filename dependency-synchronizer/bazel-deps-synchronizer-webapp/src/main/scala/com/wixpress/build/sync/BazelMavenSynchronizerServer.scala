@@ -4,6 +4,7 @@ import java.util.UUID
 
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
+import com.wix.build.sync.api.BazelSyncGreyhoundEvents
 import com.wix.build.bazel.{BazelRepository, GitAuthenticationWithToken, GitBazelRepository}
 import com.wix.build.maven.Coordinates
 import com.wix.ci.greyhound.events._
@@ -54,6 +55,9 @@ class SynchronizerConfiguration {
     val managedDepsProducer = resilientMaker.withTopic(synchronizedManagedDepsTopic).ordered.build
     producers.add(managedDepsProducer)
 
+    val syncEndedProducer = resilientMaker.withTopic(BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic).unordered.build
+    producers.add(syncEndedProducer)
+
     val fwLeafProducer = resilientMaker.withTopic(synchronizedFrameworkLeafTopic).ordered.build
     producers.add(fwLeafProducer)
 
@@ -103,7 +107,8 @@ class SynchronizerConfiguration {
       managedDependenciesUpdateHandler,
       frameworkGAUpdateHandler,
       managedDepsProducer,
-      fwLeafProducer)
+      fwLeafProducer,
+      syncEndedProducer)
   }
 
   private def resolveBranchSuffix = {
@@ -151,6 +156,8 @@ class SynchronizerConfiguration {
     kafkaAdmin.createTopicIfNotExists(gaTopic)
     kafkaAdmin.createTopicIfNotExists(synchronizedManagedDepsTopic, partitions = 1)
     kafkaAdmin.createTopicIfNotExists(synchronizedFrameworkLeafTopic, partitions = 1)
+    kafkaAdmin.createTopicIfNotExists(BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic, partitions = 1)
+
   }
 
   private def setManagedDepsSyncMessagesConsumers(consumers: Consumers,

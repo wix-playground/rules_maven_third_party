@@ -20,6 +20,7 @@ specs2_mixed_test(
         "//dependency-synchronizer/bazel-deps-synchronizer/src/it/scala/com/wix/build/sync/e2e",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
+        "//dependency-synchronizer/bazel-deps-synchronizer-api/src/main/scala/com/wix/build/sync/api:api",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "@com_fasterxml_jackson_core_jackson_annotations",
         "@com_fasterxml_jackson_core_jackson_core",
