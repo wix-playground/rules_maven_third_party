@@ -1,8 +1,8 @@
 package com.wix.build.sync.e2e
 
-import com.wix.build.sync.api.{BazelSyncGreyhoundEvents, BazelManagedDepsSyncEnded}
+import com.wix.build.sync.api.{BazelManagedDepsSyncEnded, BazelSyncGreyhoundEvents, ThirdPartyArtifact}
 import com.wix.build.maven.ArtifactDescriptor._
-import com.wix.build.maven.{Coordinates, Dependency, MavenScope}
+import com.wix.build.maven.{Coordinates, Dependency, MavenScope, Packaging}
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
 import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
 import com.wix.framework.test.env.{GlobalTestEnvSupport, TestEnv}
@@ -65,7 +65,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
           eventually {
             fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)
-            sink.getMessages must contain(BazelManagedDepsSyncEnded())
+            sink.getMessages must contain(BazelManagedDepsSyncEnded(expectedThirdPartyArtifact))
 
           }
         }
@@ -78,6 +78,10 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
   trait ctx extends Scope {
     val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
+    val expectedThirdPartyArtifact = Set(
+      ThirdPartyArtifact(Coordinates("other-group","some-artifact","someVersion",Packaging("jar"),None),None),
+      ThirdPartyArtifact(Coordinates("com.wix.example","some-artifact","someVersion",Packaging("jar"),None),None)
+    )
 
     def manage(coordinates: Coordinates) = {
       val artifact = anArtifact(coordinates)

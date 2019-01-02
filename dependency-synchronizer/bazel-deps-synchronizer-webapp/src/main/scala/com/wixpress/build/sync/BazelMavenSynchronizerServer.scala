@@ -108,7 +108,8 @@ class SynchronizerConfiguration {
       frameworkGAUpdateHandler,
       managedDepsProducer,
       fwLeafProducer,
-      syncEndedProducer)
+      syncEndedProducer,
+      managedDepsBazelRepository)
   }
 
   private def resolveBranchSuffix = {

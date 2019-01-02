@@ -5,8 +5,8 @@ import java.io.InputStream
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.wix.bazel.migrator.model.SourceModule
-import com.wix.build.sync.api.BazelManagedDepsSyncEnded
-import com.wix.build.bazel.{BazelRepository, ManagedThirdPartyPaths}
+import com.wix.build.sync.api.{BazelManagedDepsSyncEnded, ThirdPartyArtifact}
+import com.wix.build.bazel.{BazelDependenciesReader, BazelRepository, ManagedThirdPartyPaths}
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates, Dependency, MavenScope}
 import com.wix.ci.greyhound.events.{BasePromote, BuildFinished, GATriggeredEvent}
 import com.wix.greyhound.producer.ProduceTarget
@@ -17,7 +17,8 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
                               frameworkGAUpdateHandler: FrameworkGAUpdateHandler,
                               producerToSynchronizedManagedDepsTopic: GreyhoundResilientProducer,
                               producerToSynchronizedFrameworkLeafTopic: GreyhoundResilientProducer,
-                              syncEndedProducer : GreyhoundResilientProducer) {
+                              syncEndedProducer : GreyhoundResilientProducer,
+                              managedDepsBazelRepository: BazelRepository) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -29,7 +30,13 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
   def handleMessageFromSynchronizedManagedDepsTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized ManagedDeps message $message")
     managedDependenciesUpdate.run
-    syncEndedProducer.produce(BazelManagedDepsSyncEnded())
+    val thirdPartyManagedArtifqcts = readManagedArtifacts
+    syncEndedProducer.produce(BazelManagedDepsSyncEnded(thirdPartyManagedArtifqcts))
+  }
+
+  private def readManagedArtifacts() : Set[ThirdPartyArtifact] = {
+    val managedDepsRepoReader = new BazelDependenciesReader(managedDepsBazelRepository.localWorkspace("master"))
+    managedDepsRepoReader.allDependenciesAsMavenDependencyNodes().map(d=>ThirdPartyArtifact(d.baseDependency.coordinates,d.checksum))
   }
 
   def handleGAMessage(message: BasePromote): Unit = {
