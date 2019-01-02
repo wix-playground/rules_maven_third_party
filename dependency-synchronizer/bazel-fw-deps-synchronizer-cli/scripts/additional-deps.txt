@@ -1,1 +1,2 @@
 com.wix.common:wix-petri-aspects:1.19.0-SNAPSHOT
+com.wix.common:wix-petri-integration:1.19.0-SNAPSHOT
