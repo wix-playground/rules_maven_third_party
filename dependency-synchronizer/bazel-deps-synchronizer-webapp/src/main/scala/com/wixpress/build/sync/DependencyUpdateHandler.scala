@@ -17,8 +17,8 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
                               frameworkGAUpdateHandler: FrameworkGAUpdateHandler,
                               producerToSynchronizedManagedDepsTopic: GreyhoundResilientProducer,
                               producerToSynchronizedFrameworkLeafTopic: GreyhoundResilientProducer,
-                              syncEndedProducer : GreyhoundResilientProducer,
-                              managedDepsBazelRepository: BazelRepository) {
+                              managedDepsBazelRepository: BazelRepository,
+                              managedDepsSyncFinished : ManagedDepsSyncFinished ) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -30,20 +30,10 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
   def handleMessageFromSynchronizedManagedDepsTopic(message: BuildFinished): Unit = {
     logger.info(s"Got synchronized ManagedDeps message $message")
     managedDependenciesUpdate.run
-    val thirdPartyManagedArtifacts = readManagedArtifacts
-    syncEndedProducer.produce(BazelManagedDepsSyncEnded(thirdPartyManagedArtifacts))
+    managedDepsSyncFinished.publishEvent()
   }
 
-  private def readManagedArtifacts() : Set[ThirdPartyArtifact] = {
-    val managedDepsRepoReader = new BazelDependenciesReader(managedDepsBazelRepository.localWorkspace("master"))
-    managedDepsRepoReader.allDependenciesAsMavenDependencyNodes()
-      .map(d=>ThirdPartyArtifact(d.baseDependency.coordinates.groupId,
-                                  d.baseDependency.coordinates.artifactId,
-                                  d.baseDependency.coordinates.version,
-                                  d.baseDependency.coordinates.packaging.value,
-                                  d.baseDependency.coordinates.classifier,
-                                  d.checksum))
-  }
+
 
   def handleGAMessage(message: BasePromote): Unit = {
     message match {
@@ -79,6 +69,26 @@ class ManagedDependenciesUpdateHandler(dependencyManagementArtifact: Coordinates
       dependencyManagementSource = dependencyManagementArtifact,
       dependencies = managedDependencies
     )
+  }
+}
+
+
+
+class ManagedDepsSyncFinished(managedDepsBazelRepository: BazelRepository,syncEndedProducer : GreyhoundResilientProducer){
+  def publishEvent() = {
+    val thirdPartyManagedArtifacts = readManagedArtifacts
+    syncEndedProducer.produce(BazelManagedDepsSyncEnded(thirdPartyManagedArtifacts))
+  }
+
+  private def readManagedArtifacts() : Set[ThirdPartyArtifact] = {
+    val managedDepsRepoReader = new BazelDependenciesReader(managedDepsBazelRepository.localWorkspace("master"))
+    managedDepsRepoReader.allDependenciesAsMavenDependencyNodes()
+      .map(d=>ThirdPartyArtifact(d.baseDependency.coordinates.groupId,
+        d.baseDependency.coordinates.artifactId,
+        d.baseDependency.coordinates.version,
+        d.baseDependency.coordinates.packaging.value,
+        d.baseDependency.coordinates.classifier,
+        d.checksum))
   }
 }
 

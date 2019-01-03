@@ -102,14 +102,15 @@ class SynchronizerConfiguration {
       resolveBranchSuffix
     )
 
+    val managedDepsSyncFinished = new ManagedDepsSyncFinished(managedDepsBazelRepository,syncEndedProducer)
 
     new DependencyUpdateHandler(
       managedDependenciesUpdateHandler,
       frameworkGAUpdateHandler,
       managedDepsProducer,
       fwLeafProducer,
-      syncEndedProducer,
-      managedDepsBazelRepository)
+      managedDepsBazelRepository,
+      managedDepsSyncFinished)
   }
 
   private def resolveBranchSuffix = {
