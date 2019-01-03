@@ -79,8 +79,8 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   trait ctx extends Scope {
     val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
     val expectedThirdPartyArtifact = Set(
-      ThirdPartyArtifact(Coordinates("other-group","some-artifact","someVersion",Packaging("jar"),None),None),
-      ThirdPartyArtifact(Coordinates("com.wix.example","some-artifact","someVersion",Packaging("jar"),None),None)
+      ThirdPartyArtifact("other-group","some-artifact","someVersion",Packaging("jar").value,None,None),
+      ThirdPartyArtifact("com.wix.example","some-artifact","someVersion",Packaging("jar").value,None,None)
     )
 
     def manage(coordinates: Coordinates) = {
