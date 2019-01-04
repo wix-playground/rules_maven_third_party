@@ -1,11 +1,11 @@
 package com.wix.build.sync.fw
 
-case class Config(mavenRemoteRepositoryURL: List[String],
+case class FWDependenciesSynchronizerConfig(mavenRemoteRepositoryURL: List[String],
                   managedDepsRepoUrl: String,
                   fwArtifact: String,
                   additionalDeps: List[String])
 
-object Config {
+object FWDependenciesSynchronizerConfig {
   private val RepoFlag = "binary-repo"
   //TODO: move to wix-maven-resolver module
   private val wixRepos = List(
@@ -21,7 +21,7 @@ object Config {
       |for example: --managed_deps_repo /path/to/managed/deps/repo com.wix.common:wix-framework-leaf:pom:1.0.0-SNAPSHOT --additional-dep com.wix:petri-aspects:1.0.0-SNAPSHOT
     """.stripMargin
 
-  private val parser = new scopt.OptionParser[Config]("FWDependenciesSynchronizerCli") {
+  private val parser = new scopt.OptionParser[FWDependenciesSynchronizerConfig]("FWDependenciesSynchronizerCli") {
     opt[String](RepoFlag)
       .withFallback(() => wixRepos.mkString(","))
       .action { case (remoteRepoUrls, config) =>
@@ -41,9 +41,9 @@ object Config {
         config.copy(additionalDeps = urls.split(",").toList) }
   }
 
-  private val Empty = Config(null, null, null, List())
+  private val Empty = FWDependenciesSynchronizerConfig(null, null, null, List())
 
-  def parse(args: Array[String]): Config = {
+  def parse(args: Array[String]): FWDependenciesSynchronizerConfig = {
     parser.parse(args, Empty).getOrElse(throw new IllegalArgumentException(Usage))
   }
 }

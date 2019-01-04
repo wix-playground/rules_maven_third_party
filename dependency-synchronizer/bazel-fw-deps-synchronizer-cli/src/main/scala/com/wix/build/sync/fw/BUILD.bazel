@@ -10,14 +10,17 @@ scala_library(
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
+        "//dependency-synchronizer/bazel-deps-synchronizer-cli/src/main/scala/com/wix/build/sync",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
         "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli:main_dependencies",
+        "//migrator/bazel-migrator-model/src/main/java/com/wix/bazel/migrator/model",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
+        "//repo-analyzer/maven-repo-analyzer/src/main/java/com/wix/build/maven/analysis",
         "@com_github_pathikrit_better_files_2_12",
+        "@com_github_scopt_scopt_2_12",
         "@junit_junit",
         "@org_slf4j_slf4j_api",
-        "@com_github_scopt_scopt_2_12",
     ],
 )
 
@@ -30,5 +33,11 @@ filegroup(
 java_binary(
     name = "fw_sync_cli",
     main_class = "com.wix.build.sync.fw.FWDependenciesSynchronizerCli",
+    runtime_deps = [":fw"],
+)
+
+java_binary(
+    name = "fw_to_single_repo_sync_cli",
+    main_class = "com.wix.build.sync.fw.FWDependenciesToSingleRepoSynchronizerCli",
     runtime_deps = [":fw"],
 )

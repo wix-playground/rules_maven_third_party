@@ -11,7 +11,7 @@ object FWDependenciesSynchronizerCli extends App {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  val config = Config.parse(args)
+  val config = FWDependenciesSynchronizerConfig.parse(args)
   val fwArtifact = config.fwArtifact
 
   log.info("fwArtifact: " + fwArtifact)
