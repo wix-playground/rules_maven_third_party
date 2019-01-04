@@ -68,6 +68,11 @@
       <artifactId>bazel-repositories-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.wix.build</groupId>
+      <artifactId>bazel-deps-synchronizer-cli</artifactId>
+    </dependency>
+
 
     <dependency>
       <groupId>com.wix.build</groupId>
