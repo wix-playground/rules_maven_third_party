@@ -77,7 +77,17 @@ pipeline {
                 dir("${env.TARGET_REPO_NAME}"){
                     sh """|git checkout -b ${env.BRANCH_NAME}
                           |git add .
-                          |git commit --allow-empty -m "GAed FW sync by ${env.BUILD_URL} #automerge"
+
+
+
+
+
+                          |git commit --allow-empty -m "GAed FW sync by ${env.BUILD_URL}"
+
+
+
+
+
                           |git push origin ${env.BRANCH_NAME}
                           |""".stripMargin()
                 }
