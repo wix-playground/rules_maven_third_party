@@ -6,7 +6,6 @@ object BazelMavenSynchronizerConfig {
   def root: BazelMavenSynchronizerConfig = aConfigFor[BazelMavenSynchronizerConfig]("bazel-deps-synchronizer")
 }
 
-
 case class BazelMavenSynchronizerConfig(
                                          dependencyManagementArtifact: String,
                                          dependencyManagementArtifactBuildTypeId: String,
