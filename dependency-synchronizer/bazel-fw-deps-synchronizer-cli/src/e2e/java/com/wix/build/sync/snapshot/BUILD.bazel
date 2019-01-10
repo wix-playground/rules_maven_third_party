@@ -1,9 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
 specs2_ite2e_test(
-    name = "fw",
+    name = "snapshot",
     srcs = [
-        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/e2e/java/com/wix/build/sync/fw:sources",
+        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/e2e/java/com/wix/build/sync/snapshot:sources",
     ],
     data = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli:coordinates"],
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-fw-deps-synchronizer-cli:coordinates)"],
@@ -15,7 +15,7 @@ specs2_ite2e_test(
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/test/scala/com/wix/build",
         "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli:tests_dependencies",
-        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw",
+        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "@com_github_pathikrit_better_files_2_12",
     ],
@@ -24,5 +24,5 @@ specs2_ite2e_test(
 filegroup(
     name = "sources",
     srcs = glob(["*.java"]) + glob(["*.scala"]),
-    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/e2e/java/com/wix/build/sync/fw:__pkg__"],
+    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/e2e/java/com/wix/build/sync/snapshot:__pkg__"],
 )

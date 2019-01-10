@@ -27,18 +27,19 @@ pipeline {
         TARGET_REPO_NAME = "target-repo"
         TARGET_REPO_URL = "${env.TARGET_REPO_URL}"
 
-        FW_LEAF_ARTIFACT = "${env.FW_LEAF_ARTIFACT}"
-        BRANCH_NAME = "fw-ga-sync-${env.BUILD_ID}"
+        MODULE_COORDINATES = "${env.MODULE_COORDINATES}"
+        BRANCH_NAME = "snapshot-module-sync-${env.BUILD_ID}"
     }
     stages {
-        stage('build-fw-deps-to-single-repo-sync') {
+        stage('build-snapshot-module-to-single-repo-sync') {
             steps {
                 script{
+                    currentBuild.description = """${env.TARGET_REPO_URL}<br/>${env.MODULE_COORDINATES}"""
                     sh  """|#!/bin/bash
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
                            |build \\
                            |      ${env.BAZEL_FLAGS} \\
-                           |      //dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw:fw_to_single_repo_sync_cli_deploy.jar
+                           |      //dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:snapshot_to_single_repo_sync_cli_deploy.jar
                            |""".stripMargin()
 
                 }
@@ -62,12 +63,12 @@ pipeline {
                 }
             }
         }
-        stage('sync-fw-ga-to-single-repo') {
+        stage('sync-snapshot-module-to-single-repo') {
             steps {
                 script {
                     sh """|stdbuf -i0 -o0 -e0 \\
                           |   java -Xmx12G \\
-                          |   -jar bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw/fw_to_single_repo_sync_cli_deploy.jar --target_repo ${env.TARGET_REPO_NAME} --managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME} --fw-leaf-artifact ${env.FW_LEAF_ARTIFACT}""".stripMargin()
+                          |   -jar bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar --target_repo ${env.TARGET_REPO_NAME} --managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME} --snapshot_modules ${env.MODULE_COORDINATES}""".stripMargin()
                 }
             }
         }
@@ -77,7 +78,7 @@ pipeline {
                 dir("${env.TARGET_REPO_NAME}"){
                     sh """|git checkout -b ${env.BRANCH_NAME}
                           |git add .
-                          |git commit --allow-empty -m "GAed FW sync by ${env.BUILD_URL} #automerge #gcb_no_trigger_other_repos"
+                          |git commit --allow-empty -m "a new version of '${env.MODULE_COORDINATES}' was synced by ${env.BUILD_URL} #automerge #gcb_no_trigger_other_repos"
                           |git push origin ${env.BRANCH_NAME}
                           |""".stripMargin()
                 }
@@ -86,7 +87,7 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts "bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw/fw_to_single_repo_sync_cli_deploy.jar"
+            archiveArtifacts "bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar"
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 import java.nio.file.Files
 
@@ -12,7 +12,7 @@ import org.specs2.mutable.SpecWithJUnit
 import org.specs2.specification.{After, Scope}
 
 //noinspection TypeAnnotation
-class FWDependenciesToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
+class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
   sequential
 
   "FW Dependencies synchronizer CLI" should {
@@ -23,10 +23,24 @@ class FWDependenciesToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB))
 
       val args = Array("--binary-repo", remoteMavenRepo.url,"--target_repo", targetRepoPath.toString,
-        "--managed_deps_repo", managedDepsRepoPath.toString, "--fw-leaf-artifact", artifactA.serialized)
-      FWDependenciesToSingleRepoSynchronizerCli.main(args)
+        "--managed_deps_repo", managedDepsRepoPath.toString, snapshotModuleFlag, artifactA.serialized)
+      SnapshotsToSingleRepoSynchronizerCli.main(args)
 
       targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
+      targetRepo must includeImportExternalTargetWith(artifactB)
+    }
+
+    "sync multiple deps to some repo" in new basicCtx {
+      val dependencyA = asCompileDependency(artifactA)
+      val dependencyB = asCompileDependency(artifactB)
+
+      givenAetherResolverForDependency(dependencyA, dependencyB)
+
+      val args = Array("--binary-repo", remoteMavenRepo.url,"--target_repo", targetRepoPath.toString,
+        "--managed_deps_repo", managedDepsRepoPath.toString, snapshotModuleFlag, s"${artifactA.serialized},${artifactB.serialized}")
+      SnapshotsToSingleRepoSynchronizerCli.main(args)
+
+      targetRepo must includeImportExternalTargetWith(artifactA)
       targetRepo must includeImportExternalTargetWith(artifactB)
     }
   }
@@ -55,5 +69,17 @@ class FWDependenciesToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
       remoteMavenRepo.start()
     }
+
+    def givenAetherResolverForDependency(dependency: Dependency*) = {
+      dependency.foreach{
+        d =>  val dependencyDescriptor = ArtifactDescriptor.rootFor(d.coordinates)
+          remoteMavenRepo.addSingleArtifact(dependencyDescriptor)
+      }
+
+      remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
+      remoteMavenRepo.start()
+    }
+
+    val snapshotModuleFlag = "--snapshot_modules"
   }
 }

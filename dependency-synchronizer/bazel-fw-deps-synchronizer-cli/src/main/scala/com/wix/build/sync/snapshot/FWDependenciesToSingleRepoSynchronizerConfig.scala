@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 case class FWDependenciesToSingleRepoSynchronizerConfig(mavenRemoteRepositoryURL: List[String],
                                                         targetRepoUrl: String,
@@ -13,10 +13,10 @@ object FWDependenciesToSingleRepoSynchronizerConfig {
 
   private val targetRepoFlag = "target_repo"
   private val managedDepsRepoFlag = "managed_deps_repo"
-  private val fwLeafArtifactFlag = "fw-leaf-artifact"
+  private val snapshotModuleCoordinatesFlag = "snapshot_modules"
 
   private val Usage =
-    s"""Usage: DependencySynchronizer [--$RepoFlag remoteRepoUrl] --$targetRepoFlag targetRepoLocalPath --$managedDepsRepoFlag managedDepsRepoLocalPath --$fwLeafArtifactFlag fw-leaf-coordinates --additional-deps dep
+    s"""Usage: DependencySynchronizer [--$RepoFlag remoteRepoUrl] --$targetRepoFlag targetRepoLocalPath --$managedDepsRepoFlag managedDepsRepoLocalPath --$snapshotModuleCoordinatesFlag snapshot-module-coordinates --additional-deps dep
       |for example: --target_repo /path/to/target/repo --managed_deps_repo /path/to/managed/deps/repo com.wix.common:wix-framework-leaf:pom:1.0.0-SNAPSHOT --additional-dep com.wix:petri-aspects:1.0.0-SNAPSHOT
     """.stripMargin
 
@@ -35,7 +35,7 @@ object FWDependenciesToSingleRepoSynchronizerConfig {
         config.copy(managedDepsRepoUrl = url) }
 
 
-    opt[String](fwLeafArtifactFlag)
+    opt[String](snapshotModuleCoordinatesFlag)
       .required()
       .action { case (artifact, config) =>
         config.copy(fwArtifact = artifact) }

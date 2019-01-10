@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 import java.nio.file.Files
 

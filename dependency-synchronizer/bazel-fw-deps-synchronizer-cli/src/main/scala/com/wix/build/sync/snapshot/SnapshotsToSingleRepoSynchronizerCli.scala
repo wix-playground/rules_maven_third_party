@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 import java.nio.file.Path
 import java.util.UUID
@@ -11,15 +11,15 @@ import com.wix.build.maven._
 import com.wix.build.sync._
 import org.slf4j.LoggerFactory
 
-object FWDependenciesToSingleRepoSynchronizerCli extends App {
+object SnapshotsToSingleRepoSynchronizerCli extends App {
   final val fwLeaf = Coordinates("com.wix.common", "wix-framework-leaf", "1.0.0", Packaging("pom"))
 
   private val log = LoggerFactory.getLogger(getClass)
 
   val config = FWDependenciesToSingleRepoSynchronizerConfig.parse(args)
-  val fwArtifact = config.fwArtifact
+  val snapshotModules = config.fwArtifact
 
-  log.info("fwArtifact: " + fwArtifact)
+  log.info("snapshot modules: " + snapshotModules)
 
   val targetRepoLocalClone = config.targetRepoUrl
 
@@ -52,9 +52,9 @@ object FWDependenciesToSingleRepoSynchronizerCli extends App {
     UUID.randomUUID().toString
   )
 
-  val fwLeafDependencies = Set(toDependency(Coordinates.deserialize(fwArtifact)))
+  val dependenciesToSync = snapshotModules.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
 
-  synchronizer.syncThirdParties(fwLeafDependencies)
+  synchronizer.syncThirdParties(dependenciesToSync)
 
   private def toDependency(coordinates: Coordinates): Dependency = {
     // scope here is of no importance as it is used on third_party and workspace only

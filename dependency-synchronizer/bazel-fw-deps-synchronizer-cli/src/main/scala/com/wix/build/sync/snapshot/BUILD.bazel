@@ -1,9 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
 scala_library(
-    name = "fw",
+    name = "snapshot",
     srcs = [
-        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw:sources",
+        "//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:sources",
     ],
     runtime_deps = [
     ],
@@ -27,17 +27,17 @@ scala_library(
 filegroup(
     name = "sources",
     srcs = glob(["*.java"]) + glob(["*.scala"]),
-    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/fw:__pkg__"],
+    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:__pkg__"],
 )
 
 java_binary(
     name = "fw_sync_cli",
-    main_class = "com.wix.build.sync.fw.FWDependenciesSynchronizerCli",
-    runtime_deps = [":fw"],
+    main_class = "com.wix.build.sync.snapshot.FWDependenciesSynchronizerCli",
+    runtime_deps = [":snapshot"],
 )
 
 java_binary(
-    name = "fw_to_single_repo_sync_cli",
-    main_class = "com.wix.build.sync.fw.FWDependenciesToSingleRepoSynchronizerCli",
-    runtime_deps = [":fw"],
+    name = "snapshot_to_single_repo_sync_cli",
+    main_class = "com.wix.build.sync.snapshot.SnapshotsToSingleRepoSynchronizerCli",
+    runtime_deps = [":snapshot"],
 )

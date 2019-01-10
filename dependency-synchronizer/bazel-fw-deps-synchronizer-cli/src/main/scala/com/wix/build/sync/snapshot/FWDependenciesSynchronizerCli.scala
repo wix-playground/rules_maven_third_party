@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 import better.files.File
 import com.wix.build.bazel._

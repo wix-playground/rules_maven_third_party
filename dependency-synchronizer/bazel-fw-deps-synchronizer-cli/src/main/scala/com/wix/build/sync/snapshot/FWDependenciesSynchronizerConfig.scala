@@ -1,4 +1,4 @@
-package com.wix.build.sync.fw
+package com.wix.build.sync.snapshot
 
 case class FWDependenciesSynchronizerConfig(mavenRemoteRepositoryURL: List[String],
                   managedDepsRepoUrl: String,
