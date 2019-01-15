@@ -76,7 +76,7 @@ pipeline {
         }
         stage('fix_strict_deps') {
             when{
-                when { expression { return params.FIX_STRICT_DEPS} }
+                expression { return params.FIX_STRICT_DEPS}
             }
             steps {
                 dir("${env.TARGET_REPO_NAME}") {
