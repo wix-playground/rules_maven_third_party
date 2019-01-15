@@ -63,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>com.wix.build</groupId>
-            <artifactId>bazel-deps-synchronizer-api</artifactId>
+            <artifactId>wix-bazel-deps-synchronizer-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
