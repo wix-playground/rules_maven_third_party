@@ -19,7 +19,9 @@ pipeline {
                          |--project_id=gcb-with-custom-workers \\
                          |--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance'''.stripMargin()
         BAZEL_HOME = tool name: 'bazel', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
-        PATH = "$BAZEL_HOME/bin:$JAVA_HOME/bin:$PATH"
+        BUILDOZER_HOME = tool name: 'buildozer', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
+        BUILDIFIER_HOME = tool name: 'buildifier', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
+        PATH = "$BAZEL_HOME/bin:$BUILDOZER_HOME/bin:$BUILDIFIER_HOME/bin:$JAVA_HOME/bin:$PATH"
 
         MANAGED_DEPS_REPO_NAME = "core-server-build-tools"
         MANAGED_DEPS_REPO_URL = "git@github.com:wix-private/core-server-build-tools.git"
@@ -72,7 +74,18 @@ pipeline {
                 }
             }
         }
-
+        stage('fix_strict_deps') {
+            when{
+                when { expression { return params.FIX_STRICT_DEPS} }
+            }
+            steps {
+                dir("${env.TARGET_REPO_NAME}") {
+                    script {
+                        build_and_fix(env.ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
+                    }
+                }
+            }
+        }
         stage('push-to-git') {
             steps {
                 dir("${env.TARGET_REPO_NAME}"){
@@ -89,5 +102,49 @@ pipeline {
         always {
             archiveArtifacts "bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar"
         }
+    }
+}
+
+def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
+    BAZEL_FLAGS = """|-k \\
+                     |--experimental_remap_main_repo=true \\
+                     |--config=remote \\
+                     |--config=rbe_based \\
+                     |--config=results \\
+                     |--project_id=gcb-with-custom-workers \\
+                     |--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance""".stripMargin()
+    status = sh(
+            script: """|#!/bin/bash
+                       |# tee would output the stdout to file but will swallow the exit code
+                       |bazel --bazelrc=.bazelrc.remote build ${BAZEL_FLAGS}  //... 2>&1 | tee bazel-build.log
+                       |# retrieve the exit code
+                       |exit \${PIPESTATUS[0]}
+                       |""".stripMargin(),
+            returnStatus: true)
+    build_log = readFile "bazel-build.log"
+    if (build_log.contains("buildozer") || build_log.contains("[strict]")) {
+        if (build_log.contains("Unknown label of file")){
+            slackSend "Found 'Unknown label...' warning in ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|link>)"
+        }
+        echo "found strict deps issues"
+        sh "python ../core-server-build-tools/scripts/fix_transitive.py"
+        buildozerStatusCode = sh script: "buildozer -f bazel-buildozer-commands.txt", returnStatus: true
+        if (buildozerStatusCode == 0) { // buildozer returns 3 when no action was needed
+            build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
+        } else {
+            echo "buildozer exited with code ${buildozerStatusCode}"
+            echo "[WARN] produced buildozer commands were not required!"
+            currentBuild.result = 'UNSTABLE'
+        }
+
+    } else if (status == 0) {
+        echo "No buildozer warnings were found"
+        bazelrc = readFile(".bazelrc")
+        if (bazelrc.contains("strict_java_deps=warn")) {
+            writeFile file: ".bazelrc", text: bazelrc.replace("strict_java_deps=warn", "strict_java_deps=error")
+        }
+    } else {
+        echo "[WARN] No strict deps warnings found but build failed"
+        currentBuild.result = 'UNSTABLE'
     }
 }

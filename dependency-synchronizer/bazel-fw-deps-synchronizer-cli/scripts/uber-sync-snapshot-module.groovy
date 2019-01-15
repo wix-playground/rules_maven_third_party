@@ -21,6 +21,7 @@ node {
         def parameters = [
                 string(name: 'MODULE_COORDINATES', value: "${env.MODULE_COORDINATES}"),
                 string(name: 'TARGET_REPO_URL', value: it),
+                booleanParam(name: 'FIX_STRICT_DEPS', value: params.FIX_STRICT_DEPS)
         ]
         jobs[it] = {
 //            echo "triggering sync-snapshot-module-to-single-repo with paramerters: wait: true, propagate: false, parameters: ${parameters}"
