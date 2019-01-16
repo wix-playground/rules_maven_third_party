@@ -9,8 +9,6 @@ object BazelMavenSynchronizerConfig {
 case class BazelMavenSynchronizerConfig(
                                          dependencyManagementArtifact: String,
                                          dependencyManagementArtifactBuildTypeId: String,
-                                         frameworkLeafArtifact: String,
-                                         frameworkLeafArtifactBuildTypeId: String,
                                          mavenRemoteRepositoryURL: List[String],
                                          artifactoryUrl: String,
                                          artifactoryToken: String,
@@ -20,7 +18,6 @@ case class BazelMavenSynchronizerConfig(
 
 case class GitSettings(
                         managedDepsRepoURL: String,
-                        serverInfraRepoURL: String,
                         username: String,
                         email: String,
                         githubToken: String

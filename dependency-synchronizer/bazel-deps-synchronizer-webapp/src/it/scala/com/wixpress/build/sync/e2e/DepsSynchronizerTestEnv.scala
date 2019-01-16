@@ -21,15 +21,12 @@ object DepsSynchronizerTestEnv {
   val newBranchSuffix = "someSuffix"
   val userAddedDepsBranchName = s"user_added_3rd_party_deps_$newBranchSuffix"
   val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Packaging("pom"))
-  val fwLeafCoordinates: Coordinates = Coordinates("some-group", "fw-leaf-artifact", "some-version", packaging = Packaging("pom"))
   val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository()
-  val fakeServerInfraRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository(userAddedDepsBranchName)
   private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents, Lifecycle.lifecycleGaTopic)
   private val mainService = BootstrapManagedService(BazelMavenSynchronizerServer)
   val gitUsername = "builduser"
   val gitUserEmail = "builduser@ci.com"
   val thirdPartySyncbuildTypeID = "100x"
-  val fwSyncbuildTypeID = "200x"
 
   object E2EConfigurer extends Configurer {
 
@@ -39,13 +36,10 @@ object DepsSynchronizerTestEnv {
         config.copy(
           dependencyManagementArtifact = dependencyManagerArtifact.serialized,
           dependencyManagementArtifactBuildTypeId = thirdPartySyncbuildTypeID,
-          frameworkLeafArtifact = fwLeafCoordinates.serialized,
-          frameworkLeafArtifactBuildTypeId = fwSyncbuildTypeID,
           mavenRemoteRepositoryURL = List(fakeMavenRepository.url),
           artifactoryUrl = s"localhost:${WireMockTestSupport.wireMockPort}",
           git = config.git.copy(
             managedDepsRepoURL = fakeManagedDepsRemoteRepository.remoteURI,
-            serverInfraRepoURL = fakeServerInfraRemoteRepository.remoteURI,
             username = gitUsername,
             email = gitUserEmail
           ),

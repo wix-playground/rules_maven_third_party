@@ -28,24 +28,14 @@ class SynchronizerConfiguration {
   private val configuration = BazelMavenSynchronizerConfig.root
 
   private val buildTopic = TeamcityTopic.TeamcityEvents
-  private val gaTopic = Lifecycle.lifecycleGaTopic
 
   private val dependencyManagementArtifact: Coordinates = Coordinates.deserialize(configuration.dependencyManagementArtifact)
-  private val frameworkLeafArtifact: Coordinates = Coordinates.deserialize(configuration.frameworkLeafArtifact)
 
   private val synchronizedManagedDepsTopic = s"${buildTopic}_${dependencyManagementArtifact.serialized.replace(":", "_")}"
-  private val synchronizedFrameworkLeafTopic = s"${gaTopic}_${frameworkLeafArtifact.serialized.replace(":", "_")}"
 
   private def buildFinishedMessage= (buildFinished: BuildFinished) => {
     buildFinished.isSuccessful &&
       buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
-  }
-
-  private def fwGaTriggeredMessage= (message: BasePromote) => {
-    message match {
-      case gaMessage: GATriggeredEvent => gaMessage.buildTypeId == configuration.frameworkLeafArtifactBuildTypeId
-      case _ => false
-    }
   }
 
   @Bean
@@ -58,27 +48,12 @@ class SynchronizerConfiguration {
     val syncEndedProducer = resilientMaker.withTopic(BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic).unordered.build
     producers.add(syncEndedProducer)
 
-    val fwLeafProducer = resilientMaker.withTopic(synchronizedFrameworkLeafTopic).ordered.build
-    producers.add(fwLeafProducer)
-
     val managedDepsBazelRepository: BazelRepository = {
       val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "managed_deps_clone"
       val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
 
       new GitBazelRepository(
         configuration.git.managedDepsRepoURL,
-        checkoutDirectory,
-        configuration.git.username,
-        configuration.git.email
-      )(authenticationWithToken)
-    }
-
-    val serverInfraBazelRepository: BazelRepository = {
-      val checkoutDirectory = File(artifactAwareCacheFolder.folder.getAbsolutePath) / "fw_ga_clone"
-      val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
-
-      new GitBazelRepository(
-        configuration.git.serverInfraRepoURL,
         checkoutDirectory,
         configuration.git.username,
         configuration.git.email
@@ -93,22 +68,11 @@ class SynchronizerConfiguration {
       storage
     )
 
-    val  frameworkGAUpdateHandler= new FrameworkGAUpdateHandler(serverInfraBazelRepository,
-      managedDepsBazelRepository,
-      dependencyManagementArtifact,
-      configuration.mavenRemoteRepositoryURL,
-      storage,
-      configuration.frameworkLeafArtifact,
-      resolveBranchSuffix
-    )
-
     val managedDepsSyncFinished = new ManagedDepsSyncFinished(managedDepsBazelRepository,syncEndedProducer)
 
     new DependencyUpdateHandler(
       managedDependenciesUpdateHandler,
-      frameworkGAUpdateHandler,
       managedDepsProducer,
-      fwLeafProducer,
       managedDepsBazelRepository,
       managedDepsSyncFinished)
   }
@@ -126,38 +90,12 @@ class SynchronizerConfiguration {
     initTopics()
 
     setManagedDepsSyncMessagesConsumers(consumers, dependencyUpdateHandler)
-    setFrameworkLeafSyncConsumers(consumers, dependencyUpdateHandler)
-  }
-
-  private def setFrameworkLeafSyncConsumers(consumers: Consumers, dependencyUpdateHandler: DependencyUpdateHandler) = {
-    val gaMessageHandler = MessageHandler
-      .aMessageHandler[BasePromote](dependencyUpdateHandler.handleGAMessage)
-      .withMapper(JsonMapper.global)
-      .withFilter(fwGaTriggeredMessage)
-      .build
-    val gaMessageConsumer = GreyhoundConsumerSpec
-      .aGreyhoundConsumerSpec(gaTopic, gaMessageHandler)
-      .withGroup("bazel-ga")
-
-    val synchronizeFrameworkLeafHandler = MessageHandler
-      .aMessageHandler[GATriggeredEvent](dependencyUpdateHandler.handleMessageFromSynchronizedFrameworkLeafTopic)
-      .withMapper(JsonMapper.global)
-      .build
-    val synchronizeFrameworkLeafMessageConsumer = GreyhoundConsumerSpec
-      .aGreyhoundConsumerSpec(synchronizedFrameworkLeafTopic, synchronizeFrameworkLeafHandler)
-      .withGroup("fw-leaf-synchronizer")
-      .withMaxParallelism(1)
-
-    consumers.add(gaMessageConsumer)
-    consumers.add(synchronizeFrameworkLeafMessageConsumer)
   }
 
   private def initTopics(): Unit = {
     val kafkaAdmin = new KafkaGreyhoundAdmin()
     kafkaAdmin.createTopicIfNotExists(buildTopic)
-    kafkaAdmin.createTopicIfNotExists(gaTopic)
     kafkaAdmin.createTopicIfNotExists(synchronizedManagedDepsTopic, partitions = 1)
-    kafkaAdmin.createTopicIfNotExists(synchronizedFrameworkLeafTopic, partitions = 1)
     kafkaAdmin.createTopicIfNotExists(BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic, partitions = 1)
 
   }
