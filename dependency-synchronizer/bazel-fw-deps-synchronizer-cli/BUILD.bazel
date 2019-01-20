@@ -11,7 +11,7 @@ scala_library(
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
         "//repo-analyzer/maven-repo-analyzer:main_dependencies",
         "//wix-bazel-repositories/bazel-repositories-core:main_dependencies",
-        "@javax_servlet_javax_servlet_api",
+        "@javax_servlet_javax_servlet_api//:linkable",
         "@org_scala_lang_scala_library",
         "@org_slf4j_slf4j_api",
     ],

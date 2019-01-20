@@ -42,7 +42,7 @@ specs2_mixed_test(
         "@com_wix_iptf_greyhound_testkit",
         "@com_wix_visibility_api",
         "@com_wix_wix_server_bootstrap",
-        "@javax_servlet_javax_servlet_api",
+        "@javax_servlet_javax_servlet_api//:linkable",
         "@org_eclipse_jetty_jetty_servlet",
     ],
 )

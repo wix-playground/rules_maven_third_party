@@ -15,7 +15,7 @@ scala_library(
         "@com_wix_framework_wix_cache_folder",
         "@com_wix_hoopoe_hoopoe_config",
         "@com_wix_wix_server_bootstrap",
-        "@javax_servlet_javax_servlet_api",
+        "@javax_servlet_javax_servlet_api//:linkable",
         "@org_scala_lang_scala_library",
     ],
 )
