@@ -10,6 +10,7 @@ pipeline {
     }
     environment {
         GOOGLE_APPLICATION_CREDENTIALS = credentials("rbe_credentials")
+        bazel_log_file = "bazel-build.log"
         BAZEL_STARTUP_OPTS = '''|--bazelrc=.bazelrc.remote \\
                                 |'''.stripMargin()
         BAZEL_FLAGS = '''|-k \\
@@ -36,6 +37,7 @@ pipeline {
         stage('build-snapshot-module-to-single-repo-sync') {
             steps {
                 script{
+                    git "git@github.com:wix-private/bazel-tooling.git"
                     currentBuild.description = """${env.TARGET_REPO_URL}<br/>${env.MODULE_COORDINATES}"""
                     sh  """|#!/bin/bash
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
@@ -88,12 +90,19 @@ pipeline {
         }
         stage('push-to-git') {
             steps {
-                dir("${env.TARGET_REPO_NAME}"){
-                    sh """|git checkout -b ${env.BRANCH_NAME}
-                          |git add .
-                          |git commit --allow-empty -m "a new version of '${env.MODULE_COORDINATES}' was synced by ${env.BUILD_URL} #automerge #gcb_no_trigger_other_repos"
-                          |git push origin ${env.BRANCH_NAME}
-                          |""".stripMargin()
+                dir("${env.TARGET_REPO_NAME}") {
+                    script {
+                        foundDiff = sh script: "git diff --exit-code", returnStatus: true
+                        if (foundDiff > 0) {
+                            sh """|git checkout -b ${env.BRANCH_NAME}
+                                  |git add .
+                                  |git commit --allow-empty -m "a new version of '${env.MODULE_COORDINATES}' was synced by ${env.BUILD_URL} #automerge #gcb_no_trigger_other_repos"
+                                  |git push origin ${env.BRANCH_NAME}
+                                  |""".stripMargin()
+                        } else {
+                            currentBuild.description = """<div class="warning">no-change</div>${env.TARGET_REPO_URL}<br/>${params.COMMIT_MESSAGE_PREFIX}"""
+                        }
+                    }
                 }
             }
         }
