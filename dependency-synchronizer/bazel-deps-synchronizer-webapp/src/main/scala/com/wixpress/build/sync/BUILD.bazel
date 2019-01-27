@@ -15,17 +15,15 @@ bootstrap_jar(
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
+        "//dependency-synchronizer/bazel-deps-synchronizer-api/src/main/scala/com/wix/build/sync/api",
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/bazel",
         "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/sync",
-        "//dependency-synchronizer/bazel-deps-synchronizer-api/src/main/scala/com/wix/build/sync/api:api",
-        "//migrator/bazel-migrator-model/src/main/java/com/wix/bazel/migrator/model",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "//third_party/com/wix/iptf:greyhound_clients",
         "@com_fasterxml_jackson_core_jackson_annotations",
         "@com_fasterxml_jackson_core_jackson_core",
         "@com_fasterxml_jackson_core_jackson_databind",
-        "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
         "@com_github_pathikrit_better_files_2_12",
         "@com_wix_bootstrap_server_jetty",
         "@com_wix_ci_domain",
@@ -56,8 +54,4 @@ bootstrap_jar(
     ],
 )
 
-filegroup(
-    name = "sources",
-    srcs = glob(["*.java"]) + glob(["*.scala"]),
-    visibility = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync:__pkg__"],
-)
+sources()

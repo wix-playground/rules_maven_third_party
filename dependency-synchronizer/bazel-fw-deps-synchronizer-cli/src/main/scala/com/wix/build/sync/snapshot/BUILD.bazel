@@ -24,20 +24,16 @@ scala_library(
     ],
 )
 
-filegroup(
-    name = "sources",
-    srcs = glob(["*.java"]) + glob(["*.scala"]),
-    visibility = ["//dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:__pkg__"],
-)
+sources()
 
 java_binary(
     name = "fw_sync_cli",
-    main_class = "com.wix.build.sync.snapshot.FWDependenciesSynchronizerCli",
+    main_class = "com.wix.build.sync.fw.FWDependenciesSynchronizerCli",
     runtime_deps = [":snapshot"],
 )
 
 java_binary(
     name = "snapshot_to_single_repo_sync_cli",
-    main_class = "com.wix.build.sync.snapshot.SnapshotsToSingleRepoSynchronizerCli",
+    main_class = "com.wix.build.sync.fw.SnapshotsToSingleRepoSynchronizerCli",
     runtime_deps = [":snapshot"],
 )

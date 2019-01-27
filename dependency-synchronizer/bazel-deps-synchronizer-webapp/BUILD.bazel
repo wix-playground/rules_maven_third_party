@@ -9,6 +9,7 @@ scala_library(
     deps = [
         "//dependency-resolver/maven-dependency-resolver:main_dependencies",
         "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer-api:main_dependencies",
         "//third_party/com/wix/iptf:greyhound_clients",
         "//wix-bazel-repositories/bazel-repositories-core:main_dependencies",
         "@com_wix_ci_domain",
