@@ -4,7 +4,7 @@ import java.nio.file.Path
 import java.util.UUID
 
 import better.files.File
-import com.wix.build.maven.analysis.MavenSourceModules
+import com.wix.build.maven.analysis.{MavenSourceModules, RepoProvidedDeps}
 import com.wix.build.sync.SourceModulesOverridesReaderDeleteOnPhase2
 import com.wix.build.bazel._
 import com.wix.build.maven._
@@ -43,13 +43,15 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   private val repoPath: Path = File(targetRepoLocalClone).path
   val mavenModules = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
 
+  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModules).repoProvidedArtifacts)
   val synchronizer = new UserAddedDepsDiffSynchronizer(targetBazelRepo,
     managedDepsBazelRepo,
     ManagedDependenciesArtifact,
     aetherResolver,
     dependenciesRemoteStorage,
     mavenModules,
-    UUID.randomUUID().toString
+    UUID.randomUUID().toString,
+    neverLinkResolver
   )
 
   val dependenciesToSync = snapshotModules.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
