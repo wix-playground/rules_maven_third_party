@@ -28,12 +28,12 @@ sources()
 
 java_binary(
     name = "fw_sync_cli",
-    main_class = "com.wix.build.sync.fw.FWDependenciesSynchronizerCli",
+    main_class = "com.wix.build.sync.snapshot.FWDependenciesSynchronizerCli",
     runtime_deps = [":snapshot"],
 )
 
 java_binary(
     name = "snapshot_to_single_repo_sync_cli",
-    main_class = "com.wix.build.sync.fw.SnapshotsToSingleRepoSynchronizerCli",
+    main_class = "com.wix.build.sync.snapshot.SnapshotsToSingleRepoSynchronizerCli",
     runtime_deps = [":snapshot"],
 )
