@@ -121,6 +121,7 @@ def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
                      |--config=rbe_based \\
                      |--config=results \\
                      |--project_id=gcb-with-custom-workers \\
+                     |--build_tag_filters=-deployable \\
                      |--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance""".stripMargin()
     status = sh(
             script: """|#!/bin/bash
