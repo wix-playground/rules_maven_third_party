@@ -22,7 +22,7 @@ object TestApp extends App {
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots"))
 
-  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None, ManagedThirdPartyPaths())
+  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None)
   val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Packaging("jar"),Some("tests")),MavenScope.Compile)
   val deps = resolver.dependencyClosureOf(Set(dep),Set.empty)
   println(deps)
@@ -31,7 +31,7 @@ object TestApp extends App {
 
 class MockBazelRepository(local: File) extends BazelRepository {
 
-  override def localWorkspace(branchName: String, paths: ThirdPartyPaths): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
+  override def localWorkspace(branchName: String): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
 
   override def persist(branchName: String, changedFilePaths: Set[String], message: String): Unit = {
     println(s"persisting to branch $branchName files $changedFilePaths")
