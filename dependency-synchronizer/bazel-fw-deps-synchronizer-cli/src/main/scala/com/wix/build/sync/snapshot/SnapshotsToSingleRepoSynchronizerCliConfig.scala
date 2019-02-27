@@ -1,11 +1,11 @@
 package com.wix.build.sync.snapshot
 
-case class FWDependenciesToSingleRepoSynchronizerConfig(mavenRemoteRepositoryURL: List[String],
-                                                        targetRepoUrl: String,
-                                                        managedDepsRepoUrl: String,
-                                                        fwArtifact: String)
+case class SnapshotsToSingleRepoSynchronizerCliConfig(mavenRemoteRepositoryURL: List[String],
+                                                      targetRepoUrl: String,
+                                                      managedDepsRepoUrl: String,
+                                                      fwArtifact: String)
 
-object FWDependenciesToSingleRepoSynchronizerConfig {
+object SnapshotsToSingleRepoSynchronizerCliConfig {
   private val RepoFlag = "binary-repo"
   private val wixRepos = List(
     "http://repo.example.com:80/artifactory/libs-releases",
@@ -20,7 +20,7 @@ object FWDependenciesToSingleRepoSynchronizerConfig {
       |for example: --target_repo /path/to/target/repo --managed_deps_repo /path/to/managed/deps/repo com.wix.common:wix-framework-leaf:pom:1.0.0-SNAPSHOT --additional-dep com.wix:petri-aspects:1.0.0-SNAPSHOT
     """.stripMargin
 
-  private val parser = new scopt.OptionParser[FWDependenciesToSingleRepoSynchronizerConfig]("FWDependenciesSynchronizerCli") {
+  private val parser = new scopt.OptionParser[SnapshotsToSingleRepoSynchronizerCliConfig]("FWDependenciesSynchronizerCli") {
     opt[String](RepoFlag)
       .withFallback(() => wixRepos.mkString(","))
       .action { case (remoteRepoUrls, config) =>
@@ -41,9 +41,9 @@ object FWDependenciesToSingleRepoSynchronizerConfig {
         config.copy(fwArtifact = artifact) }
   }
 
-  private val Empty = FWDependenciesToSingleRepoSynchronizerConfig(null, null, null, null)
+  private val Empty = SnapshotsToSingleRepoSynchronizerCliConfig(null, null, null, null)
 
-  def parse(args: Array[String]): FWDependenciesToSingleRepoSynchronizerConfig = {
+  def parse(args: Array[String]): SnapshotsToSingleRepoSynchronizerCliConfig = {
     parser.parse(args, Empty).getOrElse(throw new IllegalArgumentException(Usage))
   }
 }

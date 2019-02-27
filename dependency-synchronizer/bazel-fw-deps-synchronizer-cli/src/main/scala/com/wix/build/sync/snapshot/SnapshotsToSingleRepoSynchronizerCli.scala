@@ -16,7 +16,7 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  val config = FWDependenciesToSingleRepoSynchronizerConfig.parse(args)
+  val config = SnapshotsToSingleRepoSynchronizerCliConfig.parse(args)
   val snapshotModules = config.fwArtifact
 
   log.info("snapshot modules: " + snapshotModules)

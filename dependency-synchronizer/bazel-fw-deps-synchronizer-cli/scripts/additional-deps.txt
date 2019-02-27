@@ -1,8 +1,0 @@
-com.wix.common:wix-petri-aspects:1.19.0-SNAPSHOT
-com.wix.common:wix-petri-integration:1.19.0-SNAPSHOT
-com.wix.acdc:msm-converter:1.0.0-SNAPSHOT
-com.wix:wix-meta-site-manager-testkit:1.0.0-SNAPSHOT
-com.wix.apps:app-store-public-service-testkit:1.0.0-SNAPSHOT
-com.wix.acdc:meta-site-api-testkit:1.0.0-SNAPSHOT
-com.wix.wixerd:wixerd-core:1.0.0-SNAPSHOT
-com.wix.apps:client-spec-map-experiment-dao:1.0.0-SNAPSHOT
