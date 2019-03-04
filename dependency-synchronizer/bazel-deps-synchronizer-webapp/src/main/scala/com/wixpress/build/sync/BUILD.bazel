@@ -52,6 +52,8 @@ bootstrap_jar(
         "@org_springframework_spring_core",
         "@org_springframework_spring_web",
         "@org_springframework_spring_webmvc",
+        "@com_jcraft_jsch",
+        "@org_eclipse_jgit_org_eclipse_jgit",
     ],
 )
 

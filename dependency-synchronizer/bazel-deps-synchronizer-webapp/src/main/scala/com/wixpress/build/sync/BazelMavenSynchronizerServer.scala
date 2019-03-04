@@ -5,7 +5,7 @@ import java.util.UUID
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
 import com.wix.build.sync.api.BazelSyncGreyhoundEvents
-import com.wix.build.bazel.{BazelRepository, GitAuthenticationWithToken, GitBazelRepository}
+import com.wix.build.bazel.BazelRepository
 import com.wix.build.maven.Coordinates
 import com.wix.ci.greyhound.events._
 import com.wix.framework.cache.disk.CacheFolder
