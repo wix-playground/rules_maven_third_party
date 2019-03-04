@@ -57,7 +57,7 @@ class SynchronizerConfiguration {
       val authenticationWithToken = new GitAuthenticationWithToken(Option(configuration.git.githubToken).filterNot(_.isEmpty))
 
       new GitBazelRepository(
-        configuration.git.managedDepsRepoURL,
+        GitRepo(configuration.git.managedDepsRepoURL),
         checkoutDirectory,
         masterEnforcer,
         configuration.git.username,

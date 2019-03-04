@@ -1,5 +1,7 @@
 package com.wix.build.sync
 
+import java.util.regex.Pattern
+
 import better.files.File
 import com.jcraft.jsch.Session
 import com.wix.build.bazel.{BazelLocalWorkspace, BazelRepository, FileSystemBazelLocalWorkspace}
@@ -10,11 +12,11 @@ import org.eclipse.jgit.transport.{JschConfigSessionFactory, SshTransport, _}
 import org.slf4j.LoggerFactory
 
 class GitBazelRepository(
-                          gitURL: String,
+                          gitRepo: GitRepo,
                           checkoutDir: File,
                           masterEnforcer: MasterEnforcer,
-                          username: String = "WixBuildServer",
-                          email: String = "buildserver@wix.com")
+                          username: String = "blah",
+                          email: String = "notanadmin@wix.com")
                           (implicit authentication: GitAuthentication) extends BazelRepository {
 
   private val log = LoggerFactory.getLogger(getClass)
@@ -27,7 +29,7 @@ class GitBazelRepository(
   private def init(): Unit = {
     checkoutDir.delete(swallowIOExceptions = true).createDirectories()
     val git = authentication.set(Git.cloneRepository())
-      .setURI(gitURL)
+      .setURI(gitRepo.gitURL)
       .setDirectory(checkoutDir.toJava)
       .call()
     git.close()
@@ -93,8 +95,8 @@ class GitBazelRepository(
   }
 
   private def pushToRemote(git: Git, branchName: String) = {
-    log.info(s"pushing to $gitURL, branch: $branchName")
-    masterEnforcer.enforceAdmins("wix-private", git.getRepository.toString, {
+    log.info(s"pushing to ${gitRepo.gitURL}, branch: $branchName")
+    masterEnforcer.enforceAdmins(gitRepo.org, gitRepo.repoName, {
       authentication.set(git.push())
         .setRemote(DefaultRemote)
         .setRefSpecs(new RefSpec(branchName))
@@ -110,6 +112,20 @@ class GitBazelRepository(
     }
     finally {
       git.close()
+    }
+  }
+}
+
+case class GitRepo(gitURL: String, org: String, repoName: String)
+
+object GitRepo {
+  def apply(gitURL: String): GitRepo = {
+    val pattern = Pattern.compile("https://github.com/(.+?)/(.+?).git")
+    val matcher = pattern.matcher(gitURL)
+
+    matcher.find() match {
+      case true => GitRepo(gitURL, matcher.group(1), matcher.group(2))
+      case false => GitRepo(gitURL, "defaultForNonValidUrl", "defaultForNonValidUrl")
     }
   }
 }
