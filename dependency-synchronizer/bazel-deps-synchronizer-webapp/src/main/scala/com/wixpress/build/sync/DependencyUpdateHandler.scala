@@ -13,7 +13,6 @@ import scala.concurrent.Future
 
 class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpdateHandler,
                               producerToSynchronizedManagedDepsTopic: GreyhoundResilientProducer,
-                              managedDepsBazelRepository: BazelRepository,
                               managedDepsSyncFinished : ManagedDepsSyncFinished ) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -61,7 +60,7 @@ class ManagedDepsSyncFinished(managedDepsBazelRepository: BazelRepository,syncEn
   }
 
   private def readManagedArtifacts() : Set[ThirdPartyArtifact] = {
-    val managedDepsRepoReader = new BazelDependenciesReader(managedDepsBazelRepository.localWorkspace("master"))
+    val managedDepsRepoReader = new BazelDependenciesReader(managedDepsBazelRepository.localWorkspace())
     managedDepsRepoReader.allDependenciesAsMavenDependencyNodes()
       .map(d=>ThirdPartyArtifact(d.baseDependency.coordinates.groupId,
         d.baseDependency.coordinates.artifactId,

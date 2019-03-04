@@ -35,8 +35,8 @@ class GitBazelRepository(
     git.close()
   }
 
-  override def localWorkspace(branchName: String): BazelLocalWorkspace = {
-    cleanAndUpdateLocalRepo(branchName: String)
+  override def localWorkspace(): BazelLocalWorkspace = {
+    cleanAndUpdateLocalRepo()
     new FileSystemBazelLocalWorkspace(checkoutDir)
   }
 
@@ -48,7 +48,7 @@ class GitBazelRepository(
     })
   }
 
-  private def cleanAndUpdateLocalRepo(branchName: String) = {
+  private def cleanAndUpdateLocalRepo() = {
     withLocalGit(git => {
       authentication.set(git.fetch())
         .call()

@@ -43,8 +43,7 @@ object DepsSynchronizerTestEnv extends MasterGuardTestEnvSupport {
             managedDepsRepoURL = fakeManagedDepsRemoteRepository.remoteURI,
             username = gitUsername,
             email = gitUserEmail
-          ),
-          branchSuffix = newBranchSuffix
+          )
         )
       }
       TestConfigFactory.aTestEnvironmentFor[BazelMavenSynchronizerConfig](

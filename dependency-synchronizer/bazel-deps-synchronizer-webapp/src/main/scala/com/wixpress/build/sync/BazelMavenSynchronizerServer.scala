@@ -1,7 +1,5 @@
 package com.wix.build.sync
 
-import java.util.UUID
-
 import better.files.File
 import com.wix.bootstrap.jetty.BootstrapServer
 import com.wix.build.sync.api.BazelSyncGreyhoundEvents
@@ -78,15 +76,7 @@ class SynchronizerConfiguration {
     new DependencyUpdateHandler(
       managedDependenciesUpdateHandler,
       managedDepsProducer,
-      managedDepsBazelRepository,
       managedDepsSyncFinished)
-  }
-
-  private def resolveBranchSuffix = {
-    if (configuration.branchSuffix.isEmpty)
-      UUID.randomUUID().toString
-    else
-      configuration.branchSuffix
   }
 
   @Autowired

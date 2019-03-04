@@ -23,7 +23,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   private val someCoordinates = Coordinates("com.wix.example", "some-artifact", "someVersion")
   private val otherCoordinates: Coordinates = someCoordinates.copy(groupId = "other-group")
 
-  def produceMessageAboutManagedDepsChange(coordinates: Coordinates): Unit = {
+  def produceMessageAboutManagedDepsChange(): Unit = {
     val producer = ProducerMaker.aProducer().buffered.ordered.build
     val buildFinishedMessage = BuildFinished(
       buildRunId = "dont-care",
@@ -42,7 +42,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
         "add dependency X to target bazel repository and push to source control" in new ctx {
           manage(someCoordinates)
 
-          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange()
 
 
           eventually {
@@ -57,11 +57,11 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
         "add both dependency X and dependency Y to target bazel repository" in new ctx {
           val updatedDependencyManagementArtifact = manage(someCoordinates)
 
-          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange()
 
           manage(otherCoordinates)
 
-          produceMessageAboutManagedDepsChange(dependencyManagerArtifact)
+          produceMessageAboutManagedDepsChange()
 
           eventually {
             fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)

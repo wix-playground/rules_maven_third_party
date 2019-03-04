@@ -39,13 +39,13 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val fakeGitRepo = GitRepo(fakeRemoteRepository.remoteURI, "someOrg", "someRepoName")
       val gitBazelRepository = new GitBazelRepository(fakeGitRepo, aRandomTempDirectory, new SpyMasterEnforcer)
 
-      val localWorkspace = gitBazelRepository.localWorkspace("master")
+      val localWorkspace = gitBazelRepository.localWorkspace()
 
       localWorkspace.thirdPartyReposFileContent() mustEqual thirdPartyReposFileContent
     }
 
     "return valid bazel local third party repos content for some-branch" in new exitingThirdPartyRepo{
-      val localWorkspace = gitBazelRepository.localWorkspace("some-branch")
+      val localWorkspace = gitBazelRepository.localWorkspace()
 
       localWorkspace.thirdPartyReposFileContent() mustEqual thirdPartyReposFileContent
     }
@@ -70,11 +70,11 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
 
       val branchName = "some-branch"
 
-      gitBazelRepository.localWorkspace("master").overwriteThirdPartyReposFile("old-content")
+      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile("old-content")
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       val newContent = "new-content"
-      gitBazelRepository.localWorkspace("master").overwriteThirdPartyReposFile(newContent)
+      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile(newContent)
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
@@ -87,7 +87,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val branchName = "some-branch"
 
       val newContent = "new-content"
-      gitBazelRepository.localWorkspace(branchName).overwriteThirdPartyReposFile(newContent)
+      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile(newContent)
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
@@ -122,7 +122,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       addFileAndCommit(branchName, fileName, "old content")(localGitPath)
       addFile(DefaultBranch, fileName, "new content")(localGitPath)
 
-      gitBazelRepository.localWorkspace(branchName)
+      gitBazelRepository.localWorkspace()
 
       checkoutBranch(branchName)(localGitPath) must not throwA[Exception]()
 
