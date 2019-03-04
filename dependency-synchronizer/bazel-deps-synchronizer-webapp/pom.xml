@@ -88,10 +88,18 @@
             <groupId>com.wix.ci</groupId>
             <artifactId>domain</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.wix.vi</groupId>
+            <artifactId>masterguard-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.wix.framework</groupId>
             <artifactId>petri-integration-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wix.vi</groupId>
+            <artifactId>masterguard-test-app</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -16,13 +16,16 @@ import com.wix.greyhound.producer.builder.ResilientProducerMaker
 import com.wix.hoopoe.json.JsonMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, Import}
+import com.wix.vi.githubtools.masterguard.enforceadmins.MasterEnforcer
+import com.wix.vi.githubtools.masterguard.spring.EnforceAdminsSpringConfig
+
 
 object BazelMavenSynchronizerServer extends BootstrapServer {
   override def additionalSpringConfig = Some(classOf[SynchronizerConfiguration])
 }
 
 @Configuration
-@Import(Array(classOf[JsonRpcServerConfiguration], classOf[GreyhoundSpringConfig], classOf[CacheFolderConfig]))
+@Import(Array(classOf[JsonRpcServerConfiguration], classOf[GreyhoundSpringConfig], classOf[CacheFolderConfig], classOf[EnforceAdminsSpringConfig]))
 class SynchronizerConfiguration {
   
   private val configuration = BazelMavenSynchronizerConfig.root
@@ -40,7 +43,8 @@ class SynchronizerConfiguration {
 
   @Bean
   def synchronizedDependencyUpdateHandler(producers: Producers, resilientMaker: ResilientProducerMaker,
-                                          artifactAwareCacheFolder: CacheFolder): DependencyUpdateHandler = {
+                                          artifactAwareCacheFolder: CacheFolder,
+                                          masterEnforcer: MasterEnforcer): DependencyUpdateHandler = {
     initTopics()
     val managedDepsProducer = resilientMaker.withTopic(synchronizedManagedDepsTopic).ordered.build
     producers.add(managedDepsProducer)
@@ -55,6 +59,7 @@ class SynchronizerConfiguration {
       new GitBazelRepository(
         configuration.git.managedDepsRepoURL,
         checkoutDirectory,
+        masterEnforcer,
         configuration.git.username,
         configuration.git.email
       )(authenticationWithToken)

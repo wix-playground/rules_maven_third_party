@@ -10,8 +10,9 @@ import com.wix.framework.petri.PetriTestkit
 import com.wix.framework.test.env.{Configurer, TestEnv, TestEnvBuilder}
 import com.wix.greyhound.KafkaManagedService
 import com.wix.hoopoe.config.TestConfigFactory
+import com.wix.musterguard.drivers.MasterGuardTestEnvSupport
 
-object DepsSynchronizerTestEnv {
+object DepsSynchronizerTestEnv extends MasterGuardTestEnvSupport {
   private def mavenRepoPort = PortRandomizer.selectRandomPort()
 
   val fakeMavenRepository = new FakeMavenRepository(mavenRepoPort)
@@ -57,7 +58,7 @@ object DepsSynchronizerTestEnv {
   private val petri = PetriTestkit().withFreshFakeServer().build
 
   def env: TestEnv = TestEnvBuilder()
-    .withCollaborators(kafka, fakeMavenRepository, petri, wiremock)
+    .withCollaborators(kafka, fakeMavenRepository, petri, wiremock, masterGuardRpcServer )
     .withMainServiceConfigurer(E2EConfigurer)
     .withMainService(mainService)
     .build()
