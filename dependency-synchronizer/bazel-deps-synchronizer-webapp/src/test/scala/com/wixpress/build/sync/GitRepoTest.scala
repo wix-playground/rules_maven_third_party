@@ -14,8 +14,8 @@ class GitRepoTest extends SpecificationWithJUnit {
     "use defaults if url is not uri" in {
       val gitRepo = GitRepo(s"some-weird-string")
 
-      gitRepo.org must_===("defaultForNonValidUrl")
-      gitRepo.repoName must_===("defaultForNonValidUrl")
+      gitRepo.org must_===("defaultForNonValidUrl-some-weird-string")
+      gitRepo.repoName must_===("defaultForNonValidUrl-some-weird-string")
     }
 
     "use explicitly supplied org and repo" in {

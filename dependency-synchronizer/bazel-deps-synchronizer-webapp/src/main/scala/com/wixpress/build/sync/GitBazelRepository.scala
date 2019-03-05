@@ -95,7 +95,8 @@ class GitBazelRepository(
   }
 
   private def pushToRemote(git: Git, branchName: String) = {
-    log.info(s"pushing to ${gitRepo.gitURL}, branch: $branchName")
+    log.info(s"Pushing to ${gitRepo.gitURL}, branch: $branchName. Going via masterguard with org ${gitRepo.org} and repo ${gitRepo.repoName}")
+
     masterEnforcer.enforceAdmins(gitRepo.org, gitRepo.repoName, {
       authentication.set(git.push())
         .setRemote(DefaultRemote)
@@ -125,7 +126,7 @@ object GitRepo {
 
     matcher.find() match {
       case true => GitRepo(gitURL, matcher.group(1), matcher.group(2))
-      case false => GitRepo(gitURL, "defaultForNonValidUrl", "defaultForNonValidUrl")
+      case false => GitRepo(gitURL, s"defaultForNonValidUrl-$gitURL", s"defaultForNonValidUrl-$gitURL")
     }
   }
 }
