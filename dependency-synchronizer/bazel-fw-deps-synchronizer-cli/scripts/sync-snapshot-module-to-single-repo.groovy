@@ -37,7 +37,6 @@ pipeline {
         stage('build-snapshot-module-to-single-repo-sync') {
             steps {
                 script{
-                    git "git@github.com:wix-private/bazel-tooling.git"
                     currentBuild.description = """${env.TARGET_REPO_URL}<br/>${env.MODULE_COORDINATES}"""
                     sh  """|#!/bin/bash
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
