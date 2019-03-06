@@ -1,7 +1,6 @@
 package com.wix.build.sync.snapshot
 
 import java.nio.file.Path
-import java.util.UUID
 
 import better.files.File
 import com.wix.build.maven.analysis.{MavenSourceModules, RepoProvidedDeps}
@@ -11,8 +10,10 @@ import com.wix.build.maven._
 import com.wix.build.sync._
 import org.slf4j.LoggerFactory
 
+//TODO - this is the cli run by jenkins (via groovy scripts)
+//either rename these classes and the module name itself,
+//or better yet - consolidate this with the DependencySynchronizerCli
 object SnapshotsToSingleRepoSynchronizerCli extends App {
-  final val fwLeaf = Coordinates("com.wix.common", "wix-framework-leaf", "1.0.0", Packaging("pom"))
 
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -39,20 +40,19 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   val targetBazelRepo: BazelRepository= new NoPersistenceBazelRepository(File(targetRepoLocalClone))
   val managedDepsBazelRepo: BazelRepository= new NoPersistenceBazelRepository(File(managedDepsRepoLocalClone))
 
-  log.info("Reading maven modules of target repo in order to include potential source depedencies (for phase 1 only)...")
+  log.info("Reading maven modules of target repo in order to include potential source dependencies (for phase 1 only)...")
   private val repoPath: Path = File(targetRepoLocalClone).path
   val mavenModules = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
 
   val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModules).repoProvidedArtifacts)
-  val synchronizer = new UserAddedDepsDiffSynchronizer(targetBazelRepo,
+  val calculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
     managedDepsBazelRepo,
     ManagedDependenciesArtifact,
     aetherResolver,
     dependenciesRemoteStorage,
-    mavenModules,
-    UUID.randomUUID().toString,
-    neverLinkResolver
+    mavenModules
   )
+  val synchronizer = new UserAddedDepsDiffSynchronizer(calculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
 
   val dependenciesToSync = snapshotModules.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
 

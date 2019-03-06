@@ -15,8 +15,8 @@ import org.specs2.specification.{After, Scope}
 class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
   sequential
 
-  "FW Dependencies synchronizer CLI" should {
-    "sync new FW leaf version to some repo" in new basicCtx {
+  "Snapshot Dependencies synchronizer CLI" should {
+    "sync dep to some repo" in new basicCtx {
       val dependencyA = asCompileDependency(artifactA)
       val dependencyB = asCompileDependency(artifactB)
 
