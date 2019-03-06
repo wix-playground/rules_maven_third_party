@@ -67,7 +67,7 @@ class ManagedDepsSyncFinished(managedDepsBazelRepository: BazelRepository,syncEn
         d.baseDependency.coordinates.version,
         d.baseDependency.coordinates.packaging.value,
         d.baseDependency.coordinates.classifier,
-        d.checksum))
+        None))
   }
 }
 
