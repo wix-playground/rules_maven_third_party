@@ -34,17 +34,14 @@ pipeline {
         BRANCH_NAME = "snapshot-module-sync-${env.BUILD_ID}"
     }
     stages {
-        stage('build-snapshot-module-to-single-repo-sync') {
+        stage('prepare-env') {
             steps {
-                script{
-                    currentBuild.description = """${env.TARGET_REPO_URL}<br/>${env.MODULE_COORDINATES}"""
-                    sh  """|#!/bin/bash
-                           |bazel ${env.BAZEL_STARTUP_OPTS} \\
-                           |build \\
-                           |      ${env.BAZEL_FLAGS} \\
-                           |      //dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:snapshot_to_single_repo_sync_cli_deploy.jar
-                           |""".stripMargin()
-
+                script {
+                    currentBuild.description = """${env.TARGET_REPO_URL}<br/>${
+                        env.MODULE_COORDINATES
+                    }"""
+                    deleteDir()
+                    copyArtifacts flatten: true, projectName: 'build-cli', selector: lastSuccessful()
                 }
             }
         }
@@ -52,17 +49,15 @@ pipeline {
             steps {
                 echo "checkout of: ${env.MANAGED_DEPS_REPO_NAME}"
                 dir("${env.MANAGED_DEPS_REPO_NAME}") {
-                    checkout([$class: 'GitSCM', branches: [[name: 'master' ]],
-                              userRemoteConfigs: [[url: "${env.MANAGED_DEPS_REPO_URL}"]]])
+                    git url: env.MANAGED_DEPS_REPO_URL, branch: "master"
                 }
             }
         }
         stage('checkout-target-repo') {
             steps {
                 echo "checkout of: ${env.TARGET_REPO_URL}"
-                dir("${env.TARGET_REPO_NAME}") {
-                    checkout([$class: 'GitSCM', branches: [[name: 'master' ]],
-                              userRemoteConfigs: [[url: "${env.TARGET_REPO_URL}"]]])
+                dir(env.TARGET_REPO_NAME) {
+                    git url: env.TARGET_REPO_URL, branch: "master"
                 }
             }
         }
@@ -71,7 +66,7 @@ pipeline {
                 script {
                     sh """|stdbuf -i0 -o0 -e0 \\
                           |   java -Xmx12G \\
-                          |   -jar bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar --target_repo ${env.TARGET_REPO_NAME} --managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME} --snapshot_modules ${env.MODULE_COORDINATES}""".stripMargin()
+                          |   -jar snapshot_to_single_repo_sync_cli_deploy.jar --target_repo ${env.TARGET_REPO_NAME} --managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME} --snapshot_modules ${env.MODULE_COORDINATES}""".stripMargin()
                 }
             }
         }
@@ -107,8 +102,11 @@ pipeline {
         }
     }
     post {
-        always {
-            archiveArtifacts "bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar"
+        failure{
+            script {
+                msg = "*:thumbsdown: Sync SNAPSHOT Jenkins job Failed :thumbsdown:*\n *Repo*:`${env.TARGET_REPO_URL}`\n*Artifacts*:`${env.MODULE_COORDINATES}`\nsee more here ${env.BUILD_URL} "
+                slackSend channel: "#automerge-status", color: "warning", message: msg
+            }
         }
     }
 }
