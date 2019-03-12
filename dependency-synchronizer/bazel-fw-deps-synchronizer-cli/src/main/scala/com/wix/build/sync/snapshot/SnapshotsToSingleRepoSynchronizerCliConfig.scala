@@ -3,42 +3,42 @@ package com.wix.build.sync.snapshot
 case class SnapshotsToSingleRepoSynchronizerCliConfig(mavenRemoteRepositoryURL: List[String],
                                                       targetRepoUrl: String,
                                                       managedDepsRepoUrl: String,
-                                                      fwArtifact: String)
+                                                      snapshotToSync: String)
 
 object SnapshotsToSingleRepoSynchronizerCliConfig {
-  private val RepoFlag = "binary-repo"
+  val BinariesRepoFlag = "binary-repo"
   private val wixRepos = List(
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots")
 
-  private val targetRepoFlag = "target_repo"
-  private val managedDepsRepoFlag = "managed_deps_repo"
-  private val snapshotModuleCoordinatesFlag = "snapshot_modules"
+  val TargetRepoFlag = "target_repo"
+  val ManagedDepsRepoFlag = "managed_deps_repo"
+  val SnapshotModuleToSyncCoordinatesFlag = "snapshot_modules"
 
   private val Usage =
-    s"""Usage: DependencySynchronizer [--$RepoFlag remoteRepoUrl] --$targetRepoFlag targetRepoLocalPath --$managedDepsRepoFlag managedDepsRepoLocalPath --$snapshotModuleCoordinatesFlag snapshot-module-coordinates --additional-deps dep
+    s"""Usage: DependencySynchronizer [--$BinariesRepoFlag remoteRepoUrl] --$TargetRepoFlag targetRepoLocalPath --$ManagedDepsRepoFlag managedDepsRepoLocalPath --$SnapshotModuleToSyncCoordinatesFlag snapshot-module-coordinates --additional-deps dep
       |for example: --target_repo /path/to/target/repo --managed_deps_repo /path/to/managed/deps/repo com.wix.common:wix-framework-leaf:pom:1.0.0-SNAPSHOT --additional-dep com.wix:petri-aspects:1.0.0-SNAPSHOT
     """.stripMargin
 
   private val parser = new scopt.OptionParser[SnapshotsToSingleRepoSynchronizerCliConfig]("FWDependenciesSynchronizerCli") {
-    opt[String](RepoFlag)
+    opt[String](BinariesRepoFlag)
       .withFallback(() => wixRepos.mkString(","))
       .action { case (remoteRepoUrls, config) =>
         config.copy(mavenRemoteRepositoryURL = remoteRepoUrls.split(",").toList) }
 
-    opt[String](targetRepoFlag)
+    opt[String](TargetRepoFlag)
       .action { case (url, config) =>
         config.copy(targetRepoUrl = url) }
 
-    opt[String](managedDepsRepoFlag)
+    opt[String](ManagedDepsRepoFlag)
       .action { case (url, config) =>
         config.copy(managedDepsRepoUrl = url) }
 
 
-    opt[String](snapshotModuleCoordinatesFlag)
+    opt[String](SnapshotModuleToSyncCoordinatesFlag)
       .required()
       .action { case (artifact, config) =>
-        config.copy(fwArtifact = artifact) }
+        config.copy(snapshotToSync = artifact) }
   }
 
   private val Empty = SnapshotsToSingleRepoSynchronizerCliConfig(null, null, null, null)

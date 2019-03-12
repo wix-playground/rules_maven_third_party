@@ -4,6 +4,7 @@ import java.nio.file.Path
 
 import better.files.File
 import com.wix.build.maven.analysis.{MavenSourceModules, RepoProvidedDeps}
+import com.wix.build.sync.DependencySynchronizerCli.{combineRequestedDeps, readPinnedDeps}
 import com.wix.build.sync.SourceModulesOverridesReaderDeleteOnPhase2
 import com.wix.build.bazel._
 import com.wix.build.maven._
@@ -18,19 +19,17 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   private val log = LoggerFactory.getLogger(getClass)
 
   val config = SnapshotsToSingleRepoSynchronizerCliConfig.parse(args)
-  val snapshotModules = config.fwArtifact
 
-  log.info("snapshot modules: " + snapshotModules)
+  val snapshotModulesToSync = config.snapshotToSync
+  log.info("snapshot modules: " + snapshotModulesToSync)
 
   val targetRepoLocalClone = config.targetRepoUrl
-
   log.info("targetRepoLocalClone: " + targetRepoLocalClone)
 
   val managedDepsRepoLocalClone = config.managedDepsRepoUrl
-
   log.info("managedDepsRepoLocalClone: " + managedDepsRepoLocalClone)
 
-  val ManagedDependenciesArtifact = Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT")
+  val mavenManagedDependenciesArtifact = Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT")
 
   val remoteRepositoryURL = config.mavenRemoteRepositoryURL
   val aetherResolver = new AetherMavenDependencyResolver(remoteRepositoryURL)
@@ -41,20 +40,22 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   val managedDepsBazelRepo: BazelRepository= new NoPersistenceBazelRepository(File(managedDepsRepoLocalClone))
 
   log.info("Reading maven modules of target repo in order to include potential source dependencies (for phase 1 only)...")
-  private val repoPath: Path = File(targetRepoLocalClone).path
+  val repoPath: Path = File(targetRepoLocalClone).path
   val mavenModules = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
 
-  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModules).repoProvidedArtifacts)
   val calculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
     managedDepsBazelRepo,
-    ManagedDependenciesArtifact,
+    mavenManagedDependenciesArtifact,
     aetherResolver,
     dependenciesRemoteStorage,
     mavenModules
   )
+
+  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModules).repoProvidedArtifacts)
   val synchronizer = new UserAddedDepsDiffSynchronizer(calculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
 
-  val dependenciesToSync = snapshotModules.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
+  val snapshotsToSync = snapshotModulesToSync.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
+  val dependenciesToSync = combineRequestedDeps(readPinnedDeps(repoPath), snapshotsToSync)
 
   synchronizer.syncThirdParties(dependenciesToSync)
 
