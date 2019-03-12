@@ -71,6 +71,7 @@
     <dependency>
       <groupId>com.wix.build</groupId>
       <artifactId>bazel-deps-synchronizer-cli</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
 
