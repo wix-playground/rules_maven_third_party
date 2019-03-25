@@ -36,23 +36,23 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
 
   val dependenciesRemoteStorage = new StaticDependenciesRemoteStorage(new MavenRepoRemoteStorage(remoteRepositoryURL))
 
-  val targetBazelRepo: BazelRepository= new NoPersistenceBazelRepository(File(targetRepoLocalClone))
-  val managedDepsBazelRepo: BazelRepository= new NoPersistenceBazelRepository(File(managedDepsRepoLocalClone))
+  val targetBazelRepo: BazelRepository = new NoPersistenceBazelRepository(File(targetRepoLocalClone))
+  val managedDepsBazelRepo: BazelRepository = new NoPersistenceBazelRepository(File(managedDepsRepoLocalClone))
 
   log.info("Reading maven modules of target repo in order to include potential source dependencies (for phase 1 only)...")
   val repoPath: Path = File(targetRepoLocalClone).path
-  val mavenModules = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
+  val mavenModulesToTreatAsSourceDeps = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
 
-  val calculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
+  val diffCalculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
     managedDepsBazelRepo,
     mavenManagedDependenciesArtifact,
     aetherResolver,
     dependenciesRemoteStorage,
-    mavenModules
+    mavenModulesToTreatAsSourceDeps
   )
 
-  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModules).repoProvidedArtifacts)
-  val synchronizer = new UserAddedDepsDiffSynchronizer(calculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
+  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModulesToTreatAsSourceDeps).repoProvidedArtifacts)
+  val synchronizer = new UserAddedDepsDiffSynchronizer(diffCalculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
 
   val snapshotsToSync = snapshotModulesToSync.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
   val dependenciesToSync = combineRequestedDeps(readPinnedDeps(repoPath), snapshotsToSync)

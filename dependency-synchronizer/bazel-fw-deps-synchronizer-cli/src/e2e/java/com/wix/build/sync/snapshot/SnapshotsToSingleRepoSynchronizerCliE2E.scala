@@ -69,6 +69,26 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
     }
 
+    "delete local dep with requested version, when requested is equal to managed version" in new basicCtx {
+      val artifactBButWithOtherLocalVersion = artifactB.withVersion("0.5")
+      targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactBButWithOtherLocalVersion)))
+
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
+      runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
+    }
+
+    "delete all local deps with versions equal to managed versions" in new basicCtx {
+      targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
+
+      val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
+    }
+
     "give pinned dep precedence over requested snapshotToSync" in new basicCtx {
       pinBtoLowerVersion()
 
