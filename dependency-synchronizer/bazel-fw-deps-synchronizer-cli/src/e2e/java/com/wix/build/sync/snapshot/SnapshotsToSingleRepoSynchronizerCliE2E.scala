@@ -34,6 +34,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       val dependencyA = asCompileDependency(artifactA)
       val dependencyB = asCompileDependency(artifactB)
 
+      givenAetherResolverForCoords(artifactA, artifactB)
       runSnapshotsToSingleRepoSynchronizerCliFor(s"${artifactA.serialized},${artifactB.serialized}")
 
       targetRepo must includeImportExternalTargetWith(artifactA)
@@ -48,6 +49,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
 
       givenAetherResolverForDependency(SingleDependency(dependencyA, dependencyB))
       val artifactBButWithPinnedVersion = artifactB.withVersion(PinnedBLowerVersion)
+      givenAetherResolverForCoords(artifactBButWithPinnedVersion)
 
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
@@ -64,6 +66,8 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
 
       val unrelatedArtifact = Coordinates("com.blah", "blah", "1.0.0")
+
+      givenAetherResolverForCoords(artifactBButWithPinnedVersion, unrelatedArtifact)
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
@@ -74,6 +78,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
 
       val artifactBButWithPinnedVersion = artifactB.withVersion(PinnedBLowerVersion)
 
+      givenAetherResolverForCoords(artifactBButWithPinnedVersion)
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
 
       targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
@@ -84,6 +89,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactBButWithOtherLocalVersion)))
 
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
+      givenAetherResolverForCoords(artifactB)
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
@@ -94,6 +100,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
 
       val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      givenAetherResolverForCoords(unrelatedArtifact)
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
@@ -104,6 +111,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
 
       val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      givenAetherResolverForCoords(unrelatedArtifact)
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must includeImportExternalTargetWith(artifactA, neverlink = true)
@@ -114,6 +122,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
 
       val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      givenAetherResolverForCoords(unrelatedArtifact)
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
@@ -124,6 +133,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
 
       val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      givenAetherResolverForCoords(unrelatedArtifact)
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
@@ -132,6 +142,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
     "don't add local dep if requested is equal to managed version and managed has neverlink" in new basicCtx {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
 
+      givenAetherResolverForCoords(artifactA)
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
@@ -140,6 +151,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
     "don't add local dep if requested is equal to managed version" in new basicCtx {
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
 
+      givenAetherResolverForCoords(artifactA)
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
@@ -191,9 +203,9 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       remoteMavenRepo.addArtifacts(Set(dependantDescriptor,dependencyDescriptor))
     }
 
-    def givenAetherResolverForDependency(dependency: Dependency*) = {
-      dependency.foreach{
-        d =>  val dependencyDescriptor = ArtifactDescriptor.rootFor(d.coordinates)
+    def givenAetherResolverForCoords(coords: Coordinates*) = {
+      coords.foreach{
+        d =>  val dependencyDescriptor = ArtifactDescriptor.rootFor(d)
           remoteMavenRepo.addSingleArtifact(dependencyDescriptor)
       }
     }
