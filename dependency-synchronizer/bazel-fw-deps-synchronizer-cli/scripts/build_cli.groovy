@@ -25,6 +25,7 @@ pipeline {
             steps {
                 script{
                     sh  """|#!/bin/bash
+                           |git checkout 96bcc5e5
                            |rm -f snapshot_to_single_repo_sync_cli_deploy.jar
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
                            |build \\
