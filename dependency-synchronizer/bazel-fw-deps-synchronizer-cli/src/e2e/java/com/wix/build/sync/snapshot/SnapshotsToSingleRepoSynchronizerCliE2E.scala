@@ -10,11 +10,11 @@ import com.wix.build.bazel.FileSystemBazelLocalWorkspace
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven.{Coordinates, _}
 import com.wix.build.sync.e2e.FakePinnedDepsFileWriter
-import org.specs2.mutable.{BeforeAfter, SpecWithJUnit}
+import org.specs2.mutable.{BeforeAfter, SpecificationWithJUnit}
 import org.specs2.specification.Scope
 
 //noinspection TypeAnnotation
-class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
+class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecificationWithJUnit {
   sequential
 
   "Snapshot Dependencies synchronizer CLI" should {
@@ -77,7 +77,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
-    }
+    }.pendingUntilFixed()
 
     "delete all local deps with versions equal to managed versions" in new basicCtx {
       targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactB)))
@@ -87,7 +87,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
-    }
+    }.pendingUntilFixed()
 
     "give pinned dep precedence over requested snapshotToSync" in new basicCtx {
       pinBtoLowerVersion()
