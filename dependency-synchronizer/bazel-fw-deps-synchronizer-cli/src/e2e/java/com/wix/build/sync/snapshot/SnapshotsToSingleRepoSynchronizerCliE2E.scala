@@ -69,6 +69,16 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
     }
 
+    "give pinned dep precedence over requested snapshotToSync" in new basicCtx {
+      pinBtoLowerVersion()
+
+      val artifactBButWithPinnedVersion = artifactB.withVersion(PinnedBLowerVersion)
+
+      runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
+
+      targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
+    }
+
     "delete local dep with requested version, when requested is equal to managed version" in new basicCtx {
       val artifactBButWithOtherLocalVersion = artifactB.withVersion("0.5")
       targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactBButWithOtherLocalVersion)))
@@ -89,15 +99,26 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
     }
 
-    "give pinned dep precedence over requested snapshotToSync" in new basicCtx {
-      pinBtoLowerVersion()
+    "don't remove local dep if requested is equal to managed version but neverlink is different" in new basicCtx {
+      targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true), checksum = None, srcChecksum = None))
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
 
-      val artifactBButWithPinnedVersion = artifactB.withVersion(PinnedBLowerVersion)
+      val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
 
-      runSnapshotsToSingleRepoSynchronizerCliFor(artifactB.serialized)
-
-      targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
+      targetRepo must includeImportExternalTargetWith(artifactA, neverlink = true)
     }
+
+    "delete local dep if requested is equal to managed version and neverlink is equal" in new basicCtx {
+      targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
+
+      val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
+    }
+
   }
 
   trait basicCtx extends Scope with BeforeAfter {
