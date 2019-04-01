@@ -99,7 +99,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactB)
     }
 
-    "don't remove local dep if requested is equal to managed version but neverlink is different" in new basicCtx {
+    "don't delete local dep if equal to managed version and managed does not have neverlink" in new basicCtx {
       targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true), checksum = None, srcChecksum = None))
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
 
@@ -109,12 +109,38 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       targetRepo must includeImportExternalTargetWith(artifactA, neverlink = true)
     }
 
-    "delete local dep if requested is equal to managed version and neverlink is equal" in new basicCtx {
+    "delete local dep with neverlink if equal to managed version and managed has neverlink" in new basicCtx {
       targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
       thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
 
       val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
       runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
+    }
+
+    "delete local dep without neverlink if equal to managed version and managed has neverlink" in new basicCtx {
+      targetRepoWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
+
+      val unrelatedArtifact = Coordinates("com.blah", "booya", "1.0.0")
+      runSnapshotsToSingleRepoSynchronizerCliFor(unrelatedArtifact.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
+    }
+
+    "don't add local dep if requested is equal to managed version and managed has neverlink" in new basicCtx {
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA).withIsNeverLink(true)))
+
+      runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
+
+      targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
+    }
+
+    "don't add local dep if requested is equal to managed version" in new basicCtx {
+      thirdPartyManagedDepsWorkspace.hasDependencies(aRootBazelDependencyNode(asCompileDependency(artifactA)))
+
+      runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
       targetRepo must notIncludeImportExternalRulesInWorkspace(artifactA)
     }
