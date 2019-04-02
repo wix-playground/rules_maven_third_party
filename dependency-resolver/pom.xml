@@ -10,6 +10,7 @@
         <module>maven-dependency-resolver-api</module>
         <module>maven-dependency-resolver</module>
         <module>maven-dependency-resolver-server</module>
+        <module>maven-dependency-resolver-proto</module>
     </modules>
 
     <groupId>com.wix.build</groupId>
