@@ -29,8 +29,6 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   val managedDepsRepoLocalClone = config.managedDepsRepoUrl
   log.info("managedDepsRepoLocalClone: " + managedDepsRepoLocalClone)
 
-  val mavenManagedDependenciesArtifact = Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT")
-
   val remoteRepositoryURL = config.mavenRemoteRepositoryURL
   val aetherResolver = new AetherMavenDependencyResolver(remoteRepositoryURL)
 
@@ -45,7 +43,6 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
 
   val diffCalculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
     managedDepsBazelRepo,
-    mavenManagedDependenciesArtifact,
     aetherResolver,
     dependenciesRemoteStorage,
     mavenModulesToTreatAsSourceDeps

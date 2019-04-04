@@ -26,7 +26,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
 
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
-      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
+      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependenciesIgnoringVersion = Set(artifactB))
       targetRepo must includeImportExternalTargetWith(artifactB)
     }
 
@@ -52,7 +52,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
       runSnapshotsToSingleRepoSynchronizerCliFor(artifactA.serialized)
 
       //remember, the compileTimeDependencies don't care about version when comparing!
-      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependencies = Set(artifactB))
+      targetRepo must includeImportExternalTargetWith(artifactA, compileTimeDependenciesIgnoringVersion = Set(artifactB))
       targetRepo must includeImportExternalTargetWith(artifactBButWithPinnedVersion)
     }
 
@@ -155,7 +155,6 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
     override def after: Any = remoteMavenRepo.stop()
 
     override def before: Unit = {
-      remoteMavenRepo.addCoordinates(Coordinates.deserialize("com.wix.common:third-party-dependencies:pom:100.0.0-SNAPSHOT"))
       remoteMavenRepo.start()
     }
 
