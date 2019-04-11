@@ -63,7 +63,7 @@ class SynchronizerConfiguration {
       )(authenticationWithToken)
     }
 
-    val storage = new StaticDependenciesRemoteStorage(new ArtifactoryRemoteStorage(configuration.artifactoryUrl, configuration.artifactoryToken))
+    val storage = new ArtifactoryRemoteStorage(configuration.artifactoryUrl, configuration.artifactoryToken)
 
     val managedDependenciesUpdateHandler = new ManagedDependenciesUpdateHandler(dependencyManagementArtifact,
       managedDepsBazelRepository,

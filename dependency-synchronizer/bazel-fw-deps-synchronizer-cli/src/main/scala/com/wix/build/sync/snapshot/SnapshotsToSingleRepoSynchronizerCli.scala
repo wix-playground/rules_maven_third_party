@@ -32,7 +32,7 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   val remoteRepositoryURL = config.mavenRemoteRepositoryURL
   val aetherResolver = new AetherMavenDependencyResolver(remoteRepositoryURL)
 
-  val dependenciesRemoteStorage = new StaticDependenciesRemoteStorage(new MavenRepoRemoteStorage(remoteRepositoryURL))
+  val dependenciesRemoteStorage = new MavenRepoRemoteStorage(remoteRepositoryURL)
 
   val targetBazelRepo: BazelRepository = new NoPersistenceBazelRepository(File(targetRepoLocalClone))
   val managedDepsBazelRepo: BazelRepository = new NoPersistenceBazelRepository(File(managedDepsRepoLocalClone))
