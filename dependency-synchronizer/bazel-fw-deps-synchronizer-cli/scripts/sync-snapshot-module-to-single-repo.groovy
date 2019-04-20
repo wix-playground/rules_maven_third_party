@@ -42,6 +42,7 @@ pipeline {
                     }"""
                     deleteDir()
                     copyArtifacts flatten: true, projectName: 'build-cli', selector: lastSuccessful()
+                    copyArtifacts flatten: true, projectName: '/depfixer-build', selector: lastSuccessful()
                 }
             }
         }
@@ -77,7 +78,11 @@ pipeline {
             steps {
                 dir("${env.TARGET_REPO_NAME}") {
                     script {
-                        build_and_fix(env.ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
+                        bazelrc = readFile("tools/bazelrc/.bazelrc.managed.dev.env")
+                        if (bazelrc.contains("--extra_toolchains=@core_server_build_tools//toolchains:wix_plus_one_global_toolchain"))
+                            run_depfixer()
+                        else
+                            build_and_fix(env.ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
                     }
                 }
             }
@@ -154,4 +159,8 @@ def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
         echo "[WARN] No strict deps warnings found but build failed"
         currentBuild.result = 'UNSTABLE'
     }
+}
+
+def run_depfixer() {
+    sh "java -jar ../depfixer.jar -targets //..."
 }
