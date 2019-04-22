@@ -27,7 +27,7 @@ object MigrateToSnapshotSourcesMacroCli extends App {
         val rule = ImportExternalTargetsFileReader(content).parseTargetTextAndName(target).get
 
         val ruleToPersist = {
-          if (target.contains("import_external_no_src"))
+          if (target.contains("import_external_no_src") || !rule.artifact.contains("-SNAPSHOT"))
             rule.copy(snapshotSources = false)
           else
             rule.copy(snapshotSources = true)
