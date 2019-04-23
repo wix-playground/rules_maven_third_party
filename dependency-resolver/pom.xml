@@ -11,6 +11,7 @@
         <module>maven-dependency-resolver</module>
         <module>maven-dependency-resolver-server</module>
         <module>maven-dependency-resolver-proto</module>
+        <module>maven-dependency-resolver-client</module>
     </modules>
 
     <groupId>com.wix.build</groupId>
