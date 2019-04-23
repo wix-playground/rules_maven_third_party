@@ -13,12 +13,6 @@ pipeline {
         bazel_log_file = "bazel-build.log"
         BAZEL_STARTUP_OPTS = '''|--bazelrc=.bazelrc.remote \\
                                 |'''.stripMargin()
-        BAZEL_FLAGS = '''|-k \\
-                         |--config=remote \\
-                         |--config=results \\
-                         |--config=rbe_based \\
-                         |--project_id=gcb-with-custom-workers \\
-                         |--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance'''.stripMargin()
         BAZEL_HOME = tool name: 'bazel', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
         BUILDOZER_HOME = tool name: 'buildozer', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
         BUILDIFIER_HOME = tool name: 'buildifier', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
@@ -78,11 +72,20 @@ pipeline {
             steps {
                 dir("${env.TARGET_REPO_NAME}") {
                     script {
+                        BAZEL_FLAGS_LIST = ["-k",
+                                            "--experimental_remap_main_repo=true",
+                                            "--config=remote",
+                                            "--config=rbe_based",
+                                            "--config=results",
+                                            "--project_id=gcb-with-custom-workers",
+                                            "--build_tag_filters=-deployable",
+                                            "--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance"
+                        ]
                         bazelrc = readFile("tools/bazelrc/.bazelrc.managed.dev.env")
                         if (bazelrc.contains("--extra_toolchains=@core_server_build_tools//toolchains:wix_plus_one_global_toolchain"))
-                            run_depfixer()
+                            run_depfixer(BAZEL_FLAGS_LIST)
                         else
-                            build_and_fix(env.ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
+                            build_and_fix(BAZEL_FLAGS_LIST)
                     }
                 }
             }
@@ -116,19 +119,11 @@ pipeline {
     }
 }
 
-def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
-    BAZEL_FLAGS = """|-k \\
-                     |--experimental_remap_main_repo=true \\
-                     |--config=remote \\
-                     |--config=rbe_based \\
-                     |--config=results \\
-                     |--project_id=gcb-with-custom-workers \\
-                     |--build_tag_filters=-deployable \\
-                     |--remote_instance_name=projects/gcb-with-custom-workers/instances/default_instance""".stripMargin()
+def build_and_fix(BAZEL_FLAGS_LIST) {
     status = sh(
             script: """|#!/bin/bash
                        |# tee would output the stdout to file but will swallow the exit code
-                       |bazel --output_base=${env.WORKSPACE}/output_base --bazelrc=.bazelrc.remote build ${BAZEL_FLAGS}  //... 2>&1 | tee bazel-build.log
+                       |bazel --output_base=${env.WORKSPACE}/output_base --bazelrc=.bazelrc.remote build ${BAZEL_FLAGS_LIST.join(" ")}  //... 2>&1 | tee bazel-build.log
                        |# retrieve the exit code
                        |exit \${PIPESTATUS[0]}
                        |""".stripMargin(),
@@ -142,7 +137,7 @@ def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
         sh "python ../core-server-build-tools/scripts/fix_transitive.py"
         buildozerStatusCode = sh script: "buildozer -f bazel-buildozer-commands.txt", returnStatus: true
         if (buildozerStatusCode == 0) { // buildozer returns 3 when no action was needed
-            build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL)
+            build_and_fix(BAZEL_FLAGS_LIST)
         } else {
             echo "buildozer exited with code ${buildozerStatusCode}"
             echo "[WARN] produced buildozer commands were not required!"
@@ -161,6 +156,27 @@ def build_and_fix(ADDITIONAL_FLAGS_BAZEL_SIXTEEN_UP_LOCAL) {
     }
 }
 
-def run_depfixer() {
-    sh "java -jar ../depfixer.jar -targets //..."
+def run_depfixer(BAZEL_FLAGS_LIST) {
+    bazelrc_remote = readFile(".bazelrc.remote")
+    bazelrc_remote = bazelrc_remote.replace("import %workspace%/.bazelrc","#import %workspace%/.bazelrc")
+    sh "mv .bazelrc .user.input.bazelrc"
+    new_bazelrc = """|# ========================
+                     |# temp generated bazelrc
+                     |# =======================
+                     |import %workspace%/.user.input.bazelrc
+                     |import %workspace%/.bazelrc.remote
+                     |
+                     |""".stripMargin() + BAZEL_FLAGS_LIST.collect { "build " + it }.join("\n")
+    echo new_bazelrc
+    writeFile file: ".bazelrc", text: new_bazelrc
+    writeFile file: ".bazelrc.remote", text: bazelrc_remote
+    status = sh(
+            script: "java -jar ../depfixer.jar -targets //...",
+            returnStatus: true)
+    sh "rm .user.input.bazelrc"
+    sh "git checkout .bazelrc"
+    some_other_status = sh( script: "git checkout .bazelrc.remote", returnStatus: true)
+    if (status != 0) {
+        currentBuild.result = 'FAILURE'
+    }
 }
