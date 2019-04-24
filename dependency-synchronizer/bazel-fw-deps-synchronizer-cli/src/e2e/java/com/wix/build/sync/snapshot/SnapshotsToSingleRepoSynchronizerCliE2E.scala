@@ -189,7 +189,7 @@ class SnapshotsToSingleRepoSynchronizerCliE2E extends SpecWithJUnit {
     )
 
     def pinBtoLowerVersion() = {
-      new FakePinnedDepsFileWriter(targetRepoPath.path).write(PinnedBLowerVersion)
+      new FakePinnedDepsFileWriter(targetRepoPath.path).write(artifactB.withVersion(PinnedBLowerVersion))
     }
 
     def runSnapshotsToSingleRepoSynchronizerCliFor(snapshotModuleToSync: String): Unit = {
