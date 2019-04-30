@@ -41,14 +41,15 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
   val repoPath: Path = File(targetRepoLocalClone).path
   val mavenModulesToTreatAsSourceDeps = new MavenSourceModules(repoPath, SourceModulesOverridesReaderDeleteOnPhase2.from(repoPath)).modules()
 
+  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModulesToTreatAsSourceDeps).repoProvidedArtifacts)
+
   val diffCalculator = new UserAddedDepsDiffCalculator(targetBazelRepo,
     managedDepsBazelRepo,
     aetherResolver,
     dependenciesRemoteStorage,
-    mavenModulesToTreatAsSourceDeps
+    mavenModulesToTreatAsSourceDeps,
+    neverLinkResolver
   )
-
-  val neverLinkResolver = NeverLinkResolver(RepoProvidedDeps(mavenModulesToTreatAsSourceDeps).repoProvidedArtifacts)
   val synchronizer = new UserAddedDepsDiffSynchronizer(diffCalculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
 
   val snapshotsToSync = snapshotModulesToSync.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
