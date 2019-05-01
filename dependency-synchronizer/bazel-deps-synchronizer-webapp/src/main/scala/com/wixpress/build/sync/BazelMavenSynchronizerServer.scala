@@ -68,7 +68,8 @@ class SynchronizerConfiguration {
     val managedDependenciesUpdateHandler = new ManagedDependenciesUpdateHandler(dependencyManagementArtifact,
       managedDepsBazelRepository,
       configuration.mavenRemoteRepositoryURL,
-      storage
+      storage,
+      WixLoadStatements.importExternalRulePath
     )
 
     val managedDepsSyncFinished = new ManagedDepsSyncFinished(managedDepsBazelRepository,syncEndedProducer)

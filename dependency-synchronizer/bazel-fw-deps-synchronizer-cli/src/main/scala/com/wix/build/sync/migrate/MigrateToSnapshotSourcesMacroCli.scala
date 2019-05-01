@@ -2,6 +2,7 @@ package com.wix.build.sync.migrate
 
 import better.files.File
 import com.wix.build.bazel._
+import com.wix.build.sync.WixLoadStatements
 import org.slf4j.LoggerFactory
 
 object MigrateToSnapshotSourcesMacroCli extends App {
@@ -33,7 +34,8 @@ object MigrateToSnapshotSourcesMacroCli extends App {
             rule.copy(snapshotSources = true)
         }
 
-        ImportExternalTargetsFile.persistTargetAndCleanHeaders(ruleToPersist, targetBazelRepo.localWorkspace())
+        ImportExternalTargetsFile(WixLoadStatements.importExternalRulePath, targetBazelRepo.localWorkspace)
+                  .persistTargetAndCleanHeaders(ruleToPersist)
       }
     }
   }

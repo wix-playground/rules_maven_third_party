@@ -67,6 +67,10 @@
     </dependency>
     <dependency>
       <groupId>com.wix.build</groupId>
+      <artifactId>bazel-deps-synchronizer-wix</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wix.build</groupId>
       <artifactId>maven-repo-analyzer</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>

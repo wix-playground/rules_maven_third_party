@@ -10,6 +10,7 @@ import com.wix.build.bazel._
 import com.wix.build.maven._
 import com.wix.build.sync._
 import org.slf4j.LoggerFactory
+import com.wix.build.sync.WixLoadStatements._
 
 //TODO - this is the cli run by jenkins (via groovy scripts)
 //either rename these classes and the module name itself,
@@ -50,7 +51,7 @@ object SnapshotsToSingleRepoSynchronizerCli extends App {
     mavenModulesToTreatAsSourceDeps,
     neverLinkResolver
   )
-  val synchronizer = new UserAddedDepsDiffSynchronizer(diffCalculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver))
+  val synchronizer = new UserAddedDepsDiffSynchronizer(diffCalculator, DefaultDiffWriter(targetBazelRepo, neverLinkResolver, importExternalRulePath))
 
   val snapshotsToSync = snapshotModulesToSync.split(",").map(a => toDependency(Coordinates.deserialize(a))).toSet
   val dependenciesToSync = combineRequestedDeps(readPinnedDeps(repoPath), snapshotsToSync)

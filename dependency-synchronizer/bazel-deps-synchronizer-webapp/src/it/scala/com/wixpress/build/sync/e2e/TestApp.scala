@@ -22,7 +22,7 @@ object TestApp extends App {
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots"))
 
-  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None)
+  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None, "@some_workspace//:import_external.bzl")
   val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Packaging("jar"),Some("tests")),MavenScope.Compile)
   val deps = resolver.dependencyClosureOf(Set(dep),Set.empty)
   println(deps)
