@@ -61,7 +61,7 @@ pipeline {
                 script {
                     sh """|stdbuf -i0 -o0 -e0 \\
                           |   java -Xmx12G \\
-                          |   -jar snapshot_to_single_repo_sync_cli_deploy.jar --target_repo ${env.TARGET_REPO_NAME} --managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME} --snapshot_modules ${env.MODULE_COORDINATES}""".stripMargin()
+                          |   -jar sync_cli_deploy.jar ${env.TARGET_REPO_NAME} ${env.MODULE_COORDINATES} --override_managed_deps_repo ${env.MANAGED_DEPS_REPO_NAME}""".stripMargin()
                 }
             }
         }

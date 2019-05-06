@@ -29,10 +29,10 @@ pipeline {
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
                            |build \\
                            |      ${env.BAZEL_FLAGS} \\
-                           |      //dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot:snapshot_to_single_repo_sync_cli_deploy.jar
+                           |      //dependency-synchronizer/bazel-deps-synchronizer-cli/src/main/scala/com/wix/build/sync:sync_cli_deploy.jar
                            |""".stripMargin()
 
-                    sh "cp bazel-bin/dependency-synchronizer/bazel-fw-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/snapshot/snapshot_to_single_repo_sync_cli_deploy.jar snapshot_to_single_repo_sync_cli_deploy.jar"
+                    sh "cp bazel-bin/dependency-synchronizer/bazel-deps-synchronizer-cli/src/main/scala/com/wix/build/sync/sync_cli_deploy.jar sync_cli_deploy.jar"
                 }
             }
         }
