@@ -25,7 +25,7 @@ pipeline {
             steps {
                 script{
                     sh  """|#!/bin/bash
-                           |rm -f snapshot_to_single_repo_sync_cli_deploy.jar
+                           |rm -f sync_cli_deploy.jar
                            |bazel ${env.BAZEL_STARTUP_OPTS} \\
                            |build \\
                            |      ${env.BAZEL_FLAGS} \\
@@ -39,7 +39,7 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts "snapshot_to_single_repo_sync_cli_deploy.jar"
+            archiveArtifacts "sync_cli_deploy.jar"
         }
     }
 }
