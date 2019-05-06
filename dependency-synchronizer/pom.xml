@@ -9,7 +9,7 @@
         <module>bazel-deps-synchronizer</module>
         <module>bazel-deps-synchronizer-cli</module>
         <module>bazel-deps-synchronizer-webapp</module>
-        <module>bazel-fw-deps-synchronizer-cli</module>
+        <module>jenkins-deps-sync-scripts</module>
         <module>bazel-deps-synchronizer-api</module>
         <module>bazel-deps-synchronizer-wix</module>
     </modules>
