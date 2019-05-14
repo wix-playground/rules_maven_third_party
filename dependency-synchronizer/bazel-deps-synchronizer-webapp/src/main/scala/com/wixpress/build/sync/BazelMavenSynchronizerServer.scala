@@ -69,7 +69,7 @@ class SynchronizerConfiguration {
       managedDepsBazelRepository,
       configuration.mavenRemoteRepositoryURL,
       storage,
-      WixLoadStatements.importExternalRulePath
+      WixLoadStatements.importExternalLoadStatement
     )
 
     val managedDepsSyncFinished = new ManagedDepsSyncFinished(managedDepsBazelRepository,syncEndedProducer)

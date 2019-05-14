@@ -1,7 +1,7 @@
 package com.wix.build.sync
 
 import com.wix.build.sync.api.{BazelManagedDepsSyncEnded, ThirdPartyArtifact}
-import com.wix.build.bazel.{BazelDependenciesReader, BazelRepository}
+import com.wix.build.bazel.{BazelDependenciesReader, BazelRepository, ImportExternalLoadStatement}
 import com.wix.build.maven.{AetherMavenDependencyResolver, Coordinates}
 import com.wix.ci.greyhound.events.BuildFinished
 import com.wix.greyhound.DetailedProduceResult
@@ -33,13 +33,13 @@ class ManagedDependenciesUpdateHandler(dependencyManagementArtifact: Coordinates
                                        managedDepsBazelRepository: BazelRepository,
                                        mavenRemoteRepositoryURL: List[String],
                                        dependenciesRemoteStorage: DependenciesRemoteStorage,
-                                       importExternalRulePath: String) {
+                                       importExternalLoadStatement: ImportExternalLoadStatement) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def run = {
     // resolver has to be re-instantiated on each update, in order to get non-cached version of managed deps snapshot
     val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
-    val synchronizer = new BazelMavenSynchronizer(resolver, managedDepsBazelRepository, dependenciesRemoteStorage, importExternalRulePath)
+    val synchronizer = new BazelMavenSynchronizer(resolver, managedDepsBazelRepository, dependenciesRemoteStorage, importExternalLoadStatement)
 
     val managedDependencies = resolver.managedDependenciesOf(dependencyManagementArtifact)
 
