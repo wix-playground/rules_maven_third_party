@@ -35,7 +35,7 @@ class GitBazelRepository(
     git.close()
   }
 
-  override def localWorkspace(): BazelLocalWorkspace = {
+  override def resetAndCheckoutMaster(): BazelLocalWorkspace = {
     cleanAndUpdateLocalRepo()
     new FileSystemBazelLocalWorkspace(checkoutDir)
   }
@@ -95,15 +95,21 @@ class GitBazelRepository(
   }
 
   private def pushToRemote(git: Git, branchName: String) = {
-    log.info(s"Pushing to ${gitRepo.gitURL}, branch: $branchName. Going via masterguard with org ${gitRepo.org} and repo ${gitRepo.repoName}")
+    log.info(s"Pushing to ${gitRepo.gitURL}, branch: $branchName. If master, going via masterguard with org ${gitRepo.org} and repo ${gitRepo.repoName}")
 
-    masterEnforcer.enforceAdmins(gitRepo.org, gitRepo.repoName, {
+    def actuallyPush = {
       authentication.set(git.push())
         .setRemote(DefaultRemote)
         .setRefSpecs(new RefSpec(branchName))
         .setForce(true)
         .call()
-    })
+    }
+
+    branchName match {
+      //not ever used atm, but a useful capability to keep..
+      case "master" => masterEnforcer.enforceAdmins(gitRepo.org, gitRepo.repoName, actuallyPush)
+      case _ => actuallyPush
+    }
   }
 
   private def withLocalGit[T](f: Git => T): T = {

@@ -23,10 +23,12 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   private val someCoordinates = Coordinates("com.wix.example", "some-artifact", "someVersion")
   private val otherCoordinates: Coordinates = someCoordinates.copy(groupId = "other-group")
 
+  private val buildRunId = "someStringOfVersion"
+
   def produceMessageAboutManagedDepsChange(): Unit = {
     val producer = ProducerMaker.aProducer().buffered.ordered.build
     val buildFinishedMessage = BuildFinished(
-      buildRunId = "dont-care",
+      buildRunId = buildRunId,
       buildConfigId = DepsSynchronizerTestEnv.thirdPartySyncbuildTypeID,
       buildServerId = "dont-care",
       version = "dont-care",
@@ -44,40 +46,23 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
           produceMessageAboutManagedDepsChange()
 
-
           eventually {
             fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
           }
         }
       }
     }
-    "given pom, with new dependency X, was updated in dependency source and later was also update with new dependency Y," >> {
-      "after two notifications were received about these updates," should {
 
-        "add both dependency X and dependency Y to target bazel repository" in new ctx {
-          val updatedDependencyManagementArtifact = manage(someCoordinates)
+    //sink.getMessages must contain(BazelManagedDepsSyncEnded(expectedThirdPartyArtifact))
 
-          produceMessageAboutManagedDepsChange()
-
-          manage(otherCoordinates)
-
-          produceMessageAboutManagedDepsChange()
-
-          eventually {
-            fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates) and haveWorkspaceRuleFor(otherCoordinates)
-            sink.getMessages must contain(BazelManagedDepsSyncEnded(expectedThirdPartyArtifact))
-
-          }
-        }
-      }
-    }
   }
 
   def haveWorkspaceRuleFor(someCoordinates: Coordinates): Matcher[FakeRemoteRepository] =
-    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates))
+    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates, branchName = buildRunId))
 
   trait ctx extends Scope {
     val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
+    //TODO - unused...
     val expectedThirdPartyArtifact = Set(
       ThirdPartyArtifact("other-group","some-artifact","someVersion",Packaging("jar").value,None,None),
       ThirdPartyArtifact("com.wix.example","some-artifact","someVersion",Packaging("jar").value,None,None)

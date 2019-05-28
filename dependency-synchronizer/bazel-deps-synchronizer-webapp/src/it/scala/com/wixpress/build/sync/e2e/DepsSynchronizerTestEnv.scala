@@ -19,8 +19,6 @@ object DepsSynchronizerTestEnv extends MasterGuardTestEnvSupport {
   val wiremock = new WireMockManagedService
   wiremock.alwaysReturnSha256Checksums()
 
-  val newBranchSuffix = "someSuffix"
-  val userAddedDepsBranchName = s"user_added_3rd_party_deps_$newBranchSuffix"
   val dependencyManagerArtifact: Coordinates = Coordinates("some-group", "third-party", "some-version", packaging = Packaging("pom"))
   val fakeManagedDepsRemoteRepository: FakeRemoteRepository = FakeRemoteRepository.newBlankRepository()
   private val kafka = KafkaManagedService(TeamcityTopic.TeamcityEvents, Lifecycle.lifecycleGaTopic)

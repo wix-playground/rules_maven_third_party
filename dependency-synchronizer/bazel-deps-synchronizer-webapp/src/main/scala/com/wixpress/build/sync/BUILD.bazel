@@ -31,7 +31,6 @@ bootstrap_jar(
         "@com_wix_bootstrap_server_jetty",
         "@com_wix_ci_domain",
         "@com_wix_framework_hoopoe_velocity",
-        "@com_wix_framework_wix_cache_folder",
         "@com_wix_framework_wix_error_handling_spring",
         "@com_wix_framework_wix_framework_aspects_api",
         "@com_wix_framework_wix_framework_aspects_spring",

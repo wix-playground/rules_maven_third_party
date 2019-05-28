@@ -32,7 +32,7 @@ object TestApp extends App {
 
 class MockBazelRepository(local: File) extends BazelRepository {
 
-  override def localWorkspace(): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
+  override def resetAndCheckoutMaster(): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
 
   override def persist(branchName: String, changedFilePaths: Set[String], message: String): Unit = {
     println(s"persisting to branch $branchName files $changedFilePaths")

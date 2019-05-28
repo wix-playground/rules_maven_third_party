@@ -39,13 +39,13 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val fakeGitRepo = GitRepo(fakeRemoteRepository.remoteURI, "someOrg", "someRepoName")
       val gitBazelRepository = new GitBazelRepository(fakeGitRepo, aRandomTempDirectory, new SpyMasterEnforcer)
 
-      val localWorkspace = gitBazelRepository.localWorkspace()
+      val localWorkspace = gitBazelRepository.resetAndCheckoutMaster()
 
       localWorkspace.thirdPartyReposFileContent() mustEqual thirdPartyReposFileContent
     }
 
     "return valid bazel local third party repos content for some-branch" in new exitingThirdPartyRepo{
-      val localWorkspace = gitBazelRepository.localWorkspace()
+      val localWorkspace = gitBazelRepository.resetAndCheckoutMaster()
 
       localWorkspace.thirdPartyReposFileContent() mustEqual thirdPartyReposFileContent
     }
@@ -70,11 +70,11 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
 
       val branchName = "some-branch"
 
-      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile("old-content")
+      gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile("old-content")
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       val newContent = "new-content"
-      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile(newContent)
+      gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile(newContent)
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
@@ -87,7 +87,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val branchName = "some-branch"
 
       val newContent = "new-content"
-      gitBazelRepository.localWorkspace().overwriteThirdPartyReposFile(newContent)
+      gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile(newContent)
       gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
@@ -112,6 +112,21 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       )
 
       fakeRemoteRepository.allCommitsForBranch(branchName) must contain(expectedCommit)
+      fakeMasterEnforcer.calledForOrgAndRepo("someOrg", "someRepoName") must beFalse
+    }
+
+    "call master-guard if commit is on master" in new fakeRemoteRepositoryWithEmptyThirdPartyRepos {
+      val someLocalPath = File.newTemporaryDirectory("clone")
+      val gitBazelRepository = new GitBazelRepository(fakeGitRepo, someLocalPath, fakeMasterEnforcer)
+
+      val fileName = "some-file.txt"
+      val content = "some content"
+      someLocalPath.createChild(fileName).overwrite(content)
+
+      val branchName = "master"
+      gitBazelRepository.persist(branchName, Set(fileName), "some message")
+
+      fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
       fakeMasterEnforcer.calledForOrgAndRepo("someOrg", "someRepoName") must beTrue
     }
 
@@ -120,9 +135,9 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val gitBazelRepository = new GitBazelRepository(fakeGitRepo, localGitPath, new SpyMasterEnforcer)
 
       addFileAndCommit(branchName, fileName, "old content")(localGitPath)
-      addFile(DefaultBranch, fileName, "new content")(localGitPath)
+      addFile(branchName, fileName, "new content")(localGitPath)
 
-      gitBazelRepository.localWorkspace()
+      gitBazelRepository.resetAndCheckoutMaster()
 
       checkoutBranch(branchName)(localGitPath) must not throwA[Exception]()
 
@@ -138,7 +153,6 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
   }
 
   trait noConflictCtx extends fakeRemoteRepositoryWithEmptyThirdPartyRepos {
-    val DefaultBranch = "master"
     val branchName = "some-branch"
     val fileName = "some-file.txt"
   }
@@ -167,7 +181,6 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
     override def enforceAdmins[T](org: String, repo: String, f: => T): Unit = {
       f
       calledRepos += ((org, repo))
-      println(s"Talya - " + calledRepos.toList)
     }
 
     def calledForOrgAndRepo(org: String, repo: String) = calledRepos.contains((org, repo))
