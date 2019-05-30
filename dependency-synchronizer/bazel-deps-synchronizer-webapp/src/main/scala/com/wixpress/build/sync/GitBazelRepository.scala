@@ -161,3 +161,24 @@ object GitAuthenticationWithSsh extends GitAuthentication {
     })
   }
 }
+
+object ManagedBazelDepsClone {
+
+  private def tempManagedDepsClonePath(): File = {
+    val tempDir = File.newTemporaryDirectory("managed_deps_clone")
+    tempDir.toJava.deleteOnExit()
+    tempDir
+  }
+
+  def localCloneOfManagedDepsBazelRepository(git: GitSettings,
+                                             masterEnforcer: MasterEnforcer): BazelRepository = {
+    val authenticationWithToken = new GitAuthenticationWithToken(Option(git.githubToken).filterNot(_.isEmpty))
+
+    new GitBazelRepository(GitRepo(git.managedDepsRepoURL),
+      tempManagedDepsClonePath(),
+      masterEnforcer,
+      git.username,
+      git.email
+    )(authenticationWithToken)
+  }
+}

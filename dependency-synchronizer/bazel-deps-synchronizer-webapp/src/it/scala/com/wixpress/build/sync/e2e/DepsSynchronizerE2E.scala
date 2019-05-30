@@ -4,7 +4,7 @@ import com.wix.build.sync.api.{BazelManagedDepsSyncEnded, BazelSyncGreyhoundEven
 import com.wix.build.maven.ArtifactDescriptor._
 import com.wix.build.maven.{Coordinates, Dependency, MavenScope, Packaging}
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
-import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic}
+import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic, VcsUpdate}
 import com.wix.framework.test.env.{GlobalTestEnvSupport, TestEnv}
 import com.wix.greyhound.GreyhoundTestingSupport
 import com.wix.greyhound.producer.builder.ProducerMaker
@@ -21,7 +21,6 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   )
 
   private val someCoordinates = Coordinates("com.wix.example", "some-artifact", "someVersion")
-  private val otherCoordinates: Coordinates = someCoordinates.copy(groupId = "other-group")
 
   private val buildRunId = "someStringOfVersion"
 
@@ -38,34 +37,82 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
     producer.produceToTopic(TeamcityTopic.TeamcityEvents, buildFinishedMessage)
   }
 
+  def produceMessageAboutCommitToManagedBzlDeps(): Unit = {
+    val producer = ProducerMaker.aProducer().buffered.ordered.build
+    val vcsUpdateMessage = VcsUpdate(
+      url = DepsSynchronizerTestEnv.fakeManagedDepsRemoteRepository.remoteURI,
+      branch = "master",
+      revision = "dont-care",
+      oldRevision = Some("dont-care"))
+
+    producer.produceToTopic(VcsUpdate.greyhoundTopic, vcsUpdateMessage)
+  }
+
   "Bazel-Maven Deps Synchronizer," >> {
-    "given pom, with new dependency X, was updated in dependency source," >> {
-      "when notification was received about it," should {
-        "add dependency X to target bazel repository and push to source control" in new ctx {
-          manage(someCoordinates)
 
-          produceMessageAboutManagedDepsChange()
+    "when notification about pom build received" should {
+      "add dependency from pom to target bazel repository and push to source control" in new ctx {
+        manage(someCoordinates)
 
-          eventually {
-            fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
-          }
+        produceMessageAboutManagedDepsChange()
+
+        eventually {
+          fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
         }
       }
     }
 
-    //sink.getMessages must contain(BazelManagedDepsSyncEnded(expectedThirdPartyArtifact))
+    "when notification about managed deps master change received" should {
+      "notify of bazel managed deps" in new ctx {
 
+        fakeManagedDepsRemoteRepository.commitThirdParties(Map(
+          "first_group.bzl" -> importExternal1,
+          "other_group.bzl" -> importExternal2))
+
+        produceMessageAboutCommitToManagedBzlDeps()
+
+        eventually {
+          sink.getMessages.size must be_===(1)
+          sink.getMessages.head.thirdPartyArtifacts must containAllOf(expectedThirdPartyArtifacts)
+        }
+      }
+    }
   }
+
+  def importExternal1 =
+    s"""
+       |load("@core_server_build_tools//:import_external.bzl", import_external = "safe_wix_scala_maven_import_external")
+       |
+       |def dependencies():
+       |
+       |  import_external(
+       |      name = "first_group_some_artifact",
+       |      artifact = "first.group:some-artifact:someVersion"
+       |  )
+       |
+     """.stripMargin
+
+  def importExternal2 =
+    s"""
+       |load("@core_server_build_tools//:import_external.bzl", import_external = "safe_wix_scala_maven_import_external")
+       |
+       |def dependencies():
+       |
+       |  import_external(
+       |      name = "other_group_some_artifact",
+       |      artifact = "other.group:some-artifact:someVersion"
+       |  )
+       |
+     """.stripMargin
 
   def haveWorkspaceRuleFor(someCoordinates: Coordinates): Matcher[FakeRemoteRepository] =
     beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates, branchName = buildRunId))
 
   trait ctx extends Scope {
     val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
-    //TODO - unused...
-    val expectedThirdPartyArtifact = Set(
-      ThirdPartyArtifact("other-group","some-artifact","someVersion",Packaging("jar").value,None,None),
-      ThirdPartyArtifact("com.wix.example","some-artifact","someVersion",Packaging("jar").value,None,None)
+    val expectedThirdPartyArtifacts = Seq(
+      ThirdPartyArtifact("other.group", "some-artifact", "someVersion", Packaging("jar").value, None, None),
+      ThirdPartyArtifact("first.group", "some-artifact", "someVersion", Packaging("jar").value, None, None)
     )
 
     def manage(coordinates: Coordinates) = {

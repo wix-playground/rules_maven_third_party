@@ -18,6 +18,7 @@ case class BazelMavenSynchronizerConfig(
 
 case class GitSettings(
                         managedDepsRepoURL: String,
+                        managedDepsRepoURLSshFormat: String,
                         username: String,
                         email: String,
                         githubToken: String

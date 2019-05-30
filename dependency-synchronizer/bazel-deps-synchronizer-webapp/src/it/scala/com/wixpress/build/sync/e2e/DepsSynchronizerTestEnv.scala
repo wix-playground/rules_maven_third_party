@@ -39,6 +39,7 @@ object DepsSynchronizerTestEnv extends MasterGuardTestEnvSupport {
           artifactoryUrl = s"localhost:${WireMockTestSupport.wireMockPort}",
           git = config.git.copy(
             managedDepsRepoURL = fakeManagedDepsRemoteRepository.remoteURI,
+            managedDepsRepoURLSshFormat = fakeManagedDepsRemoteRepository.remoteURI,
             username = gitUsername,
             email = gitUserEmail
           )
