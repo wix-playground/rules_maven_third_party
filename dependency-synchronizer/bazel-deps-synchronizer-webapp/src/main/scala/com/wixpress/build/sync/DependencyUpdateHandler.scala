@@ -22,22 +22,16 @@ class ManagedDependenciesUpdateHandler(dependencyManagementArtifact: Coordinates
                                        importExternalLoadStatement: ImportExternalLoadStatement,
                                        gitSettings: GitSettings,
                                        masterEnforcer: MasterEnforcer) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def run(version: String) = {
+  def run(version: String): Unit = {
     // resolver has to be re-instantiated on each update, in order to get non-cached version of managed deps snapshot
     val resolver = new AetherMavenDependencyResolver(mavenRemoteRepositoryURL)
     val managedDepsBazelRepository: BazelRepository = ManagedBazelDepsClone.localCloneOfManagedDepsBazelRepository(gitSettings, masterEnforcer)
 
-    val synchronizer = new BazelMavenSynchronizer(resolver, managedDepsBazelRepository, dependenciesRemoteStorage, importExternalLoadStatement)
-
-    val managedDependencies = resolver.managedDependenciesOf(dependencyManagementArtifact)
-
-    logger.info(s"retrieved ${managedDependencies.size} managed depednencies from $dependencyManagementArtifact")
+    val synchronizer = new BazelMavenManagedDepsSynchronizer(resolver, managedDepsBazelRepository, dependenciesRemoteStorage, importExternalLoadStatement)
 
     synchronizer.sync(
       dependencyManagementSource = dependencyManagementArtifact,
-      dependencies = managedDependencies,
       branchName = version
     )
   }

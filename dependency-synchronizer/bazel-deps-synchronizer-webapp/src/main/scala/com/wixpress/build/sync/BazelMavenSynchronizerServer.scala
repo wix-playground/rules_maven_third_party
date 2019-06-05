@@ -33,19 +33,21 @@ class SynchronizerConfiguration {
   private val MasterBranch = "master"
 
   @Bean
-  def synchronizedDependencyUpdateHandler(masterEnforcer: MasterEnforcer): DependencyUpdateHandler = {
+  def managedDependenciesUpdateHandler(masterEnforcer: MasterEnforcer): ManagedDependenciesUpdateHandler = {
     val storage = new ArtifactoryRemoteStorage(configuration.artifactoryUrl, configuration.artifactoryToken)
-
-    val managedDependenciesUpdateHandler = new ManagedDependenciesUpdateHandler(dependencyManagementArtifact,
+    new ManagedDependenciesUpdateHandler(dependencyManagementArtifact,
       configuration.mavenRemoteRepositoryURL,
       storage,
       WixLoadStatements.importExternalLoadStatement,
       configuration.git,
       masterEnforcer,
     )
-
-    new DependencyUpdateHandler(managedDependenciesUpdateHandler)
   }
+
+  @Bean
+  def synchronizedDependencyUpdateHandler(managedDependenciesUpdateHandler: ManagedDependenciesUpdateHandler): DependencyUpdateHandler =
+    new DependencyUpdateHandler(managedDependenciesUpdateHandler)
+
 
   @Bean
   def managedBazelDepsUpdateHandler(producers: Producers, resilientMaker: ResilientProducerMaker, masterEnforcer: MasterEnforcer): ManagedBazelDepsUpdateHandler = {
@@ -55,6 +57,10 @@ class SynchronizerConfiguration {
 
     new ManagedBazelDepsUpdateHandler(configuration.git, masterEnforcer, syncEndedProducer)
   }
+
+  @Bean
+  def manualController(managedDependenciesUpdateHandler: ManagedDependenciesUpdateHandler) =
+    new ManualSyncController(managedDependenciesUpdateHandler)
 
   @Autowired
   def setConsumers(consumers: Consumers,
@@ -73,7 +79,7 @@ class SynchronizerConfiguration {
 
   }
 
-  private def buildFinishedMessage= (buildFinished: BuildFinished) => {
+  private def buildFinishedMessage = (buildFinished: BuildFinished) => {
     buildFinished.isSuccessful &&
       buildFinished.buildConfigId == configuration.dependencyManagementArtifactBuildTypeId
   }
@@ -84,7 +90,7 @@ class SynchronizerConfiguration {
 
   private def setManagedDepsSyncMessagesConsumers(consumers: Consumers,
                                                   dependencyUpdateHandler: DependencyUpdateHandler,
-                                                  managedBazelDepsUpdateHandler: ManagedBazelDepsUpdateHandler) = {
+                                                  managedBazelDepsUpdateHandler: ManagedBazelDepsUpdateHandler): Unit = {
     val buildMessageHandler = MessageHandler
       .aMessageHandler[BuildFinished](dependencyUpdateHandler.handleBuildMessage)
       .withMapper(JsonMapper.global)

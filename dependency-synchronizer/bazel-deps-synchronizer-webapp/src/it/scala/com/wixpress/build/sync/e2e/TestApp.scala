@@ -4,7 +4,7 @@ package com.wix.build.sync.e2e
 import better.files.File
 import com.wix.build.bazel._
 import com.wix.build.maven._
-import com.wix.build.sync.BazelMavenSynchronizer
+import com.wix.build.sync.BazelMavenManagedDepsSynchronizer
 
 object TestApp extends App {
   
@@ -22,10 +22,10 @@ object TestApp extends App {
     "http://repo.example.com:80/artifactory/libs-releases",
     "http://repo.example.com:80/artifactory/libs-snapshots"))
 
-  val s = new BazelMavenSynchronizer(resolver,bazelRepo, _ => None,
+  val s = new BazelMavenManagedDepsSynchronizer(resolver,bazelRepo, _ => None,
     ImportExternalLoadStatement(importExternalRulePath = "@some_workspace//:import_external.bzl", importExternalMacroName = "some_import_external"))
   val dep = Dependency(Coordinates("com.wix","wix-meta-site-manager-api","2.183.0-SNAPSHOT",Packaging("jar"),Some("tests")),MavenScope.Compile)
-  val deps = resolver.dependencyClosureOf(Set(dep),Set.empty)
+  val deps = resolver.dependencyClosureOf(List(dep),List.empty)
   println(deps)
 
 }
