@@ -1,6 +1,8 @@
 package com.wix.build.sync.e2e
 
 import com.wix.build.sync.api.{BazelManagedDepsSyncEnded, BazelSyncGreyhoundEvents, ThirdPartyArtifact}
+import com.wix.e2e.http.Implicits.DefaultBaseUri
+import com.wix.e2e.http.client.sync.get
 import com.wix.build.maven.ArtifactDescriptor._
 import com.wix.build.maven.{Coordinates, Dependency, MavenScope, Packaging}
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
@@ -21,6 +23,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
   )
 
   private val someCoordinates = Coordinates("com.wix.example", "some-artifact", "someVersion")
+  private val someOtherCoordinates = Coordinates("com.wix.example2", "some-artifact2", "someVersion2")
 
   private val buildRunId = "someStringOfVersion"
 
@@ -37,6 +40,10 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
     producer.produceToTopic(TeamcityTopic.TeamcityEvents, buildFinishedMessage)
   }
 
+  def manuallyCallDepsSync(branchName: String) = {
+    get(s"api/sync?branch=$branchName")
+  }
+
   def produceMessageAboutCommitToManagedBzlDeps(): Unit = {
     val producer = ProducerMaker.aProducer().buffered.ordered.build
     val vcsUpdateMessage = VcsUpdate(
@@ -50,14 +57,24 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
   "Bazel-Maven Deps Synchronizer," >> {
 
-    "when notification about pom build received" should {
-      "add dependency from pom to target bazel repository and push to source control" in new ctx {
+    "add dependency from pom to target bazel repository and push to source control" should {
+      "when notification about pom build received" in new ctx {
         manage(someCoordinates)
 
         produceMessageAboutManagedDepsChange()
 
         eventually {
-          fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates)
+          fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates, buildRunId)
+        }
+      }
+      "when manually called" in new ctx {
+        manage(someOtherCoordinates)
+
+        val requestedBranchName = "blah"
+        manuallyCallDepsSync(branchName = requestedBranchName)
+
+        eventually {
+          fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someOtherCoordinates, requestedBranchName)
         }
       }
     }
@@ -105,8 +122,8 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
        |
      """.stripMargin
 
-  def haveWorkspaceRuleFor(someCoordinates: Coordinates): Matcher[FakeRemoteRepository] =
-    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates, branchName = buildRunId))
+  def haveWorkspaceRuleFor(someCoordinates: Coordinates, branchName: String): Matcher[FakeRemoteRepository] =
+    beSuccessfulTry ^^ ((_: FakeRemoteRepository).hasWorkspaceRuleFor(someCoordinates, branchName))
 
   trait ctx extends Scope {
     val sink = anEventSink[BazelManagedDepsSyncEnded](BazelSyncGreyhoundEvents.BazelManagedDepsSyncEndedTopic)
