@@ -40,4 +40,6 @@ class MockBazelRepository(local: File) extends BazelRepository {
     changedFilePaths.foreach(file => println(s"- $file"))
     println(s"""message:"$message"""")
   }
+
+  override def repoPath: String = ""
 }
