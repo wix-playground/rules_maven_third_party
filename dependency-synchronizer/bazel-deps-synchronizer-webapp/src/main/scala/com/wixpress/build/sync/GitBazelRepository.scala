@@ -11,7 +11,8 @@ import org.eclipse.jgit.api.{Git, TransportCommand}
 import org.eclipse.jgit.transport.{JschConfigSessionFactory, SshTransport, _}
 import org.slf4j.LoggerFactory
 
-class GitBazelRepository(gitRepo: GitRepo,
+class GitBazelRepository(
+                          gitRepo: GitRepo,
                           checkoutDir: File,
                           masterEnforcer: MasterEnforcer,
                           username: String = "blah",
@@ -120,8 +121,6 @@ class GitBazelRepository(gitRepo: GitRepo,
       git.close()
     }
   }
-
-  def repoPath: String = ""
 }
 
 case class GitRepo(gitURL: String, org: String, repoName: String)
