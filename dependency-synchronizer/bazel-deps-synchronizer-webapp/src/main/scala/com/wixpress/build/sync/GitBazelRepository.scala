@@ -84,14 +84,17 @@ class GitBazelRepository(
   }
 
   private def addFilesAndCommit(git: Git, changedFilePaths: Set[String], message: String) = {
-    val gitAdd = git.add()
-    changedFilePaths.foreach(gitAdd.addFilepattern)
-    gitAdd.call()
+    if (!git.diff().call().isEmpty) {
+      val gitAdd = git.add()
+      changedFilePaths.foreach(gitAdd.addFilepattern)
+      gitAdd.call()
 
-    git.commit()
-      .setMessage(message)
-      .setAuthor(username, email)
-      .call()
+
+      git.commit()
+        .setMessage(message)
+        .setAuthor(username, email)
+        .call()
+    }
   }
 
   private def pushToRemote(git: Git, branchName: String) = {

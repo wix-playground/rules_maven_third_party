@@ -64,6 +64,23 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
     }
 
+    "not make empty commit" in new fakeRemoteRepositoryWithEmptyThirdPartyRepos {
+      val someLocalPath = File.newTemporaryDirectory("clone")
+      val gitBazelRepository = new GitBazelRepository(fakeGitRepo, someLocalPath, fakeMasterEnforcer)
+
+      val fileName = "some-file.txt"
+      val content = "some content"
+      someLocalPath.createChild(fileName).overwrite(content)
+
+      val branchName = "some-branch"
+      gitBazelRepository.persist(branchName, Set(fileName), "some message")
+      fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
+
+      someLocalPath.createChild(fileName).overwrite(content)
+      gitBazelRepository.persist(branchName, Set(fileName), "second message")
+      fakeRemoteRepository.allCommitsForBranch(branchName).head.message must not(contain("second message"))
+    }
+
     "overwrite any file in target branch with the persist content" in new fakeRemoteRepositoryWithEmptyThirdPartyRepos {
       val someLocalPath = File.newTemporaryDirectory("clone")
       val gitBazelRepository = new GitBazelRepository(fakeGitRepo, someLocalPath, fakeMasterEnforcer)
