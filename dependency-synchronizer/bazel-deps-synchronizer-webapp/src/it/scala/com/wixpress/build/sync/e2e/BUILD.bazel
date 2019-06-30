@@ -27,7 +27,7 @@ specs2_mixed_test(
         "@com_fasterxml_jackson_core_jackson_core",
         "@com_fasterxml_jackson_core_jackson_databind",
         "@com_github_pathikrit_better_files_2_12",
-        "@com_github_tomakehurst_wiremock",
+        "@com_github_tomakehurst_wiremock_2",
         "@com_typesafe_akka_akka_actor_2_12",
         "@com_typesafe_akka_akka_http_core_2_12",
         "@com_wix_http_testkit_client_2_12",
