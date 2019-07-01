@@ -57,5 +57,4 @@ bootstrap_jar(
         "@org_springframework_spring_webmvc",
     ],
 )
-
 sources()
