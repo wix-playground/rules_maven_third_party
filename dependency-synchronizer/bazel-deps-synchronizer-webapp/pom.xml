@@ -131,7 +131,7 @@
 
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock</artifactId>
+            <artifactId>wiremock-2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
