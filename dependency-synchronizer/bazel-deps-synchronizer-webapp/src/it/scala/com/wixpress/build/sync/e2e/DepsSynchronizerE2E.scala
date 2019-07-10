@@ -65,8 +65,7 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
         produceMessageAboutManagedDepsChange()
 
         val expectedCommit = Commit(gitUsername, gitUserEmail,
-            s"""${BazelMavenManagedDepsSynchronizer.PersistMessageHeader}
-               |${BazelMavenManagedDepsSynchronizer.ManagedDepsUpdateCommitMsg}
+            s"""${BazelMavenManagedDepsSynchronizer.ManagedDepsUpdateCommitMsg}
                |#pr""".stripMargin,
           Set("third_party.bzl", "third_party/com_wix_example.bzl"))
 
