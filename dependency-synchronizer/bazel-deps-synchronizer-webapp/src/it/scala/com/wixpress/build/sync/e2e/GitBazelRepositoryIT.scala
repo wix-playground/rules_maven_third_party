@@ -59,7 +59,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       someLocalPath.createChild(fileName).overwrite(content)
 
       val branchName = "some-branch"
-      gitBazelRepository.persist(branchName, Set(fileName), "some message")
+      gitBazelRepository.persist(branchName, "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
     }
@@ -73,11 +73,11 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       someLocalPath.createChild(fileName).overwrite(content)
 
       val branchName = "some-branch"
-      gitBazelRepository.persist(branchName, Set(fileName), "some message")
+      gitBazelRepository.persist(branchName, "some message")
       fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
 
       someLocalPath.createChild(fileName).overwrite(content)
-      gitBazelRepository.persist(branchName, Set(fileName), "second message")
+      gitBazelRepository.persist(branchName, "second message")
       fakeRemoteRepository.allCommitsForBranch(branchName).head.message must not(contain("second message"))
     }
 
@@ -88,11 +88,11 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val branchName = "some-branch"
 
       gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile("old-content")
-      gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
+      gitBazelRepository.persist(branchName, "some message")
 
       val newContent = "new-content"
       gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile(newContent)
-      gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
+      gitBazelRepository.persist(branchName, "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
     }
@@ -105,7 +105,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
 
       val newContent = "new-content"
       gitBazelRepository.resetAndCheckoutMaster().overwriteThirdPartyReposFile(newContent)
-      gitBazelRepository.persist(branchName, Set(thirdPartyReposFilePath), "some message")
+      gitBazelRepository.persist(branchName, "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, thirdPartyReposFilePath) must beSuccessfulTry(newContent)
     }
@@ -120,7 +120,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       val someMessage = "some message"
 
       private val branchName = "some-branch"
-      gitBazelRepository.persist(branchName, Set(fileName), someMessage)
+      gitBazelRepository.persist(branchName, someMessage)
       val expectedCommit = Commit(
         username = username,
         email = email,
@@ -141,7 +141,7 @@ class GitBazelRepositoryIT extends SpecificationWithJUnit {
       someLocalPath.createChild(fileName).overwrite(content)
 
       val branchName = "master"
-      gitBazelRepository.persist(branchName, Set(fileName), "some message")
+      gitBazelRepository.persist(branchName, "some message")
 
       fakeRemoteRepository.updatedContentOfFileIn(branchName, fileName) must beSuccessfulTry(content)
       fakeMasterEnforcer.calledForOrgAndRepo("someOrg", "someRepoName") must beTrue

@@ -34,10 +34,8 @@ class MockBazelRepository(local: File) extends BazelRepository {
 
   override def resetAndCheckoutMaster(): BazelLocalWorkspace = new FileSystemBazelLocalWorkspace(local)
 
-  override def persist(branchName: String, changedFilePaths: Set[String], message: String): Unit = {
-    println(s"persisting to branch $branchName files $changedFilePaths")
-    println(s"changed files:")
-    changedFilePaths.foreach(file => println(s"- $file"))
+  override def persist(branchName: String, message: String): Unit = {
+    println(s"persisting to branch $branchName")
     println(s"""message:"$message"""")
   }
 

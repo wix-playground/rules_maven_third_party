@@ -11,6 +11,8 @@ import org.eclipse.jgit.api.{Git, TransportCommand}
 import org.eclipse.jgit.transport.{JschConfigSessionFactory, SshTransport, _}
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
+
 class GitBazelRepository(gitRepo: GitRepo,
                           checkoutDir: File,
                           masterEnforcer: MasterEnforcer,
@@ -39,10 +41,10 @@ class GitBazelRepository(gitRepo: GitRepo,
     new FileSystemBazelLocalWorkspace(checkoutDir)
   }
 
-  override def persist(branchName: String, changedFilePaths: Set[String], message: String): Unit = {
+  override def persist(branchName: String, message: String): Unit = {
     withLocalGit(git => {
       checkoutNewBranch(git, branchName)
-      addFilesAndCommit(git, changedFilePaths, message)
+      addFilesAndCommit(git, message)
       pushToRemote(git, branchName)
     })
   }
@@ -82,10 +84,12 @@ class GitBazelRepository(gitRepo: GitRepo,
     }
   }
 
-  private def addFilesAndCommit(git: Git, changedFilePaths: Set[String], message: String) = {
-    if (!git.diff().call().isEmpty) {
+  private def addFilesAndCommit(git: Git, message: String) = {
+    val gitDiff = git.diff().call().asScala
+
+    if (!gitDiff.isEmpty) {
       val gitAdd = git.add()
-      changedFilePaths.foreach(gitAdd.addFilepattern)
+      gitDiff.foreach(d => gitAdd.addFilepattern(d.getNewPath))
       gitAdd.call()
 
 

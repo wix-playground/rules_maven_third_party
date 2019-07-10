@@ -5,6 +5,7 @@ import com.wix.e2e.http.Implicits.DefaultBaseUri
 import com.wix.e2e.http.client.sync.get
 import com.wix.build.maven.ArtifactDescriptor._
 import com.wix.build.maven.{Coordinates, Dependency, MavenScope, Packaging}
+import com.wix.build.sync.BazelMavenManagedDepsSynchronizer
 import com.wix.build.sync.e2e.DepsSynchronizerTestEnv._
 import com.wix.ci.greyhound.events.{BuildFinished, TeamcityTopic, VcsUpdate}
 import com.wix.framework.test.env.{GlobalTestEnvSupport, TestEnv}
@@ -63,8 +64,15 @@ class DepsSynchronizerE2E extends SpecificationWithJUnit with GreyhoundTestingSu
 
         produceMessageAboutManagedDepsChange()
 
+        val expectedCommit = Commit(gitUsername, gitUserEmail,
+            s"""${BazelMavenManagedDepsSynchronizer.PersistMessageHeader}
+               |${BazelMavenManagedDepsSynchronizer.ManagedDepsUpdateCommitMsg}
+               |#pr""".stripMargin,
+          Set("third_party.bzl", "third_party/com_wix_example.bzl"))
+
         eventually {
           fakeManagedDepsRemoteRepository must haveWorkspaceRuleFor(someCoordinates, buildRunId)
+          fakeManagedDepsRemoteRepository.allCommitsForBranch(buildRunId) must contain(expectedCommit)
         }
       }
       "when manually called" in new ctx {
