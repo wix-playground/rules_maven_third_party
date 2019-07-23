@@ -7,6 +7,7 @@ import scala.concurrent.{ExecutionContextExecutorService, Future}
 
 @RestController
 @RequestMapping(Array("/api"))
+//call this like this: https://bo.wix.com/bazel-deps-synchronizer-webapp/api/sync?branch=<blah>
 class ManualSyncController(managedDependenciesUpdate: ManagedDependenciesUpdateHandler) {
   implicit val ec: ExecutionContextExecutorService =
     WixExecutors.newExecutor(4).withName("synchronizer").buildExecutionContext()
