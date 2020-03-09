@@ -11,7 +11,7 @@ class DependencyUpdateHandler(managedDependenciesUpdate: ManagedDependenciesUpda
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def handleBuildMessage(message: BuildFinished): Unit = {
-    logger.info(s"Got Build message: $message")
+    logger.info(s"Got Build message : $message")
     managedDependenciesUpdate.run(message.buildRunId)
   }
 }
