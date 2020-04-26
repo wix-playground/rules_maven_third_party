@@ -19,7 +19,6 @@ scala_library(
         "@org_apache_maven_resolver_maven_resolver_util",
         "@org_eclipse_sisu_org_eclipse_sisu_plexus",
         "@org_scala_lang_scala_library",
-        "@org_sonatype_sisu_sisu_guice_no_aop",
     ],
 )
 
