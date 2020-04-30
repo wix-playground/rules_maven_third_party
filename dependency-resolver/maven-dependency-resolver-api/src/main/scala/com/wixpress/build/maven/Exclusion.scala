@@ -11,5 +11,10 @@ case class Exclusion(groupId: String, artifactId: String) {
 object Exclusion {
   def apply(dependency: Dependency): Exclusion = Exclusion(dependency.coordinates)
 
+  def apply(serialized: String): Exclusion = serialized.split(":") match {
+    case Array(groupId, artifactId) => Exclusion(groupId, artifactId)
+    case _ => throw new RuntimeException(s"Unsupported exclusion format '$serialized'")
+  }
+
   def apply(coordinates: Coordinates): Exclusion = Exclusion(coordinates.groupId, coordinates.artifactId)
 }
