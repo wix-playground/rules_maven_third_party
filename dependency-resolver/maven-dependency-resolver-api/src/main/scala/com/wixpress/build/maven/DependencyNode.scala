@@ -48,6 +48,7 @@ case class BazelDependencyNode(baseDependency: Dependency,
                                dependencies: Set[Dependency],
                                checksum: Option[String] = None,
                                srcChecksum: Option[String] = None,
+                               transitiveClosureDeps: Set[Dependency] = Set.empty,
                                snapshotSources: Boolean = false){
   val runtimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Runtime)
   val compileTimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Compile)

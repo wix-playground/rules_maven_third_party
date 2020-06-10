@@ -1,16 +1,22 @@
 package com.wix.build.maven
 
-case class Dependency(coordinates: Coordinates, scope: MavenScope, isNeverLink: Boolean = false, exclusions: Set[Exclusion] = Set.empty) {
+case class Dependency(coordinates: Coordinates,
+                      scope: MavenScope,
+                      isNeverLink: Boolean = false,
+                      exclusions: Set[Exclusion] = Set.empty,
+                      aliases: Set[String] = Set.empty) {
 
-  def withExclusions(exclusions: Set[Exclusion]): Dependency = this.copy(exclusions = exclusions)
+  def withExclusions(exclusions: Set[Exclusion]): Dependency = copy(exclusions = exclusions)
 
-  def version: String = this.coordinates.version
+  def withAliases(aliases: Set[String]): Dependency = copy(aliases = aliases)
 
-  def withVersion(version: String): Dependency = this.copy(coordinates = this.coordinates.copy(version = version))
+  def version: String = coordinates.version
 
-  def withScope(scope: MavenScope): Dependency = this.copy(scope = scope)
+  def withVersion(version: String): Dependency = copy(coordinates = coordinates.copy(version = version))
 
-  def withIsNeverLink(isNeverLink: Boolean): Dependency = this.copy(isNeverLink = isNeverLink)
+  def withScope(scope: MavenScope): Dependency = copy(scope = scope)
+
+  def withIsNeverLink(isNeverLink: Boolean): Dependency = copy(isNeverLink = isNeverLink)
 
   def equalsOnCoordinatesIgnoringVersion(dependency: Dependency): Boolean = dependency.coordinates.equalsIgnoringVersion(coordinates)
 
