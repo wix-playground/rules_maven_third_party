@@ -8,9 +8,10 @@ specs2_unit_test(
     data = ["//dependency-resolver/maven-dependency-resolver:coordinates"],
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-resolver/maven-dependency-resolver:coordinates)"],
     runtime_deps = [
+        "//dependency-resolver/maven-dependency-resolver/src/test/resources",
+        "@org_codehaus_plexus_plexus_interpolation",
     ],
     deps = [
-        "//dependency-resolver/maven-dependency-resolver:tests_dependencies",
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",

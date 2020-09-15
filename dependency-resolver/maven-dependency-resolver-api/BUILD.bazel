@@ -3,7 +3,6 @@ package(default_visibility = ["//visibility:public"])
 scala_library(
     name = "main_dependencies",
     deps = [
-        "//models/maven-model:main_dependencies",
         "@org_apache_maven_resolver_maven_resolver_api",
         "@org_scala_lang_scala_library",
     ],
