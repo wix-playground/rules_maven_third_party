@@ -10,6 +10,7 @@ specs2_ite2e_test(
     runtime_deps = [
     ],
     deps = [
+        "//dependency-resolver/maven-dependency-resolver-testkit:tests_dependencies",
         "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "@com_typesafe_akka_akka_actor_2_12",

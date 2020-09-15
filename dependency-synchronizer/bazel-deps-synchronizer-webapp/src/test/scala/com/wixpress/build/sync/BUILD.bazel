@@ -8,9 +8,6 @@ specs2_unit_test(
     data = ["//dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates"],
     jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer-webapp:coordinates)"],
     runtime_deps = [
-        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/resources",
-        "@com_newrelic_agent_java_newrelic_agent",
-        "@org_codehaus_plexus_plexus_interpolation",
     ],
     deps = [
         "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/scala/com/wix/build/sync",

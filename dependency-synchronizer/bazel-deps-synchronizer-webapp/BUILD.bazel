@@ -7,7 +7,11 @@ scala_library(
         "@com_newrelic_agent_java_newrelic_agent",
     ],
     deps = [
+        "//dependency-resolver/maven-dependency-resolver:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer-api:main_dependencies",
         "//third_party/com/wix/iptf:greyhound_clients",
+        "//wix-bazel-repositories/bazel-repositories-core:main_dependencies",
         "@javax_servlet_javax_servlet_api//:linkable",
         "@org_scala_lang_scala_library",
         "@wix_ci//domain",
@@ -25,6 +29,8 @@ scala_library(
     ],
     deps = [
         "main_dependencies",
+        "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
+        "//dependency-synchronizer/bazel-deps-synchronizer:main_dependencies",
         "@server_infra//iptf/greyhound/greyhound-testkit",
         "@wix_platform_wix_framework//bootstrap-modules/bootstrap-server-testkit",
         "@wix_platform_wix_framework//petri-integration-modules/petri-integration-testkit",

@@ -11,6 +11,7 @@ specs2_unit_test(
     ],
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
+        "//dependency-resolver/maven-dependency-resolver-testkit:tests_dependencies",
         "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
         "@org_scala_lang_modules_scala_xml_2_12",

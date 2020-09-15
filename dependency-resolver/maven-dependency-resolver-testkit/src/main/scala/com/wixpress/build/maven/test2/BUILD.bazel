@@ -8,7 +8,10 @@ scala_library(
     ],
     runtime_deps = [
     ],
-    deps = ["//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven/test1"],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
+        "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven/test1",
+    ],
 )
 
 sources()

@@ -7,7 +7,10 @@ scala_library(
     ],
     runtime_deps = [
     ],
-    deps = ["//models/maven-model/src/main/scala/com/wix/build/maven"],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-api:main_dependencies",
+        "//models/maven-model/src/main/scala/com/wix/build/maven",
+    ],
 )
 
 sources()
