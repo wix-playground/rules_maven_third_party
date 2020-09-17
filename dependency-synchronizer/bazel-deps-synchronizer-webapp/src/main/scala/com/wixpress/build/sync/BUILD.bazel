@@ -10,9 +10,9 @@ bootstrap_jar(
     artifact_id = "bazel-deps-synchronizer-webapp",
     group_id = "com.wix.build",
     main_class = "com.wix.build.sync.BazelMavenSynchronizerServer",
+    tags = ["async-publisher"],
     runtime_deps = [
     ],
-    tags = ["async-publisher"],
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven",
