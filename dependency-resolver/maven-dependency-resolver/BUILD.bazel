@@ -6,7 +6,6 @@ scala_library(
         "@org_codehaus_plexus_plexus_interpolation",
     ],
     deps = [
-        "//dependency-resolver/maven-dependency-resolver-api:main_dependencies",
         "@com_github_pathikrit_better_files_2_12",
         "@org_apache_maven_maven_model",
         "@org_apache_maven_maven_resolver_provider",
@@ -28,10 +27,7 @@ scala_library(
     runtime_deps = [
         "//dependency-resolver/maven-dependency-resolver/src/test/resources",
     ],
-    deps = [
-        "main_dependencies",
-        "//dependency-resolver/maven-dependency-resolver-testkit:main_dependencies",
-    ],
+    deps = ["main_dependencies"],
 )
 
 filegroup(

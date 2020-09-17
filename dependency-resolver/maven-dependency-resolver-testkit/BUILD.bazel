@@ -4,7 +4,6 @@ scala_library(
     name = "main_dependencies",
     testonly = 1,
     deps = [
-        "//dependency-resolver/maven-dependency-resolver-api:main_dependencies",
         "@commons_codec_commons_codec",
         "@javax_servlet_javax_servlet_api//:linkable",
         "@org_apache_maven_maven_model",

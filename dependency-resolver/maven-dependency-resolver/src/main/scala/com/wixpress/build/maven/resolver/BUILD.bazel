@@ -8,7 +8,6 @@ scala_library(
     runtime_deps = [
     ],
     deps = [
-        "//dependency-resolver/maven-dependency-resolver:main_dependencies",
         "@org_apache_maven_maven_resolver_provider",
         "@org_apache_maven_resolver_maven_resolver_api",
         "@org_apache_maven_resolver_maven_resolver_connector_basic",
