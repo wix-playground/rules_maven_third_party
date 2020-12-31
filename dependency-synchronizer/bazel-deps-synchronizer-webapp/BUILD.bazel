@@ -1,37 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-scala_library(
-    name = "main_dependencies",
-    runtime_deps = [
-        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/main/resources",
-        "@com_newrelic_agent_java_newrelic_agent",
-    ],
-    deps = [
-        "//third_party/com/wix/iptf:greyhound_clients",
-        "@javax_servlet_javax_servlet_api//:linkable",
-        "@org_scala_lang_scala_library",
-        "@wix_ci//domain",
-        "@wix_platform_wix_framework//bootstrap-modules/wix-server-bootstrap",
-        "@wix_platform_wix_framework//configuration-modules/hoopoe-config",
-        "@wix_platform_wix_framework//environment-modules/wix-cache-folder",
-    ],
-)
-
-scala_library(
-    name = "tests_dependencies",
-    testonly = 1,
-    runtime_deps = [
-        "//dependency-synchronizer/bazel-deps-synchronizer-webapp/src/it/resources",
-    ],
-    deps = [
-        "main_dependencies",
-        "@server_infra//iptf/greyhound/greyhound-testkit",
-        "@wix_platform_wix_framework//bootstrap-modules/bootstrap-server-testkit",
-        "@wix_platform_wix_framework//petri-integration-modules/petri-integration-testkit",
-        "@wix_platform_wix_framework//test-infrastructures-modules/io-test-kit",
-    ],
-)
-
 filegroup(
     name = "coordinates",
     srcs = ["MANIFEST.MF"],
