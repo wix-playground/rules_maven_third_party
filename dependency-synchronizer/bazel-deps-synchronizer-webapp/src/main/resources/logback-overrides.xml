@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="AUDIT">
         <file>${LOG_DIR}/sync-deps-messages.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
@@ -18,9 +19,9 @@
     </appender>
 
 
-    <logger name="com.wix.build.sync" level="DEBUG" additivity="false">
-        <appender-ref ref="AUDIT"/>
-        <appender-ref ref="LOG_STASH_GENERAL"/>
+    <logger additivity="false" level="DEBUG" name="com.wix.build.sync">
+        <appender-ref ref="AUDIT" />
+        <appender-ref ref="LOG_STASH_GENERAL" />
     </logger>
 
 </included>
