@@ -16,7 +16,6 @@ scala_library(
         "@org_apache_maven_maven_resolver_provider",
         "@org_apache_maven_resolver_maven_resolver_api",
         "@org_apache_maven_resolver_maven_resolver_util",
-        "@org_codehaus_plexus_plexus_utils",
     ],
 )
 
