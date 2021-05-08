@@ -15,6 +15,7 @@ specs2_unit_test(
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//migrator/wix-bazel-migrator/src/main/java/com/wix/bazel/migrator",
+        "@com_fasterxml_jackson_core_jackson_databind",
     ],
 )
 
