@@ -1,11 +1,14 @@
 package com.wix.build.maven
 
-import com.wix.bazel.migrator.Persister
+import com.wix.build.maven.resolver.mixin.TypeAddingMixin
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 import org.specs2.specification.core.{Fragment, Fragments}
+import com.wix.hoopoe.json.JsonMapper
 
 class MavenScopeTest extends SpecificationWithJUnit {
+  val mapper = JsonMapper.global.addMixIn(classOf[MavenScope], classOf[TypeAddingMixin])
+
   val ScopesToNames = List(
     ScopeToName(MavenScope.Compile,"compile"),
     ScopeToName(MavenScope.Test,"test"),
@@ -37,8 +40,6 @@ class MavenScopeTest extends SpecificationWithJUnit {
       differentInstance.hashCode() mustEqual scopeToName.scope.hashCode()
     }
   }
-
-  val mapper = Persister.objectMapper
 
   def allTests:Fragments = Fragments(ScopesToNames.map(extractTest): _*)
 
