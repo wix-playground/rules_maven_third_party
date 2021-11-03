@@ -1,7 +1,5 @@
 package com.wix.build.maven
 
-import java.nio.file.{Files, Path}
-
 import better.files.File
 import com.wix.build.maven.AetherDependencyConversions._
 import com.wix.build.maven.resolver.ManualRepositorySystemFactory
@@ -20,6 +18,7 @@ import org.eclipse.aether.util.graph.transformer.ConflictResolver
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy
 
+import java.nio.file.{Files, Path}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.Try
@@ -46,8 +45,15 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
   override def directDependenciesOf(coordinates: Coordinates): List[Dependency] =
     directDependenciesOf(artifactFromCoordinates(coordinates))
 
-  private def artifactFromCoordinates(artifact: Coordinates) =
-    new DefaultArtifact(artifact.groupId, artifact.artifactId, artifact.packaging.value, artifact.version)
+  private def artifactFromCoordinates(artifact: Coordinates) = artifact.classifier match {
+    case Some(classifier) => new DefaultArtifact(
+      artifact.groupId, artifact.artifactId, classifier, artifact.packaging.value, artifact.version
+    )
+    case None => new DefaultArtifact(
+      artifact.groupId, artifact.artifactId, artifact.packaging.value, artifact.version
+    )
+  }
+
 
   def directDependenciesOf(pathToPom: Path): List[Dependency] =
     directDependenciesOf(artifactFromPath(pathToPom))
@@ -102,11 +108,12 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
     }
     catch {
       case e: DependencyCollectionException =>
-        throw new IllegalArgumentException(s"""|${e.getCause()}
-                                               |===== Please double check that you have VPN on and that you have no typos.
-                                               |if you REALLY meant to reference this jar and you know it exists even though there IS NO pom,
-                                               |please rerun the tool with --ignoreMissingDependencies flag at the end =====
-                                               |""".stripMargin)
+        throw new IllegalArgumentException(
+          s"""|${e.getCause()}
+              |===== Please double check that you have VPN on and that you have no typos.
+              |if you REALLY meant to reference this jar and you know it exists even though there IS NO pom,
+              |please rerun the tool with --ignoreMissingDependencies flag at the end =====
+              |""".stripMargin)
     }
   }
 
@@ -121,13 +128,13 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
     orderedUniqueDependenciesFrom(dependencyNodes.map(_.getDependency))
   }
 
-  private def withSession[T](ignoreMissingDependencies:Boolean, f: DefaultRepositorySystemSession => T): T = {
+  private def withSession[T](ignoreMissingDependencies: Boolean, f: DefaultRepositorySystemSession => T): T = {
     val localRepo = new LocalRepository(localRepoPath.pathAsString)
     val session = MavenRepositorySystemUtils.newSession
     session.setArtifactDescriptorPolicy(new SimpleArtifactDescriptorPolicy(ignoreMissingDependencies, false))
     session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, localRepo))
     val result = Try(f(session)) recover {
-      case e: ArtifactDescriptorException => throw new MissingPomException(e.getMessage,e)
+      case e: ArtifactDescriptorException => throw new MissingPomException(e.getMessage, e)
       case e => throw e
     }
     result.get
