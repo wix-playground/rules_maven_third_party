@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.MavenMakers.{randomCoordinates, randomDependency}
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.BeforeAfterAll
@@ -10,18 +11,18 @@ class FilteringGlobalExclusionDependencyResolverIT extends SpecificationWithJUni
     "keep managed dependencies when retaining transitive dependencies" in {
       val interestingArtifact = randomDependency(artifactIdPrefix = "base")
       val directExcludedDependency = randomDependency(artifactIdPrefix = "excluded")
-      val transitiveExcludedCoordinates = randomCoordinates(artifactIdPrefix = "transitive-excluded",withVersion = "original")
+      val transitiveExcludedCoordinates = randomCoordinates(artifactIdPrefix = "transitive-excluded", withVersion = "original")
       val managedDependency = transitiveExcludedCoordinates.copy(version = "managed")
       val secondLevelTransitiveDependency = randomDependency(artifactIdPrefix = "transitive-transitive")
 
       fakeMavenRepository.addArtifacts(
         ArtifactDescriptor.anArtifact(interestingArtifact.coordinates)
           .withDependency(directExcludedDependency)
-          .withManagedDependency(Dependency(managedDependency,MavenScope.Compile)),
+          .withManagedDependency(Dependency(managedDependency, MavenScope.Compile)),
 
         ArtifactDescriptor.anArtifact(directExcludedDependency.coordinates)
-          .withDependency(Dependency(transitiveExcludedCoordinates,MavenScope.Compile)
-        ),
+          .withDependency(Dependency(transitiveExcludedCoordinates, MavenScope.Compile)
+          ),
 
         ArtifactDescriptor.anArtifact(transitiveExcludedCoordinates),
 

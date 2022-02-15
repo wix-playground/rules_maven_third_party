@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.ArtifactDescriptor.anArtifact
 
 import scala.annotation.tailrec
@@ -64,18 +65,18 @@ class FakeMavenDependencyResolver(artifacts: Set[ArtifactDescriptor]) extends Ma
     accumulateDirectDeps(coordinates)
   }
 
-  private def accumulateDirectDeps(coordinates: Coordinates) = accumulateDeps(Set.empty,Some(coordinates),_.dependencies.toSet).toList
+  private def accumulateDirectDeps(coordinates: Coordinates) = accumulateDeps(Set.empty, Some(coordinates), _.dependencies.toSet).toList
 
-  private def accumulateManagedDeps(coordinates: Coordinates) = accumulateDeps(Set.empty,Some(coordinates),_.managedDependencies.toSet)
+  private def accumulateManagedDeps(coordinates: Coordinates) = accumulateDeps(Set.empty, Some(coordinates), _.managedDependencies.toSet)
 
   @tailrec
   private def accumulateDeps(acc: Set[Dependency],
-                                    maybeCoordinates: Option[Coordinates] ,
-                                    retrieveDeps: ArtifactDescriptor => Set[Dependency]): Set[Dependency] =
+                             maybeCoordinates: Option[Coordinates],
+                             retrieveDeps: ArtifactDescriptor => Set[Dependency]): Set[Dependency] =
     maybeCoordinates match {
       case Some(coordinates) =>
-        val artifact = findArtifactBy(coordinates).getOrElse(throw new MissingPomException(s"Could not find artifact $coordinates" ,new NoSuchElementException()))
-        accumulateDeps(acc ++ retrieveDeps(artifact), artifact.parentCoordinates,retrieveDeps)
+        val artifact = findArtifactBy(coordinates).getOrElse(throw new MissingPomException(s"Could not find artifact $coordinates", new NoSuchElementException()))
+        accumulateDeps(acc ++ retrieveDeps(artifact), artifact.parentCoordinates, retrieveDeps)
       case None => acc
     }
 
@@ -84,9 +85,9 @@ class FakeMavenDependencyResolver(artifacts: Set[ArtifactDescriptor]) extends Ma
     artifacts.find(artifact => {
       val artifactCoordinates = artifact.coordinates
       artifactCoordinates.groupId == coordinates.groupId &&
-      artifactCoordinates.artifactId == coordinates.artifactId &&
-      artifactCoordinates.version == coordinates.version &&
-      artifactCoordinates.packaging == coordinates.packaging
+        artifactCoordinates.artifactId == coordinates.artifactId &&
+        artifactCoordinates.version == coordinates.version &&
+        artifactCoordinates.packaging == coordinates.packaging
     })
 
 }

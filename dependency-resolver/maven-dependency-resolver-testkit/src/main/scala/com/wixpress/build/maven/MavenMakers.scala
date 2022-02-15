@@ -1,12 +1,13 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.DefaultChecksumValues.{defaultChecksum, defaultSrcChecksum}
 
 import scala.util.Random
 
 object MavenMakers {
 
-  def anExclusion(excludedArtifactId: String): Exclusion = Exclusion("some.excluded.group",excludedArtifactId)
+  def anExclusion(excludedArtifactId: String): Exclusion = Exclusion("some.excluded.group", excludedArtifactId)
 
   private val defaultArtifactPrefix = "some-artifact"
 
@@ -40,11 +41,11 @@ object MavenMakers {
 
   def someProtoCoordinates(artifactId: String): Coordinates = Coordinates("some.group", artifactId, "some-version", packaging = Packaging("zip"), classifier = Some("proto"))
 
-  def aDependency(artifactId:String,scope:MavenScope = MavenScope.Compile, exclusions: Set[Exclusion] = Set.empty) =
-    Dependency(someCoordinates(artifactId),scope, false, exclusions)
+  def aDependency(artifactId: String, scope: MavenScope = MavenScope.Compile, exclusions: Set[Exclusion] = Set.empty) =
+    Dependency(someCoordinates(artifactId), scope, false, exclusions)
 
-  def aPomArtifactDependency(artifactId:String,scope:MavenScope = MavenScope.Compile, exclusions: Set[Exclusion] = Set.empty) =
-    Dependency(someCoordinates(artifactId).copy(packaging = Packaging("pom")),scope, false, exclusions)
+  def aPomArtifactDependency(artifactId: String, scope: MavenScope = MavenScope.Compile, exclusions: Set[Exclusion] = Set.empty) =
+    Dependency(someCoordinates(artifactId).copy(packaging = Packaging("pom")), scope, false, exclusions)
 
   def asCompileDependency(artifact: Coordinates, exclusions: Set[Exclusion] = Set.empty): Dependency =
     Dependency(artifact, MavenScope.Compile, false, exclusions)
@@ -56,22 +57,23 @@ object MavenMakers {
 
   def aTestArchiveZipDependency(artifactId: String): Dependency = Dependency(someCoordinates(artifactId).copy(packaging = Packaging("zip")), MavenScope.Test)
 
-  def aRootDependencyNode(dependency: Dependency) = DependencyNode(dependency,Set.empty)
+  def aRootDependencyNode(dependency: Dependency) = DependencyNode(dependency, Set.empty)
 
-  def aRootBazelDependencyNode(dependency: Dependency, checksum: Option[String] = Some(defaultChecksum), srcChecksum: Option[String] = Some(defaultSrcChecksum)) = BazelDependencyNode(dependency,Set.empty, checksum = checksum, srcChecksum = srcChecksum)
+  def aRootBazelDependencyNode(dependency: Dependency, checksum: Option[String] = Some(defaultChecksum), srcChecksum: Option[String] = Some(defaultSrcChecksum)) = BazelDependencyNode(dependency, Set.empty, checksum = checksum, srcChecksum = srcChecksum)
 
   def aRootBazelSnapshotDependencyNode(dependency: Dependency) = BazelDependencyNode(dependency, Set.empty, snapshotSources = true)
 
   def aBazelDependencyNode(dependency: Dependency, dependencies: Set[Dependency]) = BazelDependencyNode(dependency, dependencies, Some(defaultChecksum), Some(defaultSrcChecksum))
 
   def dependencyNodesFrom(singleDependency: SingleDependency): Set[DependencyNode] =
-    Set(DependencyNode(singleDependency.dependant,Set(singleDependency.dependency)), DependencyNode(singleDependency.dependency, Set()))
+    Set(DependencyNode(singleDependency.dependant, Set(singleDependency.dependency)), DependencyNode(singleDependency.dependency, Set()))
 }
 
 case class SingleDependency(dependant: Dependency, dependency: Dependency)
+
 case class SingleTransitiveDependency(dependant: Dependency, dependency: Dependency, transitiveDependency: Dependency)
 
-object DefaultChecksumValues{
+object DefaultChecksumValues {
   val defaultChecksum: String = "default-checksum"
   val defaultSrcChecksum: String = "default-src-checksum"
 }

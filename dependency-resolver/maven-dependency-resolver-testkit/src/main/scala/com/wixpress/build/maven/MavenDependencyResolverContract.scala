@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.ArtifactDescriptor.{anArtifact, rootFor}
 import com.wix.build.maven.MavenMakers._
 import org.specs2.mutable.SpecificationWithJUnit
@@ -33,8 +34,8 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
 
         def managedDependencyArtifact: ArtifactDescriptor
 
-        def artifactWithManagedDeps(dependency:Dependency*) =
-          anArtifact(managedDependenciesCoordinates,List.empty,dependency.toList)
+        def artifactWithManagedDeps(dependency: Dependency*) =
+          anArtifact(managedDependenciesCoordinates, List.empty, dependency.toList)
 
         override def remoteArtifacts = Set(managedDependencyArtifact)
       }
@@ -57,6 +58,7 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
       "all dependencies, ordered, if pom has multiple managed dependencies" in new dependencyManagementCtx {
         lazy val someDependency = randomDependency()
         lazy val someOtherDependency = randomDependency()
+
         override def managedDependencyArtifact = artifactWithManagedDeps(someDependency, someOtherDependency)
 
         private val retrievedManagedDependencies = mavenDependencyResolver.managedDependenciesOf(managedDependenciesCoordinates)
@@ -66,6 +68,7 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
 
       "a dependency with exclusion if pom has a managed dependency with exclusion" in new dependencyManagementCtx {
         lazy val dependency = randomDependency(withExclusions = Set(Exclusion(someGroupId, someArtifactId())))
+
         override def managedDependencyArtifact = artifactWithManagedDeps(dependency)
 
         val dependencies = mavenDependencyResolver.managedDependenciesOf(managedDependenciesCoordinates)
@@ -401,12 +404,14 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
 
       "given a single dependency x with long dependency chain" >> {
         "should return the last dependency in the chain" in new ctx {
-          def dependencies = {1 to 100}
+          def dependencies = {
+            1 to 100
+          }
             .map(n => aDependency(s"dep-$n"))
 
           override def remoteArtifacts =
             (anArtifact(dependencies.head.coordinates) +:
-              dependencies.tail.zipWithIndex.map(tuple=>anArtifact(tuple._1.coordinates).withDependency(dependencies(tuple._2)))).toSet
+              dependencies.tail.zipWithIndex.map(tuple => anArtifact(tuple._1.coordinates).withDependency(dependencies(tuple._2)))).toSet
 
 
           mavenDependencyResolver.dependencyClosureOf(List(dependencies.last), List.empty) must contain(
@@ -420,9 +425,9 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
   }
 
   private def testScopeResolutionForTransitiveDependency(
-                                                           directDependencyScope: MavenScope,
-                                                           originalScope: MavenScope,
-                                                           expectedResolvedScope: MavenScope) = {
+                                                          directDependencyScope: MavenScope,
+                                                          originalScope: MavenScope,
+                                                          expectedResolvedScope: MavenScope) = {
     s"return transitive dependency of scope ${originalScope.name} to " +
       s"direct dependency of scope ${directDependencyScope.name}, " +
       s"resolved as scope ${expectedResolvedScope.name}" in new ctx {
@@ -455,8 +460,8 @@ abstract class MavenDependencyResolverContract extends SpecificationWithJUnit {
   }
 
   private def testTransitiveDependencyIsNotInAllDependencyInCaseOf(
-                                                          directDependencyScope: MavenScope,
-                                                          originalScope: MavenScope) = {
+                                                                    directDependencyScope: MavenScope,
+                                                                    originalScope: MavenScope) = {
     s"not return transitive dependency of scope ${originalScope.name} coming from direct dependency of scope ${directDependencyScope.name}" in new ctx {
       def interestingArtifact = someCoordinates("base")
 

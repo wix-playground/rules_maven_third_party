@@ -1,9 +1,10 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.CoursierDependencyResolver._
 import coursier.MavenRepository
 import coursier.cache.Cache
-import coursier.core.{Attributes, Classifier, Configuration, Extension, Module, ModuleName, Organization, Publication, Resolution, ResolutionProcess, Type, Dependency => CoursierDependency}
+import coursier.core.{Attributes, Classifier, Configuration, Module, ModuleName, Organization, Resolution, ResolutionProcess, Type, Dependency => CoursierDependency}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

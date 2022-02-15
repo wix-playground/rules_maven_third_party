@@ -1,25 +1,26 @@
 package com.wix.build.maven
 
-import java.io.StringWriter
-
+import com.wix.build.maven._
+import com.wix.build.maven.ArtifactDescriptor._
 import org.apache.maven.model.io.DefaultModelWriter
 import org.apache.maven.model.{DependencyManagement, Parent, Dependency => MavenDependency, Exclusion => MavenExclusion, Model => Project}
-import ArtifactDescriptor._
+
+import java.io.StringWriter
 import scala.collection.JavaConverters._
 
 /**
-  ArtifactDescriptor is a representation of a pom.xml
-  According to Maven In a pom.xml
-    a groupId is optional (defaults to parent's groupId)
-    a packaging is optional (defaults to jar)
-    a version is optional (taken from parent's version)
-
-  It is not a means to retrieve a dependency (which is done via the Coordinates class)
+ * ArtifactDescriptor is a representation of a pom.xml
+ * According to Maven In a pom.xml
+ * a groupId is optional (defaults to parent's groupId)
+ * a packaging is optional (defaults to jar)
+ * a version is optional (taken from parent's version)
+ *
+ * It is not a means to retrieve a dependency (which is done via the Coordinates class)
  */
-case class ArtifactDescriptor(groupId:Option[String],
-                              artifactId:String,
-                              version:Option[String],
-                              packaging:String,
+case class ArtifactDescriptor(groupId: Option[String],
+                              artifactId: String,
+                              version: Option[String],
+                              packaging: String,
                               dependencies: List[Dependency] = List.empty,
                               managedDependencies: List[Dependency] = List.empty,
                               parentCoordinates: Option[Coordinates] = None) {
@@ -29,9 +30,9 @@ case class ArtifactDescriptor(groupId:Option[String],
     this.copy(parentCoordinates = Option(parentCoordinates))
 
 
-  def withoutGroupId: ArtifactDescriptor = this.copy(groupId=None)
+  def withoutGroupId: ArtifactDescriptor = this.copy(groupId = None)
 
-  def withoutVersion: ArtifactDescriptor = this.copy(version=None)
+  def withoutVersion: ArtifactDescriptor = this.copy(version = None)
 
   def withManagedDependency(dep: Dependency): ArtifactDescriptor =
     this.copy(managedDependencies = this.managedDependencies :+ dep)
@@ -46,7 +47,8 @@ case class ArtifactDescriptor(groupId:Option[String],
     modelWriter.write(output, null, this.asMavenProject)
     output.getBuffer.toString
   }
-  private def parent(coordinates:Coordinates): Parent = {
+
+  private def parent(coordinates: Coordinates): Parent = {
     val res = new Parent
     res.setGroupId(coordinates.groupId)
     res.setArtifactId(coordinates.artifactId)
@@ -54,7 +56,7 @@ case class ArtifactDescriptor(groupId:Option[String],
     res
   }
 
-  private val parent:Option[Parent] = {
+  private val parent: Option[Parent] = {
     parentCoordinates.map(parent(_))
   }
 
@@ -86,7 +88,6 @@ case class ArtifactDescriptor(groupId:Option[String],
   }
 
 
-
 }
 
 object ArtifactDescriptor {
@@ -103,7 +104,7 @@ object ArtifactDescriptor {
 
   def rootFor(coordinates: Coordinates): ArtifactDescriptor = anArtifact(coordinates)
 
-  def withSingleDependency(coordinates: Coordinates, dependency: Dependency): ArtifactDescriptor = anArtifact(coordinates,List(dependency))
+  def withSingleDependency(coordinates: Coordinates, dependency: Dependency): ArtifactDescriptor = anArtifact(coordinates, List(dependency))
 
 
   implicit class CoordinatesExtended(dependency: Dependency) {

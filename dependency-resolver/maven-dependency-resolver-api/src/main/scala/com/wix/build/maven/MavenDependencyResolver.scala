@@ -1,10 +1,14 @@
 package com.wix.build.maven
 
+import com.wix.build.maven.Coordinates
+
 trait MavenDependencyResolver {
 
   def managedDependenciesOf(artifact: Coordinates): List[Dependency]
 
-  def dependencyClosureOf(baseDependencies: List[Dependency], withManagedDependencies: List[Dependency], ignoreMissingDependencies: Boolean = true): Set[DependencyNode]
+  def dependencyClosureOf(baseDependencies: List[Dependency],
+                          withManagedDependencies: List[Dependency],
+                          ignoreMissingDependencies: Boolean = true): Set[DependencyNode]
 
   def directDependenciesOf(artifact: Coordinates): List[Dependency]
 

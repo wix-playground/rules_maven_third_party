@@ -23,6 +23,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.Try
 
+import com.wix.build.maven._
+
 class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
                                     localRepoPath: File = AetherMavenDependencyResolver.tempLocalRepoPath()
                                    ) extends MavenDependencyResolver {

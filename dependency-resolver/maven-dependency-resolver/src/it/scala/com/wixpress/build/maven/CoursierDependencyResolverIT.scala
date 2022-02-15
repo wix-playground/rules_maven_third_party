@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.ArtifactDescriptor.anArtifact
 import com.wix.build.maven.MavenMakers.{aDependency, randomDependency}
 import org.specs2.mutable.SpecificationWithJUnit

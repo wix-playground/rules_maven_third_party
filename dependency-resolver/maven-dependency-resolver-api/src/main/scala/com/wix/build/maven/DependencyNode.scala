@@ -1,14 +1,16 @@
 package com.wix.build.maven
 
+import com.wix.build.maven.Coordinates
+
 case class DependencyNode(baseDependency: Dependency,
                           dependencies: Set[Dependency]) {
+
   val runtimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Runtime)
   val compileTimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Compile)
 
-  private def coordinatesByScopeFromDependencies(scope: MavenScope) =
-    dependencies
-      .filter(_.scope == scope)
-      .map(_.coordinates)
+  private def coordinatesByScopeFromDependencies(scope: MavenScope) = dependencies
+    .filter(_.scope == scope)
+    .map(_.coordinates)
 
   def toBazelNode: BazelDependencyNode = {
     BazelDependencyNode(baseDependency = baseDependency, dependencies = dependencies)
@@ -18,7 +20,7 @@ case class DependencyNode(baseDependency: Dependency,
 }
 
 object DependencyNode {
-  implicit class DependencyNodesExtended(dependencyNodes:Set[DependencyNode]) {
+  implicit class DependencyNodesExtended(dependencyNodes: Set[DependencyNode]) {
     def forceCompileScope: Set[DependencyNode] =
       dependencyNodes.map(node => node.copy(baseDependency = node.baseDependency.forceCompileScope))
 
@@ -49,7 +51,7 @@ case class BazelDependencyNode(baseDependency: Dependency,
                                checksum: Option[String] = None,
                                srcChecksum: Option[String] = None,
                                transitiveClosureDeps: Set[Dependency] = Set.empty,
-                               snapshotSources: Boolean = false){
+                               snapshotSources: Boolean = false) {
   val runtimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Runtime)
   val compileTimeDependencies: Set[Coordinates] = coordinatesByScopeFromDependencies(MavenScope.Compile)
   val transitiveCompileTimeDependencies: Set[Coordinates] = transitiveClosureDeps.map(_.coordinates)

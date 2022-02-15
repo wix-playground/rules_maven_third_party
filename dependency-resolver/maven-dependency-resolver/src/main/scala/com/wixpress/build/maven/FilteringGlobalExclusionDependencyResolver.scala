@@ -1,5 +1,7 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
+
 import scala.annotation.tailrec
 
 class FilteringGlobalExclusionDependencyResolver(resolver: MavenDependencyResolver, globalExcludes: Set[Coordinates]) extends MavenDependencyResolver {

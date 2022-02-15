@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.MavenMakers._
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
@@ -12,7 +13,7 @@ class FilteringGlobalExclusionDependencyResolverTest extends SpecificationWithJU
     "return managed dependencies as implemented in the resolver given in its constructor" in {
       val managedDependencies = List(randomDependency())
       val managedDependencyCoordinates = randomCoordinates()
-      val resolver = new FakeMavenDependencyResolver(Set(ArtifactDescriptor.anArtifact(managedDependencyCoordinates,List.empty,managedDependencies)))
+      val resolver = new FakeMavenDependencyResolver(Set(ArtifactDescriptor.anArtifact(managedDependencyCoordinates, List.empty, managedDependencies)))
       val filteringGlobalExclusionDependencyResolver = new FilteringGlobalExclusionDependencyResolver(resolver, Set.empty)
 
       filteringGlobalExclusionDependencyResolver.managedDependenciesOf(managedDependencyCoordinates) must_== managedDependencies

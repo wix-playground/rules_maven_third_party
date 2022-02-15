@@ -1,7 +1,8 @@
 package com.wix.build.maven
 
-import org.specs2.mutable.SpecificationWithJUnit
+import com.wix.build.maven._
 import org.specs2.matcher.XmlMatchers._
+import org.specs2.mutable.SpecificationWithJUnit
 
 import scala.xml._
 
@@ -24,11 +25,17 @@ class ArtifactDescriptorTest extends SpecificationWithJUnit {
       val expected: Elem = <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
                                     xmlns="http://maven.apache.org/POM/4.0.0"
                                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                            <modelVersion>4.0.0</modelVersion>
-                            <groupId>{baseCoordiantes.groupId}</groupId>
-                            <artifactId>{baseCoordiantes.artifactId}</artifactId>
-                            <version>{baseCoordiantes.version}</version>
-                          </project>
+        <modelVersion>4.0.0</modelVersion>
+        <groupId>
+          {baseCoordiantes.groupId}
+        </groupId>
+        <artifactId>
+          {baseCoordiantes.artifactId}
+        </artifactId>
+        <version>
+          {baseCoordiantes.version}
+        </version>
+      </project>
 
       val pom: Elem = XML.loadString(baseDescriptor.pomXml)
 
@@ -36,17 +43,29 @@ class ArtifactDescriptorTest extends SpecificationWithJUnit {
     }
 
     "build pom.xml with dependency and exclusions" in {
-      val exclusion = Exclusion("excluded.group","excluded-artifact")
-      val dependencyWithExclusions = dependency.copy(exclusions=Set(exclusion))
+      val exclusion = Exclusion("excluded.group", "excluded-artifact")
+      val dependencyWithExclusions = dependency.copy(exclusions = Set(exclusion))
       val expected = <dependency>
-        <groupId>{dependencyWithExclusions.coordinates.groupId}</groupId>
-        <artifactId>{dependencyWithExclusions.coordinates.artifactId}</artifactId>
-        <version>{dependencyWithExclusions.coordinates.version}</version>
-        <scope>{dependencyWithExclusions.scope.name}</scope>
+        <groupId>
+          {dependencyWithExclusions.coordinates.groupId}
+        </groupId>
+        <artifactId>
+          {dependencyWithExclusions.coordinates.artifactId}
+        </artifactId>
+        <version>
+          {dependencyWithExclusions.coordinates.version}
+        </version>
+        <scope>
+          {dependencyWithExclusions.scope.name}
+        </scope>
         <exclusions>
           <exclusion>
-            <artifactId>{exclusion.artifactId}</artifactId>
-            <groupId>{exclusion.groupId}</groupId>
+            <artifactId>
+              {exclusion.artifactId}
+            </artifactId>
+            <groupId>
+              {exclusion.groupId}
+            </groupId>
           </exclusion>
         </exclusions>
       </dependency>

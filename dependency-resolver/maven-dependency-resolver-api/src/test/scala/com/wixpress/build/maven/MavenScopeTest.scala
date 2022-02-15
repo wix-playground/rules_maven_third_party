@@ -1,10 +1,10 @@
 package com.wix.build.maven
 
 import com.wix.build.maven.resolver.mixin.TypeAddingMixin
+import com.wix.hoopoe.json.JsonMapper
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 import org.specs2.specification.core.{Fragment, Fragments}
-import com.wix.hoopoe.json.JsonMapper
 
 class MavenScopeTest extends SpecificationWithJUnit {
   val mapper = JsonMapper.global.addMixIn(classOf[MavenScope], classOf[TypeAddingMixin])

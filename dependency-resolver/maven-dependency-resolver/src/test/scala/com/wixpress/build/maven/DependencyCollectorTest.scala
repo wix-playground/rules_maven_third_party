@@ -1,5 +1,6 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
 import com.wix.build.maven.MavenMakers.aDependency
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
@@ -49,6 +50,7 @@ class DependencyCollectorTest extends SpecificationWithJUnit {
     "after already collect dependency A," should {
       trait oneCollectedDependencyCtx extends ctx {
         val existingDependency: Dependency = aDependency("existing")
+
         def collector = new DependencyCollector(Set(existingDependency))
       }
 

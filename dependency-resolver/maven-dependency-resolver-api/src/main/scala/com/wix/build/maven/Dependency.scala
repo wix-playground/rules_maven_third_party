@@ -1,5 +1,7 @@
 package com.wix.build.maven
 
+import com.wix.build.maven.Coordinates
+
 case class Dependency(coordinates: Coordinates,
                       scope: MavenScope,
                       isNeverLink: Boolean = false,

@@ -1,5 +1,7 @@
 package com.wix.build.maven
 
+import com.wix.build.maven._
+
 class DependencyCollector(dependencies: Set[Dependency] = Set.empty) {
 
   def addOrOverrideDependencies(newDependencies: Set[Dependency]) =
@@ -16,7 +18,7 @@ class DependencyCollector(dependencies: Set[Dependency] = Set.empty) {
 
   implicit class `add or override dependency set`(originalSet: Set[Dependency]) {
 
-    private def overrideVersionIfExistsIn(otherDependencies:Set[Dependency])(originalDependency:Dependency) ={
+    private def overrideVersionIfExistsIn(otherDependencies: Set[Dependency])(originalDependency: Dependency) = {
       val newVersion = otherDependencies
         .find(_.equalsOnCoordinatesIgnoringVersion(originalDependency))
         .map(_.version)

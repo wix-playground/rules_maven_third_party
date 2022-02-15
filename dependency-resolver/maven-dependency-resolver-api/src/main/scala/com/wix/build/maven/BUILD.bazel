@@ -1,0 +1,9 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "maven",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//models/maven-model/src/main/scala/com/wix/build/maven",
+    ],
+)
