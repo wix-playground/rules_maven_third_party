@@ -5,7 +5,8 @@ import com.wix.build.maven.MavenMakers.{randomCoordinates, randomDependency}
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.BeforeAfterAll
 
-class FilteringGlobalExclusionDependencyResolverIT extends SpecificationWithJUnit with BeforeAfterAll with FakeMavenRepositorySupport {
+class FilteringGlobalExclusionDependencyResolverIT
+  extends SpecificationWithJUnit with BeforeAfterAll with FakeMavenRepositorySupport {
 
   "FilteringGlobalExclusionDependencyResolver" should {
     "keep managed dependencies when retaining transitive dependencies" in {
@@ -21,8 +22,7 @@ class FilteringGlobalExclusionDependencyResolverIT extends SpecificationWithJUni
           .withManagedDependency(Dependency(managedDependency, MavenScope.Compile)),
 
         ArtifactDescriptor.anArtifact(directExcludedDependency.coordinates)
-          .withDependency(Dependency(transitiveExcludedCoordinates, MavenScope.Compile)
-          ),
+          .withDependency(Dependency(transitiveExcludedCoordinates, MavenScope.Compile)),
 
         ArtifactDescriptor.anArtifact(transitiveExcludedCoordinates),
 

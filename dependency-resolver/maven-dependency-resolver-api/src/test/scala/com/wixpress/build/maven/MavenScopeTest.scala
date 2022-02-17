@@ -2,26 +2,25 @@ package com.wix.build.maven
 
 import com.wix.build.maven.resolver.mixin.TypeAddingMixin
 import com.wix.hoopoe.json.JsonMapper
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.specification.Scope
+import org.specs2.mutable.SpecWithJUnit
 import org.specs2.specification.core.{Fragment, Fragments}
 
-class MavenScopeTest extends SpecificationWithJUnit {
+class MavenScopeTest extends SpecWithJUnit {
   val mapper = JsonMapper.global.addMixIn(classOf[MavenScope], classOf[TypeAddingMixin])
 
   val ScopesToNames = List(
-    ScopeToName(MavenScope.Compile,"compile"),
-    ScopeToName(MavenScope.Test,"test"),
-    ScopeToName(MavenScope.Runtime,"runtime"),
-    ScopeToName(MavenScope.Provided,"provided"),
-    ScopeToName(MavenScope.System,"system")
+    ScopeToName(MavenScope.Compile, "compile"),
+    ScopeToName(MavenScope.Test, "test"),
+    ScopeToName(MavenScope.Runtime, "runtime"),
+    ScopeToName(MavenScope.Provided, "provided"),
+    ScopeToName(MavenScope.System, "system")
   )
 
   private def aNewInstanceOf(scope: MavenScope): MavenScope = {
     mapper.readValue(mapper.writeValueAsString(scope), classOf[MavenScope])
   }
 
-  private def extractTest(scopeToName:ScopeToName):Fragment ={
+  private def extractTest(scopeToName: ScopeToName): Fragment = {
     s"parse ${scopeToName.scope} from string '${scopeToName.name}'" in {
       MavenScope.of(scopeToName.name) mustEqual scopeToName.scope
     }
@@ -41,31 +40,28 @@ class MavenScopeTest extends SpecificationWithJUnit {
     }
   }
 
-  def allTests:Fragments = Fragments(ScopesToNames.map(extractTest): _*)
+  def allTests: Fragments = Fragments(ScopesToNames.map(extractTest): _*)
 
   "MavenScope" should {
     allTests
   }
 
   "equals" should {
-    "return 'false' for two different scopes" in new Context {
+    "return 'false' for two different scopes" in {
       MavenScope.Compile mustNotEqual MavenScope.Provided
     }
 
-    "return 'false' when comparing to an object which is not an instance of MavenScope" in new Context {
+    "return 'false' when comparing to an object which is not an instance of MavenScope" in {
       MavenScope.System mustNotEqual 3
     }
   }
 
   "hashCode" should {
-    "return different hash for differnt scopes" in new Context {
+    "return different hash for different scopes" in {
       MavenScope.Runtime.hashCode() mustNotEqual MavenScope.Test.hashCode()
     }
   }
 
-  abstract class Context extends Scope {
-
-  }
 }
 
-case class ScopeToName(scope:MavenScope, name:String)
+case class ScopeToName(scope: MavenScope, name: String)

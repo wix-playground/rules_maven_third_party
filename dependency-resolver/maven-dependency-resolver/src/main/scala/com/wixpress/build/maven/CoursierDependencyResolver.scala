@@ -15,7 +15,10 @@ class CoursierDependencyResolver(remoteRepoURLs: => List[String]) extends MavenD
   override def directDependenciesOf(artifact: Coordinates): List[Dependency] = ???
 
 
-  override def dependencyClosureOf(baseDependencies: List[Dependency], withManagedDependencies: List[Dependency], ignoreMissingDependencies: Boolean): Set[DependencyNode] = {
+  override def dependencyClosureOf(baseDependencies: List[Dependency],
+                                   withManagedDependencies: List[Dependency],
+                                   ignoreMissingDependencies: Boolean): Set[DependencyNode] = {
+
     val repositories = remoteRepoURLs.map(repo => MavenRepository(repo))
     val dependencies = (baseDependencies ++ withManagedDependencies).map(toCoursierDependency)
 
@@ -46,23 +49,39 @@ object CoursierDependencyResolver {
     CoursierDependency(toCoursierModule(dependency), dependency.version)
       .withConfiguration(Configuration(dependency.scope.name))
       .withExclusions(dependency.exclusions.map(toCoursierExclusion))
-      .withAttributes(Attributes(Type(dependency.coordinates.packaging.value), dependency.coordinates.classifier.map(Classifier(_)).getOrElse(Classifier.empty)))
+      .withAttributes(
+        Attributes(
+          Type(dependency.coordinates.packaging.value),
+          dependency.coordinates.classifier.map(Classifier(_)).getOrElse(Classifier.empty)
+        )
+      )
 
   def toCoordinates(dependency: CoursierDependency): Coordinates = {
-    val packaging = if (dependency.attributes.packaging.value.nonEmpty) Packaging(dependency.attributes.packaging.value) else Packaging("jar")
-    val classifier = if (dependency.attributes.classifier.value.nonEmpty) Some(dependency.attributes.classifier.value) else None
-    Coordinates(dependency.module.organization.value, dependency.module.name.value, dependency.version, packaging, classifier)
+    import dependency._
+    val packaging = if (attributes.packaging.value.nonEmpty)
+      Packaging(attributes.packaging.value)
+    else
+      Packaging("jar")
+
+    val classifier = if (attributes.classifier.value.nonEmpty)
+      Some(attributes.classifier.value)
+    else
+      None
+    Coordinates(module.organization.value, module.name.value, version, packaging, classifier)
   }
 
   def toExclusion(coursierExclusion: (Organization, ModuleName)): Exclusion = {
     Exclusion(coursierExclusion._1.value, coursierExclusion._2.value)
   }
 
-  def toCoursierExclusion(exclusion: Exclusion): (Organization, ModuleName) = {
-    (Organization(exclusion.groupId), ModuleName(exclusion.artifactId))
-  }
+  def toCoursierExclusion(exclusion: Exclusion): (Organization, ModuleName) =
+    Organization(exclusion.groupId) -> ModuleName(exclusion.artifactId)
 
-  def toDependency(dependency: CoursierDependency): Dependency = {
-    Dependency(toCoordinates(dependency), MavenScope.of(dependency.configuration.value), false, exclusions = dependency.exclusions.map(toExclusion))
-  }
+  def toDependency(dependency: CoursierDependency): Dependency =
+    Dependency(
+      toCoordinates(dependency),
+      MavenScope.of(dependency.configuration.value),
+      isNeverLink = false,
+      exclusions = dependency.exclusions.map(toExclusion)
+    )
 }

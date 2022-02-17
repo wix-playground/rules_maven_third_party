@@ -2,11 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 specs2_ite2e_test(
     name = "maven",
-    srcs = [
-        "//dependency-resolver/maven-dependency-resolver/src/it/scala/com/wix/build/maven:sources",
-    ],
-    data = ["//dependency-resolver/maven-dependency-resolver:coordinates"],
-    jvm_flags = ["-Dexisting.manifest=$(location //dependency-resolver/maven-dependency-resolver:coordinates)"],
+    srcs = glob(["*.scala"]),
     runtime_deps = [
         "//dependency-resolver/maven-dependency-resolver/src/test/resources",
         "@org_codehaus_plexus_plexus_interpolation",
@@ -18,5 +14,3 @@ specs2_ite2e_test(
         "//models/maven-model/src/main/scala/com/wix/build/maven",
     ],
 )
-
-sources()

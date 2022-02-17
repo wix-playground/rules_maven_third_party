@@ -2,11 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 scala_library(
     name = "maven",
-    srcs = [
-        "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven:sources",
-    ],
-    runtime_deps = [
-    ],
+    srcs = glob(["*.scala"]),
     deps = [
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver/src/main/scala/com/wix/build/maven/resolver",
@@ -21,5 +17,3 @@ scala_library(
         "@org_apache_maven_resolver_maven_resolver_util",
     ],
 )
-
-sources()

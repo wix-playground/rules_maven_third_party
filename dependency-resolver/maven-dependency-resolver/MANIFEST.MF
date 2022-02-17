@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Version: fixed.version-SNAPSHOT
-Implementation-Vendor-Id: com.wix.build
-Implementation-ArtifactId: maven-dependency-resolver
-

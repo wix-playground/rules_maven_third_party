@@ -13,10 +13,14 @@ class FilteringGlobalExclusionDependencyResolverTest extends SpecificationWithJU
     "return managed dependencies as implemented in the resolver given in its constructor" in {
       val managedDependencies = List(randomDependency())
       val managedDependencyCoordinates = randomCoordinates()
-      val resolver = new FakeMavenDependencyResolver(Set(ArtifactDescriptor.anArtifact(managedDependencyCoordinates, List.empty, managedDependencies)))
-      val filteringGlobalExclusionDependencyResolver = new FilteringGlobalExclusionDependencyResolver(resolver, Set.empty)
 
-      filteringGlobalExclusionDependencyResolver.managedDependenciesOf(managedDependencyCoordinates) must_== managedDependencies
+      val resolver = new FakeMavenDependencyResolver(
+        Set(ArtifactDescriptor.anArtifact(managedDependencyCoordinates, List.empty, managedDependencies))
+      )
+
+      val filteringGlobalExclusionDependencyResolver = new FilteringGlobalExclusionDependencyResolver(resolver, Set())
+
+      filteringGlobalExclusionDependencyResolver.managedDependenciesOf(managedDependencyCoordinates) mustEqual managedDependencies
     }
 
     "given coordinates of artifact of interest" should {
@@ -38,11 +42,16 @@ class FilteringGlobalExclusionDependencyResolverTest extends SpecificationWithJU
             version = "different",
             packaging = Packaging("other-packaging"),
             classifier = Some("other-classifier")
-          ))
-        val resolver = new FakeMavenDependencyResolver(artifacts = Set(
-          ArtifactDescriptor.withSingleDependency(interestingArtifact.coordinates, transitiveDependency),
-          ArtifactDescriptor.rootFor(transitiveDependency.coordinates),
-          ArtifactDescriptor.rootFor(depFromExclude.coordinates)))
+          )
+        )
+
+        val resolver = new FakeMavenDependencyResolver(
+          artifacts = Set(
+            ArtifactDescriptor.withSingleDependency(interestingArtifact.coordinates, transitiveDependency),
+            ArtifactDescriptor.rootFor(transitiveDependency.coordinates),
+            ArtifactDescriptor.rootFor(depFromExclude.coordinates)
+          )
+        )
         val filteringGlobalExclusionDependencyResolver =
           new FilteringGlobalExclusionDependencyResolver(resolver, globalExcludesFrom(depFromExclude))
 
@@ -105,7 +114,7 @@ class FilteringGlobalExclusionDependencyResolverTest extends SpecificationWithJU
 
         val directDependencies = filteringGlobalExclusionDependencyResolver.directDependenciesOf(interestingArtifact.coordinates)
 
-        directDependencies must beEmpty
+        directDependencies mustEqual Seq()
       }
 
       trait RetainingConflictResolutionCtx extends Context {

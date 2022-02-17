@@ -8,18 +8,14 @@ import org.specs2.specification.Scope
 //noinspection TypeAnnotation
 class DependencyCollectorTest extends SpecificationWithJUnit {
 
-  trait ctx extends Scope {
-
-  }
-
   "DependencyCollector" >> {
     "when no new dependencies were added after initialization" should {
-      "return empty dependency set" in new ctx {
+      "return empty dependency set" in {
         val collector = new DependencyCollector()
         collector.dependencySet() mustEqual Set.empty[Dependency]
       }
 
-      "return a set with dependencies after they were added using the addOrOverrideDependencies call" in new ctx {
+      "return a set with dependencies after they were added using the addOrOverrideDependencies call" in {
         val collector = new DependencyCollector()
         val newDependencies = Set(aDependency("a"))
 
@@ -29,7 +25,7 @@ class DependencyCollectorTest extends SpecificationWithJUnit {
       }
 
 
-      "merge all exclusions for each dependency" in new ctx {
+      "merge all exclusions for each dependency" in {
         val otherDependency = aDependency("guava", exclusions = Set(MavenMakers.anExclusion("a")))
         val newDependencies = Set(
           aDependency("b", exclusions = Set(MavenMakers.anExclusion("a"))),
@@ -48,7 +44,7 @@ class DependencyCollectorTest extends SpecificationWithJUnit {
     }
 
     "after already collect dependency A," should {
-      trait oneCollectedDependencyCtx extends ctx {
+      trait oneCollectedDependencyCtx extends Scope {
         val existingDependency: Dependency = aDependency("existing")
 
         def collector = new DependencyCollector(Set(existingDependency))

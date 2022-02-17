@@ -11,9 +11,9 @@ import org.eclipse.aether.transport.http.HttpTransporterFactory
 
 
 /**
-  * A factory for repository system instances that employs Maven Artifact Resolver's built-in service locator
-  * infrastructure to wire up the system's components.
-  */
+ * A factory for repository system instances that employs Maven Artifact Resolver's built-in service locator
+ * infrastructure to wire up the system's components.
+ */
 object ManualRepositorySystemFactory {
   def newRepositorySystem: RepositorySystem = {
     /*

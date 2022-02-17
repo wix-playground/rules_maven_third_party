@@ -1,6 +1,7 @@
 package com.wix.build.maven
 
 import better.files.File
+import com.wix.build.maven._
 import com.wix.build.maven.AetherDependencyConversions._
 import com.wix.build.maven.resolver.ManualRepositorySystemFactory
 import org.apache.maven.model.Model
@@ -23,11 +24,9 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.Try
 
-import com.wix.build.maven._
-
 class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
-                                    localRepoPath: File = AetherMavenDependencyResolver.tempLocalRepoPath()
-                                   ) extends MavenDependencyResolver {
+                                    localRepoPath: File = AetherMavenDependencyResolver.tempLocalRepoPath())
+  extends MavenDependencyResolver {
 
   private val repositorySystem = ManualRepositorySystemFactory.newRepositorySystem
 
@@ -98,20 +97,27 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
     Option(project.getParent).map(_.getVersion)
   }
 
-  override def dependencyClosureOf(baseDependencies: List[Dependency], withManagedDependencies: List[Dependency], ignoreMissingDependencies: Boolean = true): Set[DependencyNode] = {
+  override def dependencyClosureOf(baseDependencies: List[Dependency],
+                                   withManagedDependencies: List[Dependency],
+                                   ignoreMissingDependencies: Boolean = true): Set[DependencyNode] = {
     try {
-      withSession(ignoreMissingDependencies = ignoreMissingDependencies, session => {
-        prioritizeManagedDeps(session)
-        val aetherResponse = repositorySystem.collectDependencies(session, collectRequestOf(baseDependencies, withManagedDependencies))
-        dependencyNodesOf(aetherResponse)
-          .map(fromAetherDependencyNode)
-          .toSet
-      })
+      withSession(
+        ignoreMissingDependencies = ignoreMissingDependencies,
+        session => {
+          prioritizeManagedDeps(session)
+          val aetherResponse = repositorySystem.collectDependencies(
+            session, collectRequestOf(baseDependencies, withManagedDependencies)
+          )
+          dependencyNodesOf(aetherResponse)
+            .map(fromAetherDependencyNode)
+            .toSet
+        }
+      )
     }
     catch {
       case e: DependencyCollectionException =>
         throw new IllegalArgumentException(
-          s"""|${e.getCause()}
+          s"""|${e.getCause}
               |===== Please double check that you have VPN on and that you have no typos.
               |if you REALLY meant to reference this jar and you know it exists even though there IS NO pom,
               |please rerun the tool with --ignoreMissingDependencies flag at the end =====
@@ -119,16 +125,15 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
     }
   }
 
-  private def fromAetherDependencyNode(node: AetherDependencyNode): DependencyNode = {
+  private def fromAetherDependencyNode(node: AetherDependencyNode): DependencyNode =
     DependencyNode(
       baseDependency = node.getDependency.asDependency,
       dependencies = dependenciesSetFromDependencyNodes(node.getChildren.asScala).toSet
     )
-  }
 
-  private def dependenciesSetFromDependencyNodes(dependencyNodes: Iterable[AetherDependencyNode]): List[Dependency] = {
+  private def dependenciesSetFromDependencyNodes(dependencyNodes: Iterable[AetherDependencyNode]): List[Dependency] =
     orderedUniqueDependenciesFrom(dependencyNodes.map(_.getDependency))
-  }
+
 
   private def withSession[T](ignoreMissingDependencies: Boolean, f: DefaultRepositorySystemSession => T): T = {
     val localRepo = new LocalRepository(localRepoPath.pathAsString)
@@ -200,7 +205,6 @@ object AetherDependencyConversions {
         isNeverLink = false,
         exclusions = aetherDependency.getExclusions.asScala.map(_.asExclusion).toSet
       )
-
   }
 
   implicit class `Dependency --> AetherDependency`(dep: Dependency) {
@@ -208,8 +212,8 @@ object AetherDependencyConversions {
       dep.coordinates.asAetherArtifact,
       dep.scope.name,
       false,
-      dep.exclusions.map(_.asAetherExclusion).asJava)
-
+      dep.exclusions.map(_.asAetherExclusion).asJava
+    )
   }
 
 
@@ -223,8 +227,8 @@ object AetherDependencyConversions {
         artifact.getGroupId,
         artifact.getArtifactId,
         artifact.getVersion,
-        Packaging(Option(artifact.getExtension).filter(!_.isEmpty).getOrElse("jar")),
-        Option(artifact.getClassifier).filter(!_.isEmpty))
+        Packaging(Option(artifact.getExtension).filter(_.nonEmpty).getOrElse("jar")),
+        Option(artifact.getClassifier).filter(_.nonEmpty))
   }
 
   implicit class `Exclusion --> AetherExclusion`(exclusion: Exclusion) {

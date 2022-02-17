@@ -3,9 +3,7 @@ package(default_visibility = ["//visibility:public"])
 scala_library(
     name = "maven",
     testonly = 1,
-    srcs = [
-        "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven:sources",
-    ],
+    srcs = glob(["*.scala"]),
     runtime_deps = [
         "@javax_servlet_javax_servlet_api//:linkable",
     ],
@@ -24,5 +22,3 @@ scala_library(
         "@org_specs2_specs2_matcher_2_12",
     ],
 )
-
-sources()

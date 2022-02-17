@@ -10,43 +10,48 @@ class FilteringGlobalExclusionDependencyResolver(resolver: MavenDependencyResolv
 
   override def managedDependenciesOf(artifact: Coordinates): List[Dependency] = resolver.managedDependenciesOf(artifact)
 
-  override def dependencyClosureOf(baseDependencies: List[Dependency], withManagedDependencies: List[Dependency], ignoreMissingDependenciesFlag: Boolean = true): Set[DependencyNode] =
+  override def dependencyClosureOf(baseDependencies: List[Dependency],
+                                   withManagedDependencies: List[Dependency],
+                                   ignoreMissingDependenciesFlag: Boolean = true): Set[DependencyNode] =
     filterer.filterGlobalsFromDependencyNodes(resolver.dependencyClosureOf(baseDependencies, withManagedDependencies))
 
-  override def directDependenciesOf(coordinates: Coordinates): List[Dependency] = {
+  override def directDependenciesOf(coordinates: Coordinates): List[Dependency] =
     filterGlobalsFromDependencies(coordinates, resolver.directDependenciesOf(coordinates)).distinct
-  }
 
-  private def filterGlobalsFromDependencies(coordinates: Coordinates, dependencies: List[Dependency]): List[Dependency] = {
+  private def filterGlobalsFromDependencies(coordinates: Coordinates,
+                                            dependencies: List[Dependency]): List[Dependency] = {
+
     val excludedDependencies = dependencies.filter(excluded)
-    val nodes: Set[DependencyNode] = if (excludedDependencies.isEmpty) Set.empty else {
+    val nodes: Set[DependencyNode] = if (excludedDependencies.isEmpty) {
+      Set.empty
+    } else {
       val managedDependencies = resolver.managedDependenciesOf(coordinates)
       resolver.dependencyClosureOf(excludedDependencies, managedDependencies)
     }
     filterer.filterGlobalsFromDependencies(dependencies, nodes).distinct
   }
 
-  private def excluded(dependency: Dependency) = {
+  private def excluded(dependency: Dependency) =
     globalExcludes.exists(dependency.coordinates.equalsOnGroupIdAndArtifactId)
-  }
 }
 
 class GlobalExclusionFilterer(globalExcludes: Set[Coordinates]) {
 
-  def filterGlobalsFromDependencyNodes(dependencyNodes: Set[DependencyNode]): Set[DependencyNode] = {
-    dependencyNodes.filterNot(dependencyNode => excluded(dependencyNode.baseDependency))
+  def filterGlobalsFromDependencyNodes(dependencyNodes: Set[DependencyNode]): Set[DependencyNode] =
+    dependencyNodes
+      .filterNot(dependencyNode => excluded(dependencyNode.baseDependency))
       .map(filterGlobalsFromDependencies(dependencyNodes))
-  }
 
   private def filterGlobalsFromDependencies(dependencyNodes: Set[DependencyNode])(depNode: DependencyNode): DependencyNode =
     depNode.copy(dependencies = filterGlobalsFromDependencies(depNode.dependencies.toList, dependencyNodes).toSet)
 
   @tailrec
-  final def filterGlobalsFromDependencies(dependencies: List[Dependency], dependencyGraph: Set[DependencyNode]): List[Dependency] = {
+  final def filterGlobalsFromDependencies(dependencies: List[Dependency],
+                                          dependencyGraph: Set[DependencyNode]): List[Dependency] = {
     val (excludedDependencies, includedDependencies) = dependencies.partition(excluded)
-    if (excludedDependencies.isEmpty)
+    if (excludedDependencies.isEmpty) {
       includedDependencies
-    else {
+    } else {
       val transitiveDependencies = excludedDependencies
         .flatMap(retainTransitiveDependencies(dependencyGraph))
         .map(preferOriginalVersionAsFoundIn(includedDependencies))
@@ -66,7 +71,8 @@ class GlobalExclusionFilterer(globalExcludes: Set[Coordinates]) {
   private def retainTransitiveDependencies(dependencyGraph: Set[DependencyNode])(excluded: Dependency): Set[Dependency] = {
     val originalScope = excluded.scope
     // hard assumption that excluded dependency is in the given nodes
-    dependencyGraph.find(_.baseDependency.coordinates.equalsIgnoringVersion(excluded.coordinates))
+    dependencyGraph
+      .find(_.baseDependency.coordinates.equalsIgnoringVersion(excluded.coordinates))
       .getOrElse(throw new RuntimeException(s"Could not find dependency node for the excluded ${excluded.coordinates}"))
       .dependencies
       .map(updateDependencyScopeAccordingTo(originalScope))
@@ -81,7 +87,6 @@ class GlobalExclusionFilterer(globalExcludes: Set[Coordinates]) {
     transitive.copy(scope = newScope)
   }
 
-  private def excluded(dependency: Dependency) = {
+  private def excluded(dependency: Dependency) =
     globalExcludes.exists(dependency.coordinates.equalsOnGroupIdAndArtifactId)
-  }
 }

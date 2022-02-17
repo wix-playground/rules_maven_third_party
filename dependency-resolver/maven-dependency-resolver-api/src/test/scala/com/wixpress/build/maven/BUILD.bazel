@@ -2,11 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 specs2_unit_test(
     name = "maven",
-    srcs = [
-        "//dependency-resolver/maven-dependency-resolver-api/src/test/scala/com/wix/build/maven:sources",
-    ],
-    data = ["//dependency-resolver/maven-dependency-resolver-api:coordinates"],
-    jvm_flags = ["-Dexisting.manifest=$(location //dependency-resolver/maven-dependency-resolver-api:coordinates)"],
+    srcs = glob(["*.scala"]),
     runtime_deps = [
         "@ch_qos_logback_logback_classic",
         "@org_codehaus_plexus_plexus_interpolation",
@@ -15,8 +11,6 @@ specs2_unit_test(
         "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver-server/src/main/scala/com/wix/build/maven/resolver/mixin",
         "@com_fasterxml_jackson_core_jackson_databind",
-        "@wix_framework//json-modules/hoopoe-json-mapper/src/main/java/com/wix/hoopoe/json:agg=._internal",
+        "@wix_framework//json-modules/hoopoe-json-mapper/src/main/java/com/wix/hoopoe/json:agg=._internal",  #fixme
     ],
 )
-
-sources()
