@@ -1,0 +1,14 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "bazel",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//models/maven-bazel-model-translation/src/main/scala/com/wix/build/maven/translation",
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "@com_fasterxml_jackson_core_jackson_core",
+        "@com_fasterxml_jackson_core_jackson_databind",
+        "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
+        "@com_github_pathikrit_better_files_2_12",
+    ],
+)

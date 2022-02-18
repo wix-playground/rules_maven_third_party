@@ -1,0 +1,33 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "cli_lib",
+    srcs = glob(["*.scala"]),
+    runtime_deps = [
+        "@ch_qos_logback_logback_classic",
+    ],
+    deps = [
+        "//dependency-resolver/maven-dependency-resolver-client/src/main/scala/com/wix/build/maven",  # todo - make wix specific CLI which extends with remote client
+        "//dependency-synchronizer/bazel-deps-synchronizer-wix/src/main/scala/com/wix/build/sync",  # todo - pass load statements via config
+        "//private/mapper/src/main/com/wix/build/maven/mapper",
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync/core",
+        "@com_fasterxml_jackson_core_jackson_annotations",
+        "@com_fasterxml_jackson_core_jackson_databind",
+        "@com_github_pathikrit_better_files_2_12",
+        "@com_github_scopt_scopt_2_12",
+        "@org_slf4j_slf4j_api",
+    ],
+)
+
+java_binary(
+    name = "cli",
+    main_class = "com.wix.build.sync.cli.ManagedDepsSynchronizerCLI",
+    runtime_deps = [
+        "cli_lib",
+        "@org_codehaus_plexus_plexus_interpolation",
+    ],
+)

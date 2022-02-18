@@ -1,0 +1,21 @@
+package(default_visibility = ["//visibility:public"])
+
+specs2_ite2e_test(
+    name = "sync",
+    srcs = glob(["*.scala"]),
+    data = ["//dependency-synchronizer/bazel-deps-synchronizer:coordinates"],
+    jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer:coordinates)"],
+    runtime_deps = [
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/it/resources",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/test/resources",
+        "@org_codehaus_plexus_plexus_interpolation",
+    ],
+    deps = [
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
+        "//private/synchronizer/synchronizer/src/it/scala/com/wix/build/sync/e2e",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
+        "@com_github_tomakehurst_wiremock_2",
+        "@commons_io_commons_io",
+    ],
+)

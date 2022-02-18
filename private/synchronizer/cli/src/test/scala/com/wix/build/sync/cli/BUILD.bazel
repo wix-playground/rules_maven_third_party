@@ -1,0 +1,12 @@
+package(default_visibility = ["//visibility:public"])
+
+specs2_unit_test(
+    name = "cli",
+    srcs = glob(["*.scala"]),
+    runtime_deps = ["@org_codehaus_plexus_plexus_interpolation"],
+    deps = [
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/synchronizer/cli/src/main/scala/com/wix/build/sync/cli:cli_lib",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync/core",
+    ],
+)

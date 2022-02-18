@@ -1,0 +1,21 @@
+package(default_visibility = ["//visibility:public"])
+
+specs2_unit_test(
+    name = "bazel",
+    srcs = glob(["*.scala"]),
+    data = ["//dependency-synchronizer/bazel-deps-synchronizer:coordinates"],
+    jvm_flags = ["-Dexisting.manifest=$(location //dependency-synchronizer/bazel-deps-synchronizer:coordinates)"],
+    runtime_deps = [
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/it/resources",
+        "//dependency-synchronizer/bazel-deps-synchronizer/src/test/resources",
+        "@org_codehaus_plexus_plexus_interpolation",
+    ],
+    deps = [
+        "//models/maven-bazel-model-translation/src/main/scala/com/wix/build/maven/translation",
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
+        "@com_github_pathikrit_better_files_2_12",
+        "@wix_framework//hoopoe-common/hoopoe-utest",
+    ],
+)
