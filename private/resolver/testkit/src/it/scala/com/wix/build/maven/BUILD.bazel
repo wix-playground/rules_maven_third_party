@@ -1,0 +1,14 @@
+package(default_visibility = ["//visibility:public"])
+
+specs2_ite2e_test(
+    name = "maven",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
+        "@com_typesafe_akka_akka_http_core_2_12",
+        "@com_wix_http_testkit_2_12",
+        "@com_wix_http_testkit_client_2_12",
+        "@com_wix_http_testkit_core_2_12",
+        "@com_wix_http_testkit_specs2_2_12",
+    ],
+)

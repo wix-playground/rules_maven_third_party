@@ -1,8 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-scala_library(
-    name = "test2",
-    testonly = 1,
-    srcs = glob(["*.scala"]),
-    deps = ["//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven/test1"],
-)

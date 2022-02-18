@@ -1,0 +1,7 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "test1",
+    testonly = 1,
+    srcs = glob(["*.scala"]),
+)

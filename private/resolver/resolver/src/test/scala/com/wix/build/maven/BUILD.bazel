@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+specs2_unit_test(
+    name = "maven",
+    srcs = glob(["*.scala"]),
+    runtime_deps = [
+        "//private/resolver/resolver/src/test/resources",
+        "@org_codehaus_plexus_plexus_interpolation",
+    ],
+    deps = [
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
+        "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
+    ],
+)
