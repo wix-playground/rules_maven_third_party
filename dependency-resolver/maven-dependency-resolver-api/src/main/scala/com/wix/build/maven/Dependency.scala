@@ -7,13 +7,17 @@ case class Dependency(coordinates: Coordinates,
                       isNeverLink: Boolean = false,
                       exclusions: Set[Exclusion] = Set.empty,
                       aliases: Set[String] = Set.empty,
-                      tags: Set[String] = Set.empty) {
+                      tags: Set[String] = Set.empty,
+                      flattenTransitiveDeps: Boolean = false) {
 
   def withExclusions(exclusions: Set[Exclusion]): Dependency = copy(exclusions = exclusions)
 
   def withAliases(aliases: Set[String]): Dependency = copy(aliases = aliases)
 
   def withTags(tags: Set[String]): Dependency = copy(tags = tags)
+
+  def withFlattenTransitiveDeps(isFlattenTransitiveDeps: Boolean): Dependency =
+    copy(flattenTransitiveDeps = isFlattenTransitiveDeps)
 
   def version: String = coordinates.version
 
@@ -23,7 +27,8 @@ case class Dependency(coordinates: Coordinates,
 
   def withIsNeverLink(isNeverLink: Boolean): Dependency = copy(isNeverLink = isNeverLink)
 
-  def equalsOnCoordinatesIgnoringVersion(dependency: Dependency): Boolean = dependency.coordinates.equalsIgnoringVersion(coordinates)
+  def equalsOnCoordinatesIgnoringVersion(dependency: Dependency): Boolean =
+    dependency.coordinates.equalsIgnoringVersion(coordinates)
 
   def equalsIgnoringNeverlink(dependency: Dependency): Boolean = {
     this.coordinates == dependency.coordinates &&
