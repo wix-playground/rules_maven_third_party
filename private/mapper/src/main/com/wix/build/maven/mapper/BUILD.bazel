@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "mapper",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "@com_fasterxml_jackson_core_jackson_annotations",
+        "@com_fasterxml_jackson_core_jackson_databind",
+        "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
+    ],
+)

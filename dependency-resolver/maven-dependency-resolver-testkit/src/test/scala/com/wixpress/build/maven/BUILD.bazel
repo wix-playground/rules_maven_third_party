@@ -4,9 +4,9 @@ specs2_unit_test(
     name = "maven",
     srcs = glob(["*.scala"]),
     deps = [
-        "//dependency-resolver/maven-dependency-resolver-api/src/main/scala/com/wix/build/maven",
         "//dependency-resolver/maven-dependency-resolver-testkit/src/main/scala/com/wix/build/maven",
         "//models/maven-model/src/main/scala/com/wix/build/maven",
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "@org_scala_lang_modules_scala_xml_2_12",
         "@org_specs2_specs2_matcher_extra_2_12",
     ],
