@@ -1,7 +1,5 @@
 package com.wix.build.maven
 
-import com.wix.build.maven.Coordinates
-
 trait MavenDependencyResolver {
 
   def managedDependenciesOf(artifact: Coordinates): List[Dependency]

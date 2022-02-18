@@ -1,7 +1,5 @@
 package com.wix.build.maven
 
-import com.wix.build.maven.Coordinates
-
 case class Exclusion(groupId: String, artifactId: String) {
   def serialized: String = s"$groupId:$artifactId"
 

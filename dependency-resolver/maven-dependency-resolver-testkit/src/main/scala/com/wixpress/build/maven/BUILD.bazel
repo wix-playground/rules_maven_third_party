@@ -8,7 +8,6 @@ scala_library(
         "@javax_servlet_javax_servlet_api//:linkable",
     ],
     deps = [
-        "//models/maven-model/src/main/scala/com/wix/build/maven",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "@commons_codec_commons_codec",
         "@org_apache_maven_maven_model",

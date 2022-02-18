@@ -1,7 +1,8 @@
 package com.wix.build.maven
 
-import java.io.ByteArrayInputStream
+import com.wix.build.maven.Coordinates
 
+import java.io.ByteArrayInputStream
 import org.apache.commons.codec.digest.DigestUtils
 import org.codehaus.mojo.mrm.api.maven.Artifact
 import org.codehaus.mojo.mrm.impl.maven.{ArtifactStoreFileSystem, MemoryArtifactStore}
