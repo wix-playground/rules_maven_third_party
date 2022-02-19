@@ -1,8 +1,8 @@
 package com.wix.build.bazel
 
 import com.wix.build.maven
-import com.wix.build.maven.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
 import com.wix.build.maven.{ArchivePackaging, Coordinates, Packaging}
+import com.wix.build.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
 
 case class WorkspaceRule(ruleType: String = "maven_jar",
                          name: String,

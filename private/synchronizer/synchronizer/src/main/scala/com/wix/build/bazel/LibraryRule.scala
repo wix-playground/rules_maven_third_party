@@ -2,7 +2,7 @@ package com.wix.build.bazel
 
 import com.wix.build.bazel.LibraryRule.{LibraryRuleType, ScalaImportRuleType}
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 
 // going to be deprecated when switching to phase 2
 // kept for now to support pom artifact migration

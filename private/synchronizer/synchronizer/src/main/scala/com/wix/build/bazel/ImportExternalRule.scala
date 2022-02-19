@@ -2,7 +2,7 @@ package com.wix.build.bazel
 
 import com.wix.build.bazel.ImportExternalRule.RuleType
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 
 case class ImportExternalRule(name: String,
                               artifact: String,

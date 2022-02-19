@@ -1,7 +1,7 @@
 package com.wix.build.bazel
 
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 
 //noinspection RedundantDefaultArgument
 class BazelDependenciesReader(localWorkspace: BazelLocalWorkspace) {

@@ -3,7 +3,7 @@ package com.wix.build.bazel
 import com.wix.build.bazel.EitherSupport.partitionEithers
 import com.wix.build.bazel.ImportExternalTargetsFileReader._
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 
 case class ImportExternalTargetsFilePartialDependencyNodesReader(content: String, localWorkspaceName: String = "", thirdPartyDestination: String) {
   def allBazelDependencyNodes(): Set[PartialDependencyNode] = {

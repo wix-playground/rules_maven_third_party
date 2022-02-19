@@ -1,0 +1,7 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "translation",
+    srcs = glob(["*.scala"]),
+    deps = ["//private/resolver/api/src/main/scala/com/wix/build/maven"],
+)

@@ -2,11 +2,11 @@ package com.wix.build.sync.core
 
 import better.files.File
 import com.wix.build.bazel.{NeverLinkResolver, NoPersistenceBazelRepository}
+import com.wix.build.git.GitAdder
 import com.wix.build.maven._
 import com.wix.build.sync.ArtifactoryRemoteStorage.decorateNodesWithChecksum
 import com.wix.build.sync._
-import com.wix.build.git.GitAdder
-import com.wix.build.sync._
+import com.wix.build.sync.WixLoadStatements
 import org.slf4j.LoggerFactory
 
 import java.nio.file.Files

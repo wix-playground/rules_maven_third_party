@@ -1,13 +1,13 @@
 package com.wix.build.sync
 
+import com.wix.build.BazelWorkspaceDriver
+import com.wix.build.BazelWorkspaceDriver.{includeImportExternalTargetWith, _}
 import com.wix.build.bazel._
+import com.wix.build.git.GitAdder
 import com.wix.build.maven.FakeMavenDependencyResolver._
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven._
 import com.wix.build.sync.DependenciesRemoteStorageTestSupport.remoteStorageWillReturn
-import com.wix.build.BazelWorkspaceDriver
-import com.wix.build.BazelWorkspaceDriver.{includeImportExternalTargetWith, _}
-import com.wix.build.git.GitAdder
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 

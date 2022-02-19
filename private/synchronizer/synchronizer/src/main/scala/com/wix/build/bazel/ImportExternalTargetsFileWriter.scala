@@ -5,7 +5,7 @@ import com.wix.build.bazel.ImportExternalTargetsFileReader.RegexOfAnyLoadStateme
 import com.wix.build.bazel.ImportExternalTargetsFileWriter.removeHeader
 import com.wix.build.bazel.NewLinesParser._
 import com.wix.build.maven.Coordinates
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 
 import scala.util.matching.Regex.Match
 

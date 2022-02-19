@@ -1,10 +1,10 @@
 package com.wix.build.bazel
 
+import com.wix.build.BazelWorkspaceDriver
+import com.wix.build.BazelWorkspaceDriver._
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven._
 import com.wix.build.sync.{DiffSynchronizer, FakeGitAdder}
-import com.wix.build.BazelWorkspaceDriver
-import com.wix.build.BazelWorkspaceDriver._
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 

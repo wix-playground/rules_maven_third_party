@@ -1,9 +1,9 @@
 package com.wix.build.sync
 
 import com.wix.build.bazel._
+import com.wix.build.git.GitAdder
 import com.wix.build.maven._
 import com.wix.build.sync.ArtifactoryRemoteStorage._
-import com.wix.build.git.GitAdder
 import org.slf4j.LoggerFactory
 
 case class DiffSynchronizer(maybeBazelRepositoryWithManagedDependencies: Option[BazelRepository],

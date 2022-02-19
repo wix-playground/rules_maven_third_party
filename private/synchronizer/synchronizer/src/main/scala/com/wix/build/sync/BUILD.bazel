@@ -4,11 +4,11 @@ scala_library(
     name = "sync",
     srcs = glob(["*.scala"]),
     deps = [
-        "//dependency-synchronizer/bazel-deps-synchronizer/src/main/scala/com/wix/build/git",
         "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/git",
         "@com_fasterxml_jackson_core_jackson_databind",
         "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
         "@com_github_pathikrit_better_files_2_12",

@@ -1,12 +1,12 @@
 package com.wix.build.sync
 
+import com.wix.build.BazelWorkspaceDriver._
 import com.wix.build.bazel.ImportExternalRule._
 import com.wix.build.bazel.ThirdPartyOverridesMakers.{overrideCoordinatesFrom, runtimeOverrides}
 import com.wix.build.bazel._
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven._
 import com.wix.build.sync.DependenciesRemoteStorageTestSupport.remoteStorageWillReturn
-import com.wix.build.BazelWorkspaceDriver._
 import com.wix.build.{BazelWorkspaceDriver, MavenJarInBazel}
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.SpecificationWithJUnit
