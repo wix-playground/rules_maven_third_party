@@ -58,11 +58,6 @@ object ManagedDepsSynchronizerConfig {
         case (repos, config) => config.copy(remoteRepositories = repos.split(",").toList)
       }
 
-    opt[String](name = "artifacts-overrides-file")
-      .optional()
-      .text("Path to overridden artifacts file with json rep of rules_jvm_external artifacts (one per line)")
-      .action { case (overridesFile, config) => config.copy(pathToArtifactsOverridesFile = overridesFile) }
-
     opt[String](name = "remote-resolver-url")
       .optional()
       .hidden()
