@@ -7,8 +7,6 @@ scala_library(
         "@ch_qos_logback_logback_classic",
     ],
     deps = [
-        "//dependency-resolver/maven-dependency-resolver-client/src/main/scala/com/wix/build/maven",  # todo - make wix specific CLI which extends with remote client
-        "//dependency-synchronizer/bazel-deps-synchronizer-wix/src/main/scala/com/wix/build/sync",  # todo - pass load statements via config
         "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven",

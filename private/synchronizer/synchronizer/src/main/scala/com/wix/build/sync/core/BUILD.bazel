@@ -6,7 +6,6 @@ scala_library(
     name = "core",
     srcs = glob(["*.scala"]),
     deps = [
-        "//dependency-synchronizer/bazel-deps-synchronizer-wix/src/main/scala/com/wix/build/sync",  # todo
         "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",

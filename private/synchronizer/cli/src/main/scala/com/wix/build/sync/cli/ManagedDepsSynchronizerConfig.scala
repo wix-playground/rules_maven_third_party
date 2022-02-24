@@ -1,9 +1,25 @@
 package com.wix.build.sync.cli
 
+import com.wix.build.bazel.ImportExternalLoadStatement
 import scopt.OptionParser
 
-object ManagedDepsSynchronizerConfig {
+object ManagedDepsSynchronizerConfig extends SynchronizerConfigParser {
 
+}
+
+case class ManagedDepsSynchronizerConfig(pathToArtifactsFile: String,
+                                         pathToArtifactsOverridesFile: String,
+                                         remoteRepositories: List[String],
+                                         remoteMavenResolverServerBaseUrl: String,
+                                         resolveLocally: Boolean,
+                                         localWorkspaceRoot: String,
+                                         destination: String,
+                                         pollingMaxAttempts: Int,
+                                         millisBetweenPollings: Int,
+                                         artifactShaCache: Boolean,
+                                         importExternalLoadStatement: ImportExternalLoadStatement)
+
+abstract class SynchronizerConfigParser {
   val TargetRepoFlag = "targetRepo"
   val ReposFlag = "remoteMavenRepos"
 
@@ -25,7 +41,7 @@ object ManagedDepsSynchronizerConfig {
 
   private val mavenResolverServer = "https://server.example.com"
 
-  val empty = ManagedDepsSynchronizerConfig(
+  val defaultConfiguration = ManagedDepsSynchronizerConfig(
     pathToArtifactsFile = null,
     pathToArtifactsOverridesFile = null,
     remoteRepositories = wixRepos,
@@ -35,7 +51,8 @@ object ManagedDepsSynchronizerConfig {
     destination = "third_party",
     pollingMaxAttempts = 200,
     millisBetweenPollings = 3000,
-    artifactShaCache = true
+    artifactShaCache = true,
+    importExternalLoadStatement = ImportExternalLoadStatement(null, null),
   )
 
   private val parser = new OptionParser[ManagedDepsSynchronizerConfig](toolName) {
@@ -97,6 +114,20 @@ object ManagedDepsSynchronizerConfig {
       .text("Time (in milliseconds) to wait between polling requests to the server, when waiting while the dependency closure is calculated")
       .action({ case (millis, config) => config.copy(millisBetweenPollings = millis) })
 
+    opt[String](name = "import_external_macro_name")
+      .required()
+      .text("Name to be loaded from bzl file to load rule for generated external definitions")
+      .action { case (name, config) =>
+        config.copy(importExternalLoadStatement = config.importExternalLoadStatement.copy(importExternalMacroName = name))
+      }
+
+    opt[String](name = "import_external_rule_path")
+      .required()
+      .text("bzl file to load rule for generated external definitions")
+      .action { case (path, config) =>
+        config.copy(importExternalLoadStatement = config.importExternalLoadStatement.copy(importExternalRulePath = path))
+      }
+
 
     help("help")
   }
@@ -104,22 +135,10 @@ object ManagedDepsSynchronizerConfig {
   def toolName = "bazel run @bazel_tooling//define_maven_deps:managed_deps --"
 
   def parse(args: Array[String]): ManagedDepsSynchronizerConfig = {
-    parser.parse(args, empty).getOrElse {
+    parser.parse(args, defaultConfiguration).getOrElse {
       println(parser.usage)
       sys.exit(1)
     }
   }
 }
-
-
-case class ManagedDepsSynchronizerConfig(pathToArtifactsFile: String,
-                                         pathToArtifactsOverridesFile: String,
-                                         remoteRepositories: List[String],
-                                         remoteMavenResolverServerBaseUrl: String,
-                                         resolveLocally: Boolean,
-                                         localWorkspaceRoot: String,
-                                         destination: String,
-                                         pollingMaxAttempts: Int,
-                                         millisBetweenPollings: Int,
-                                         artifactShaCache: Boolean)
 
