@@ -6,7 +6,7 @@ import com.wix.build.bazel.ThirdPartyOverridesMakers.{compileTimeOverrides, over
 import com.wix.build.maven.DefaultChecksumValues._
 import com.wix.build.maven.MavenMakers._
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope

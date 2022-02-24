@@ -1,7 +1,7 @@
 package com.wix.build.bazel
 
 import com.wix.build.maven.MavenMakers._
-import com.wix.build.maven.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
+import com.wix.build.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
 import org.specs2.mutable.SpecificationWithJUnit
 
 class ImportExternalTargetsFilePartialDependencyNodesReaderTest extends SpecificationWithJUnit {

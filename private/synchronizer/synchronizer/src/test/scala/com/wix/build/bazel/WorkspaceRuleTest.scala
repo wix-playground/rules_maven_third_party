@@ -1,7 +1,7 @@
 package com.wix.build.bazel
 
-import com.wix.build.maven.translation.MavenToBazelTranslations._
 import com.wix.build.maven.{Coordinates, Packaging}
+import com.wix.build.translation.MavenToBazelTranslations._
 import org.specs2.mutable.SpecWithJUnit
 
 class WorkspaceRuleTest extends SpecWithJUnit {

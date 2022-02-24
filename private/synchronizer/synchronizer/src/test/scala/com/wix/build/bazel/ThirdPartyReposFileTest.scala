@@ -174,7 +174,7 @@ object CoordinatesTestBuilders {
   val artifactsVersion = "1.102.0-SNAPSHOT"
 
   val artifactA: Coordinates = Coordinates(
-    groupId = "com.wix.framework",
+    groupId = "com.foo.framework",
     artifactId = "example-artifact",
     version = "1.101.0-SNAPSHOT"
   )

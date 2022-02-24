@@ -9,11 +9,10 @@ specs2_unit_test(
         "@org_codehaus_plexus_plexus_interpolation",
     ],
     deps = [
-        "//models/maven-bazel-model-translation/src/main/scala/com/wix/build/maven/translation",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
+        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/translation",
         "@com_github_pathikrit_better_files_2_12",
-        "@wix_framework//hoopoe-common/hoopoe-utest",
     ],
 )

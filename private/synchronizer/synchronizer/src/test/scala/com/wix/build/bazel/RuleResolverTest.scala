@@ -2,8 +2,8 @@ package com.wix.build.bazel
 
 import com.wix.build.bazel.LibraryRule.LibraryRuleType
 import com.wix.build.maven.MavenMakers._
-import com.wix.build.maven.translation.MavenToBazelTranslations._
 import com.wix.build.maven.{Coordinates, Packaging}
+import com.wix.build.translation.MavenToBazelTranslations._
 import org.specs2.matcher.{AlwaysMatcher, Matcher, MustThrownExpectations}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.SpecificationWithJUnit

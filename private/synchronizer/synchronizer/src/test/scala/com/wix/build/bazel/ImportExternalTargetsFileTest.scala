@@ -3,7 +3,7 @@ package com.wix.build.bazel
 import com.wix.build.bazel.CoordinatesTestBuilders.{artifactA, artifactB, artifactC}
 import com.wix.build.maven.MavenMakers.{asCompileDependency, someCoordinates}
 import com.wix.build.maven._
-import com.wix.build.maven.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
+import com.wix.build.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 
@@ -66,9 +66,18 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
     }
 
     "extract Bazel dependency without deps from file" in new ctx {
-      private val nodes: Set[PartialDependencyNode] = ImportExternalTargetsFilePartialDependencyNodesReader(fileWithJarWithoutDepsWorkspaceRule, thirdPartyDestination = thirdPartyPath).allBazelDependencyNodes()
+      val nodes = ImportExternalTargetsFilePartialDependencyNodesReader(
+        fileWithJarWithoutDepsWorkspaceRule,
+        thirdPartyDestination = thirdPartyPath
+      ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates), Set()))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates),
+          Set()
+        )
+      )
     }
 
     "extract Bazel dependency with exclusion from file" in new ctx {
@@ -87,7 +96,13 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
         thirdPartyDestination = thirdPartyPath
       ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates, Set(exclusion)), Set()))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates, Set(exclusion)),
+          Set()
+        )
+      )
     }
 
     "extract Bazel dependency with compile dep from file" in new ctx {
@@ -105,7 +120,13 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
         thirdPartyDestination = thirdPartyPath
       ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates), Set(PartialJarDependency("some-runtime-dep", MavenScope.Compile))))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates),
+          Set(PartialJarDependency("some-runtime-dep", MavenScope.Compile))
+        )
+      )
     }
 
     "extract Bazel dependency with runtime dep from file" in new ctx {
@@ -123,7 +144,13 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
         thirdPartyDestination = thirdPartyPath
       ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates), Set(PartialJarDependency("some-runtime-dep", MavenScope.Runtime))))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates),
+          Set(PartialJarDependency("some-runtime-dep", MavenScope.Runtime))
+        )
+      )
     }
 
     "ignore source dep from local workspace " in new ctx {
@@ -142,7 +169,13 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
         thirdPartyDestination = thirdPartyPath
       ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates), Set()))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates),
+          Set()
+        )
+      )
     }
 
     "extract Bazel dependency with aggregate pom dep from file on missing and existing local workspace name" in new ctx {
@@ -162,9 +195,16 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
         thirdPartyDestination = thirdPartyPath
       ).allBazelDependencyNodes()
 
-      nodes must contain(PartialDependencyNode(mavenJarCoordinates.workspaceRuleName, asCompileDependency(mavenJarCoordinates),
-        Set(PartialPomAggregateDependency(pomArtifact.workspaceRuleName, MavenScope.Compile),
-          PartialPomAggregateDependency(pomArtifact2.workspaceRuleName, MavenScope.Compile))))
+      nodes must contain(
+        PartialDependencyNode(
+          mavenJarCoordinates.workspaceRuleName,
+          asCompileDependency(mavenJarCoordinates),
+          Set(
+            PartialPomAggregateDependency(pomArtifact.workspaceRuleName, MavenScope.Compile),
+            PartialPomAggregateDependency(pomArtifact2.workspaceRuleName, MavenScope.Compile)
+          )
+        )
+      )
     }
 
     "find and deserialize artifact using workspace rule name" in new ctx {
@@ -178,7 +218,8 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
     "find specific coordinates according to workspace rule name" in new ctx {
       val mavenJarRuleName = mavenJarCoordinates.workspaceRuleName
 
-      val retrievedCoordinates = ImportExternalTargetsFileReader(fileWithJarWorkspaceRule).findCoordinatesByName(mavenJarRuleName)
+      val retrievedCoordinates = ImportExternalTargetsFileReader(fileWithJarWorkspaceRule)
+        .findCoordinatesByName(mavenJarRuleName)
 
       retrievedCoordinates.map(_.coordinates) must beSome(mavenJarCoordinates)
     }
@@ -210,7 +251,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
       val newJar = Coordinates("new.group", "new-artifact", "3.0")
 
       val expectedImportExternalTargetsFile =
-        s"""load("@core_server_build_tools//:import_external.bzl", import_external = "safe_wix_scala_maven_import_external")
+        s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external")
            |
            |def dependencies():
            |${importExternalRuleWith(newJar).serialized}
@@ -270,7 +311,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
 
     "leave empty file if header is funky" in {
       val fileWithANormalHeader =
-        s"""load("@core_server_build_tools//:import_external.bzl", import_external = "safe_wix_scala_maven_import_external")
+        s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external")
            |
            |def dependencies():
            |
@@ -279,7 +320,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
       ImportExternalTargetsFileWriter(fileWithANormalHeader).withoutTarget(artifactA).content must beEmpty
 
       val fileWithAnotherFunkyHeader =
-        s"""load("@core_server_build_tools//:import_external.bzl", import_external = "wix_snapshot_scala_maven_import_external")
+        s"""load("@managed_repo//:import_external.bzl", import_external = "my_snapshot_import_external")
            |def dependencies():
            |
            |${importExternalRuleWith(artifactA).serialized}""".stripMargin
@@ -287,8 +328,8 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
       ImportExternalTargetsFileWriter(fileWithAnotherFunkyHeader).withoutTarget(artifactA).content must beEmpty
 
       val fileWithYetAnotherFunkyHeader =
-        s"""load("@core_server_build_tools//:import_external.bzl", import_external = "wix_snapshot_scala_maven_import_external")
-           |load("@core_server_build_tools//:import_external.bzl", import_external_no_src = "safe_wix_scala_maven_import_external")
+        s"""load("@managed_repo//:import_external.bzl", import_external = "my_snapshot_import_external")
+           |load("@managed_repo//:import_external.bzl", import_external_no_src = "my_import_external")
            |
            |def dependencies():
            |
@@ -301,7 +342,10 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
 
   private def importExternalTargetsFileWith(newHead: Coordinates, importExternalTargetsFile: String) = {
     val content = ImportExternalTargetsFileWriter(importExternalTargetsFile).withTarget(ImportExternalRule.of(newHead)).content
-    val statement = ImportExternalLoadStatement(importExternalRulePath = "@core_server_build_tools//:import_external.bzl", importExternalMacroName = "safe_wix_scala_maven_import_external")
+    val statement = ImportExternalLoadStatement(
+      importExternalRulePath = "@managed_repo//:import_external.bzl",
+      importExternalMacroName = "my_import_external"
+    )
     HeadersAppender(statement).updateHeadersFor(content)
   }
 
@@ -319,7 +363,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
   }
 
   private def contentWith(firstJar: String, rest: String) = {
-    s"""load("@core_server_build_tools//:import_external.bzl", import_external = "safe_wix_scala_maven_import_external")
+    s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external")
        |
        |def dependencies():
        |$firstJar
@@ -330,7 +374,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
   val jars = List(artifactA, artifactB, artifactC)
 
   val resolver = new RuleResolver(
-    "some_workspace",
+    localWorkspaceName = "some_workspace",
     thirdPartyDestination = "third_party"
   )
 
