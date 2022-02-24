@@ -61,7 +61,7 @@ abstract class SynchronizerCli {
   }
 
   private def cache(config: ManagedDepsSynchronizerConfig): ArtifactsChecksumCache = {
-    if (config.artifactShaCache) {
+    if (config.cacheChecksums) {
       val artifactsChecksumCacheFileAccessor = new ArtifactsChecksumCacheFileAccessor()
       new ArtifactsChecksumFileCache(artifactsChecksumCacheFileAccessor)
     } else {
