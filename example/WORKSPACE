@@ -81,12 +81,13 @@ load("//:third_party.bzl", "managed_third_party_dependencies")
 
 managed_third_party_dependencies()
 
+load("@rules_maven_third_party//:managed_artifacts.bzl", "TOOL_DEPS")
 load(":artifacts.bzl", "MANAGED_DEPS")
 load("@rules_maven_third_party//rules:managed_third_party.bzl", "managed_third_party")
 load("@rules_maven_third_party//:import_external.bzl", "REPOSITORY_URLS")
 
 managed_third_party(
-    artifacts = MANAGED_DEPS,
+    artifacts = MANAGED_DEPS + TOOL_DEPS,
     import_external_macro_name = "import_external",
     import_external_rule_path = "@rules_maven_third_party//:import_external.bzl",
     repository_urls = REPOSITORY_URLS,
