@@ -17,13 +17,13 @@ def _maven_artifact(
         artifact: The Maven artifact coordinate artifact name (ex: "guava").
         version: The Maven artifact coordinate version name (ex: "1.20.1").
         ownership_tag: 3rd party dependency owner responsible for its maintenance.
-        packaging = The Maven artifact coordinate packaging name (ex: "jar").
-        classifier = The Maven artifact coordinate classifier name (ex: "jdk11").
-        exclusions = Artifact dependencies to be excluded from resolution closure.
-        neverlink = neverlink value to set,
-        testonly = testonly value to set.
-        tags = Target tags.
-        flatten_transitive_deps = Define all transitive deps as direct deps.
+        packaging:The Maven artifact coordinate packaging name (ex: "jar").
+        classifier: The Maven artifact coordinate classifier name (ex: "jdk11").
+        exclusions: Artifact dependencies to be excluded from resolution closure.
+        neverlink: neverlink value to set,
+        testonly: testonly value to set.
+        tags: Target tags.
+        flatten_transitive_deps: Define all transitive deps as direct deps.
         aliases: import_external_aliases that will point to this dep.
     """
     maven_artifact = {}
