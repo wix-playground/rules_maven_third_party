@@ -38,6 +38,7 @@ object RulesJvmExternalDomain {
                                                 classifier: Option[String],
                                                 exclusions: Option[Set[RulesJvmExternalExclusion]],
                                                 neverLink: Option[Boolean],
+                                                testonly: Option[Boolean],
                                                 tags: Option[Set[String]],
                                                 aliases: Option[Set[String]],
                                                 flattenTransitiveDeps: Option[Boolean])
