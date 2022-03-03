@@ -24,7 +24,7 @@ def _maven_artifact(
         testonly: testonly value to set.
         tags: Target tags.
         flatten_transitive_deps: Define all transitive deps as direct deps.
-        aliases: import_external_aliases that will point to this dep.
+        aliases: aliases that will point to this dep.
     """
     maven_artifact = {}
     maven_artifact["group"] = group
