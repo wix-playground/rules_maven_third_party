@@ -1,16 +1,13 @@
 package(default_visibility = ["//visibility:public"])
 
-sources()
-
 scala_library(
     name = "core",
     srcs = glob(["*.scala"]),
     deps = [
-        "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
-        "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/git",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
+        "@com_fasterxml_jackson_core_jackson_annotations",
         "@com_github_pathikrit_better_files_2_12",
         "@org_slf4j_slf4j_api",
     ],

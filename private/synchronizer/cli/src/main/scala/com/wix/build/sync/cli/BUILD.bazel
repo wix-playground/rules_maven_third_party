@@ -4,6 +4,7 @@ scala_library(
     name = "cli_lib",
     srcs = glob(["*.scala"]),
     runtime_deps = [
+        "//private/synchronizer/cli/src/main/resources",
         "@ch_qos_logback_logback_classic",
     ],
     deps = [
@@ -15,7 +16,6 @@ scala_library(
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync/core",
         "@com_fasterxml_jackson_core_jackson_annotations",
         "@com_fasterxml_jackson_core_jackson_databind",
-        "@com_github_pathikrit_better_files_2_12",
         "@com_github_scopt_scopt_2_12",
         "@org_slf4j_slf4j_api",
     ],
@@ -23,7 +23,7 @@ scala_library(
 
 java_binary(
     name = "cli",
-    main_class = "com.wix.build.sync.cli.ManagedDepsSynchronizerCLI",
+    main_class = "com.wix.build.sync.cli.ManagedDepsSynchronizerCli",
     runtime_deps = [
         "cli_lib",
         "@org_codehaus_plexus_plexus_interpolation",

@@ -13,7 +13,8 @@ specs2_ite2e_test(
         "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/it/scala/com/wix/build/sync/e2e",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
-        "@com_github_tomakehurst_wiremock_2",
+        "@com_github_tomakehurst_wiremock_jre8",
         "@commons_io_commons_io",
+        "@org_specs2_specs2_mock_2_12",
     ],
 )
