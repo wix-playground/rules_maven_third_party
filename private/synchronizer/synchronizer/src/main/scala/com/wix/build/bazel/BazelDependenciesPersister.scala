@@ -10,14 +10,11 @@ class BazelDependenciesPersister(commitHeader: String, bazelRepository: BazelRep
   }
 
   private def finalMsg(asPr: Boolean): String = {
+    val msg =
+      s"""$commitHeader
+         |""".stripMargin
 
-    val msg = s"""$commitHeader
-       |""".stripMargin
-
-    asPr match {
-      case true => msg + "#pr"
-      case _ => msg
-    }
+    if (asPr) msg + "#pr" else msg
   }
 
 }

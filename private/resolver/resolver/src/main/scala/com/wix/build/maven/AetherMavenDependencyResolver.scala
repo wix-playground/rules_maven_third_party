@@ -195,13 +195,12 @@ object TestAetherResolver extends App {
 object AetherDependencyConversions {
 
   implicit class `AetherDependency --> Dependency`(aetherDependency: AetherDependency) {
-    def asDependency: Dependency =
-      Dependency(
-        coordinates = aetherDependency.getArtifact.asCoordinates,
-        scope = MavenScope.of(aetherDependency.getScope),
-        isNeverLink = false,
-        exclusions = aetherDependency.getExclusions.asScala.map(_.asExclusion).toSet
-      )
+    def asDependency: Dependency = Dependency(
+      coordinates = aetherDependency.getArtifact.asCoordinates,
+      scope = MavenScope.of(aetherDependency.getScope),
+      isNeverLink = false,
+      exclusions = aetherDependency.getExclusions.asScala.map(_.asExclusion).toSet
+    )
   }
 
   implicit class `Dependency --> AetherDependency`(dep: Dependency) {
@@ -225,7 +224,8 @@ object AetherDependencyConversions {
         artifact.getArtifactId,
         artifact.getVersion,
         Packaging(Option(artifact.getExtension).filter(_.nonEmpty).getOrElse("jar")),
-        Option(artifact.getClassifier).filter(_.nonEmpty))
+        Option(artifact.getClassifier).filter(_.nonEmpty)
+      )
   }
 
   implicit class `Exclusion --> AetherExclusion`(exclusion: Exclusion) {

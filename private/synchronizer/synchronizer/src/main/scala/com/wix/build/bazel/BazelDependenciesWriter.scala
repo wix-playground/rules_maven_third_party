@@ -86,14 +86,20 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     }
 
   private def createRuleBy(dependencyNode: AnnotatedDependencyNode): RuleToPersist = {
-    val runtimeDependenciesOverrides = localWorkspace.thirdPartyOverrides().runtimeDependenciesOverridesOf(
-      OverrideCoordinates(dependencyNode.baseDependency.coordinates.groupId,
-        dependencyNode.baseDependency.coordinates.artifactId)
-    )
+    val runtimeDependenciesOverrides = localWorkspace
+      .thirdPartyOverrides()
+      .runtimeDependenciesOverridesOf(
+        OverrideCoordinates(
+          dependencyNode.baseDependency.coordinates.groupId,
+          dependencyNode.baseDependency.coordinates.artifactId
+        )
+      )
 
     val compileTimeDependenciesOverrides = localWorkspace.thirdPartyOverrides().compileTimeDependenciesOverridesOf(
-      OverrideCoordinates(dependencyNode.baseDependency.coordinates.groupId,
-        dependencyNode.baseDependency.coordinates.artifactId)
+      OverrideCoordinates(
+        dependencyNode.baseDependency.coordinates.groupId,
+        dependencyNode.baseDependency.coordinates.artifactId
+      )
     )
 
     val ruleToPersist = ruleResolver.`for`(

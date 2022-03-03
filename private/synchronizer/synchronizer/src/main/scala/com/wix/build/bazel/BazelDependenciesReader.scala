@@ -38,7 +38,13 @@ class BazelDependenciesReader(localWorkspace: BazelLocalWorkspace) {
     coordinates.map(toDependency)
   }
 
-  private def toDependency(validatedCoordinates: ValidatedCoordinates) = Dependency(validatedCoordinates.coordinates, MavenScope.Compile, isNeverLink = false, exclusions = exclusionsOf(validatedCoordinates.coordinates))
+  private def toDependency(validatedCoordinates: ValidatedCoordinates) =
+    Dependency(
+      validatedCoordinates.coordinates,
+      MavenScope.Compile,
+      isNeverLink = false,
+      exclusions = exclusionsOf(validatedCoordinates.coordinates)
+    )
 
   private def exclusionsOf(coordinates: Coordinates): Set[Exclusion] =
     buildFileRuleExclusionsOf(coordinates) ++ externalImportRuleExclusionsOf(coordinates)
