@@ -1,0 +1,10 @@
+load(
+    "@io_bazel_rules_scala//scala:scala.bzl",
+    "scala_library",
+    "scala_specs2_junit_test",
+)
+load(
+    "//:test_macros.bzl",
+    "specs2_ite2e_test",
+    "specs2_unit_test",
+)
