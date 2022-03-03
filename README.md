@@ -50,17 +50,30 @@ def dependencies():
 ```
 `repository_urls` allows to specify list of maven repositories to look for artifacts
 
-# wix.artifact attributes:
-`group`: The Maven artifact coordinate group name (ex: "com.google.guava").
-`artifact`: The Maven artifact coordinate artifact name (ex: "guava").
-`version`: The Maven artifact coordinate version name (ex: "1.20.1").
-`ownership_tag`: 3rd party dependency owner responsible for its maintenance. *not implemented*
-`packaging`: The Maven artifact coordinate packaging name (ex: "jar").
-`classifier`: The Maven artifact coordinate classifier name (ex: "jdk11").
-`exclusions`: Artifact dependencies to be excluded from resolution closure.
-`neverlink`: neverlink value to set,
-`testonly`: testonly value to set. *not implemented*
-`tags`: Target tags.
-`flatten_transitive_deps`: Define all transitive deps as direct deps.
-`aliases`: aliases that will point to this dep.
+### wix.artifact attributes:
+* `group`: The Maven artifact coordinate group name (ex: "com.google.guava").
+* `artifact`: The Maven artifact coordinate artifact name (ex: "guava").
+* `version`: The Maven artifact coordinate version name (ex: "1.20.1").
+* `ownership_tag`: 3rd party dependency owner responsible for its maintenance. *not implemented*
+* `packaging`: The Maven artifact coordinate packaging name (ex: "jar").
+* `classifier`: The Maven artifact coordinate classifier name (ex: "jdk11").
+* `exclusions`: Artifact dependencies to be excluded from resolution closure.
+* `neverlink`: neverlink value to set,
+* `testonly`: testonly value to set. *not implemented*
+* `tags`: Target tags.
+* `flatten_transitive_deps`: Define all transitive deps as direct deps.
+* `aliases`: aliases that will point to this dep.
 
+### Known bugs, missing features
+* testonly does not work
+* sometimes after removing high level dep, third_party.bzl entry is not removed resulting in load failure
+
+### Future direction
+* minimize tool dependencies
+* add full coursier support
+* possibly rewrite the tool in Java to remove need for complex Rules Scala setup and dependencies
+
+### Maintenance
+Maintainer: Vaidas Pilkauskas (@liucijus)
+
+Original code written internally by multiple folks at Wix.com.
