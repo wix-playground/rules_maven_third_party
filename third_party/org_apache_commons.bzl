@@ -11,7 +11,7 @@ def dependencies():
 
     import_external(
         name = "org_apache_commons_commons_lang3",
-        artifact = "org.apache.commons:commons-lang3:3.5",
-        artifact_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
-        srcjar_sha256 = "1f7adeee4d483a6ca8d479d522cb2b07e39d976b758f3c2b6e1a0fed20dcbd2d",
+        artifact = "org.apache.commons:commons-lang3:3.8.1",
+        artifact_sha256 = "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+        srcjar_sha256 = "a6589a5acef187a9c032b2afe22384acc3ae0bf15bb91ff67db8731ebb4323ca",
     )

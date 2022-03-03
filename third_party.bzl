@@ -1,3 +1,5 @@
+load("//:third_party/javax_annotation.bzl", javax_annotation_deps = "dependencies")
+
 load("//:third_party/org_xmlunit.bzl", org_xmlunit_deps = "dependencies")
 load("//:third_party/org_eclipse_jetty.bzl", org_eclipse_jetty_deps = "dependencies")
 load("//:third_party/org_eclipse_jetty_http2.bzl", org_eclipse_jetty_http2_deps = "dependencies")
@@ -263,3 +265,5 @@ def managed_third_party_dependencies():
     org_eclipse_jetty_deps()
 
     org_xmlunit_deps()
+
+    javax_annotation_deps()
