@@ -27,14 +27,18 @@ class RuleResolver(localWorkspaceName: String, thirdPartyDestination: String) {
           checksum,
           srcChecksum,
           snapshotSources,
-          neverlink = neverlink),
+          neverlink = neverlink
+        ),
         ImportExternalRule.ruleLocatorFrom(artifact))
       case Packaging("pom") => RuleToPersist(
-        LibraryRule.pomLibraryRule(artifact,
+        LibraryRule.pomLibraryRule(
+          artifact,
           runtimeDependencies,
           compileTimeDependencies,
-          exclusions),
-        LibraryRule.packageNameBy(artifact, thirdPartyDestination))
+          exclusions
+        ),
+        LibraryRule.packageNameBy(artifact, thirdPartyDestination)
+      )
       case _ => throw new RuntimeException(s"no rule defined for ${artifact.serialized}")
     }
 }
@@ -50,6 +54,7 @@ trait RuleWithDeps {
 case class RuleToPersist(rule: RuleWithDeps, ruleTargetLocator: String) {
   def withUpdateDeps(runtimeDeps: Set[String], compileTimeDeps: Set[String]): RuleToPersist = {
     copy(rule = rule.updateDeps(runtimeDeps = rule.runtimeDeps ++ runtimeDeps,
-      compileTimeDeps = rule.compileTimeDeps ++ compileTimeDeps))
+      compileTimeDeps = rule.compileTimeDeps ++ compileTimeDeps)
+    )
   }
 }

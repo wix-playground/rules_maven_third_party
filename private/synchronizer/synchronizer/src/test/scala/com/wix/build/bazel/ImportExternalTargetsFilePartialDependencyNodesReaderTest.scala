@@ -19,7 +19,7 @@ class ImportExternalTargetsFilePartialDependencyNodesReaderTest extends Specific
                       |  srcjar_sha256 = "",
                       |)""".stripMargin
 
-      val reader = new ImportExternalTargetsFilePartialDependencyNodesReader(content, thirdPartyDestination = thirdPartyPath)
+      val reader = ImportExternalTargetsFilePartialDependencyNodesReader(content, thirdPartyDestination = thirdPartyPath)
       reader.allBazelDependencyNodes() mustEqual Set(PartialDependencyNode(artifact.workspaceRuleName, asCompileDependency(artifact), Set()))
     }
 
