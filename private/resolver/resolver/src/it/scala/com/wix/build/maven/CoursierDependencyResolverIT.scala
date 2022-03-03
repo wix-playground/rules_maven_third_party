@@ -1,6 +1,5 @@
 package com.wix.build.maven
 
-import com.wix.build.maven._
 import com.wix.build.maven.ArtifactDescriptor.anArtifact
 import com.wix.build.maven.MavenMakers.{aDependency, randomDependency}
 import org.specs2.mutable.SpecificationWithJUnit
@@ -21,7 +20,7 @@ class CoursierDependencyResolverIT extends SpecificationWithJUnit with AfterEach
 
     nodes.filter(_.baseDependency == dependency) must have size 1
     nodes.filter(_.baseDependency.coordinates == transitiveRoot.coordinates) must have size 1
-  }
+  }.pendingUntilFixed("add support for writable test env")
 
   "given dependency that is not in remote repository must not explode" in new Context {
     val notExistsDependency = randomDependency()
@@ -29,7 +28,7 @@ class CoursierDependencyResolverIT extends SpecificationWithJUnit with AfterEach
     override def remoteArtifacts: Set[ArtifactDescriptor] = Set.empty
 
     mavenDependencyResolver.dependencyClosureOf(List(notExistsDependency), emptyManagedDependencies) must beEmpty
-  }
+  }.pendingUntilFixed("add support for writable test env")
 
   trait Context extends Scope {
     def transitiveRoot = aDependency("transitive")
