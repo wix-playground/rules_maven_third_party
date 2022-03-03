@@ -1,30 +1,20 @@
 package com.wix.build.sync.e2e
 
 import better.files.File
-import com.gitblit.utils.JGitUtils
 import com.wix.build.bazel.{ImportExternalTargetsFileReader, ThirdPartyPaths, ValidatedCoordinates}
 import com.wix.build.maven.Coordinates
-import com.wix.build.maven.translation.MavenToBazelTranslations._
+import com.wix.build.translation.MavenToBazelTranslations._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand.ResetType
-import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RefSpec
 
 import java.nio.charset.StandardCharsets
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.util.Try
 
 class FakeRemoteRepository() {
   val thirdPartyPaths = new ThirdPartyPaths("third_party")
 
   import thirdPartyPaths._
-
-  def allCommitsForBranch(branchName: String): List[Commit] = remoteRepo.git.log()
-    .add(remoteRepo.git.getRepository.resolve(branchName))
-    .call()
-    .asScala
-    .map(_.asCaseClass)
-    .toList
 
   def initWithThirdPartyReposFileContent(content: String): FakeRemoteRepository = {
     writeThirdPartyReposFile(content)
@@ -87,21 +77,6 @@ class FakeRemoteRepository() {
       .setRefSpecs(new RefSpec(DefaultBranch))
       .call()
   }
-
-  implicit class commitExtension(revCommit: RevCommit) {
-    private def username = revCommit.getAuthorIdent.getName
-
-    private def email = revCommit.getAuthorIdent.getEmailAddress
-
-    private def message = revCommit.getFullMessage
-
-    private def changedFiles = JGitUtils.getFilesInCommit(remoteRepo.git.getRepository, revCommit, false)
-      .asScala.map(_.path).toSet
-
-    def asCaseClass: Commit = Commit(username, email, message, changedFiles)
-
-  }
-
 
   def hasWorkspaceRuleFor(coordinates: Coordinates, branchName: String): Try[String] = {
     val importExternalRuleName = coordinates.workspaceRuleName
