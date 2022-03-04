@@ -3,9 +3,9 @@ load(":import_external.bzl", import_external = "import_external")
 def dependencies():
     import_external(
         name = "org_apache_commons_commons_compress",
-        artifact = "org.apache.commons:commons-compress:1.11",
-        artifact_sha256 = "9fc905a68dcf3038d4866a54040706998e0202a34ecd95d734e819b0bccf439e",
-        srcjar_sha256 = "411d156677d380fcba28da0e7b7547e96b8a99c5f162fdf80af0b8d342514a94",
+        artifact = "org.apache.commons:commons-compress:1.21",
+        artifact_sha256 = "6aecfd5459728a595601cfa07258d131972ffc39b492eb48bdd596577a2f244a",
+        srcjar_sha256 = "f64973e7c00455e819bcf8b74dda6e91b3e09557135b11b3603c2ba7a0e5479b",
     )
 
 

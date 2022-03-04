@@ -3,7 +3,7 @@ load(":import_external.bzl", import_external = "import_external")
 def dependencies():
     import_external(
         name = "org_tukaani_xz",
-        artifact = "org.tukaani:xz:1.5",
-        artifact_sha256 = "86f30fa8775fa3a62cdb39d1ed78a6019164c1058864048d42cbee244e26e840",
-        srcjar_sha256 = "c9ec28552dad5c2346cdc0df14688945971073fbbb01f63a8c64ded51d61d636",
+        artifact = "org.tukaani:xz:1.9",
+        artifact_sha256 = "211b306cfc44f8f96df3a0a3ddaf75ba8c5289eed77d60d72f889bb855f535e5",
+        srcjar_sha256 = "5befa47f06b90e752f035191dde7f2deb59f36000f1ca6cc77d2362a82b6f462",
     )

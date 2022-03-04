@@ -3,9 +3,9 @@ load(":import_external.bzl", import_external = "import_external")
 def dependencies():
     import_external(
         name = "org_apache_maven_maven_artifact",
-        artifact = "org.apache.maven:maven-artifact:3.5.4",
-        artifact_sha256 = "6fbf25de86cce3afbaf5c502dff57df6d7c90cf9bec0ae0ffe5ab2467243c35b",
-        srcjar_sha256 = "2c756760743d6e4c3a30e4288b35ad0192313d43cc02ae420ddba7ade13f7966",
+        artifact = "org.apache.maven:maven-artifact:3.8.4",
+        artifact_sha256 = "4273b4e84805f7350eb61a1eea5debfd71d1147414b3b441b92d535218cdf0ae",
+        srcjar_sha256 = "3cf79459a13160b837a6176271603e5b1647d0cf1e53a018a14104c5b0b3502f",
         deps = [
             "@org_apache_commons_commons_lang3",
             "@org_codehaus_plexus_plexus_utils",
@@ -31,12 +31,9 @@ def dependencies():
 
     import_external(
         name = "org_apache_maven_maven_builder_support",
-        artifact = "org.apache.maven:maven-builder-support:3.5.4",
-        artifact_sha256 = "43855ce29fc8001ef663a5bb2bb0473481b1f8f80cea7b3cc1d426af996960b2",
-        srcjar_sha256 = "3d283bcfc1f73430e787c9d69caa94b848b874209eed2f07c5900c3af0de1a71",
-        deps = [
-            "@org_apache_commons_commons_lang3",
-        ],
+        artifact = "org.apache.maven:maven-builder-support:3.8.4",
+        artifact_sha256 = "b64161e6ffd30782d97c205942bba219d60c53a8f4442e69abdfd428d7691135",
+        srcjar_sha256 = "cfa6acd0014b10dcd70e99ddeb4dd8448d1356786c90c899066d2878f976d9f1",
     )
 
 
@@ -93,11 +90,10 @@ def dependencies():
 
     import_external(
         name = "org_apache_maven_maven_model",
-        artifact = "org.apache.maven:maven-model:3.5.4",
-        artifact_sha256 = "5ec1b94e9254c25480548633a48b7ae8a9ada7527e28f5c575943fe0c2ab7350",
-        srcjar_sha256 = "5a52d14fe932024aed8848e2cd5217d6e8eb4176d014a9d75ab28a5c92c18169",
+        artifact = "org.apache.maven:maven-model:3.8.4",
+        artifact_sha256 = "91ec0d6d564a12483e1569b0ef72ff3d9e921c5ba07201fa7ab9c7694db8844a",
+        srcjar_sha256 = "638caaf522d9629b1c3df3e7ea7e51427f9512495a797efc4716d0c9353507cd",
         deps = [
-            "@org_apache_commons_commons_lang3",
             "@org_codehaus_plexus_plexus_utils",
         ],
     )
@@ -105,18 +101,17 @@ def dependencies():
 
     import_external(
         name = "org_apache_maven_maven_model_builder",
-        artifact = "org.apache.maven:maven-model-builder:3.5.4",
-        artifact_sha256 = "5dc10d69fd0a6e38f3ac3788bf1e63efd668af1fc23a08a2fdcffd85921d6f56",
-        srcjar_sha256 = "c54b66772a2be78bf1f280627fb374745f82ffefbdeb5d6c45ee494a22af4197",
+        artifact = "org.apache.maven:maven-model-builder:3.8.4",
+        artifact_sha256 = "8d0ed4b5cc5c06610f97935982458260165cb7e57c781ca7c9ef8b6e01ce1456",
+        srcjar_sha256 = "ac9ffa14c57cb95b3b84a17b2cbbc90a315cc419edd584fbd5afdf4ea89620cb",
         deps = [
-            "@com_google_guava_guava",
-            "@org_apache_commons_commons_lang3",
+            "@javax_inject_javax_inject",
             "@org_apache_maven_maven_artifact",
             "@org_apache_maven_maven_builder_support",
             "@org_apache_maven_maven_model",
-            "@org_codehaus_plexus_plexus_component_annotations",
             "@org_codehaus_plexus_plexus_interpolation",
             "@org_codehaus_plexus_plexus_utils",
+            "@org_eclipse_sisu_org_eclipse_sisu_inject",
         ],
     )
 
@@ -209,9 +204,9 @@ def dependencies():
 
     import_external(
         name = "org_apache_maven_maven_repository_metadata",
-        artifact = "org.apache.maven:maven-repository-metadata:3.0.3",
-        artifact_sha256 = "5cc35e32e4475a1e0e5a36fac8dd45fd55c43f5add0dba81be8a76b02d4c8757",
-        srcjar_sha256 = "a10077b36d66c60d5fd69af726453bcc3e1ce343114f009319a95cfef6fee83b",
+        artifact = "org.apache.maven:maven-repository-metadata:3.8.4",
+        artifact_sha256 = "62a97989068af34eef374bedcca120a1c2b0bd5a2d48460d306944084cc495f9",
+        srcjar_sha256 = "8ada6fc9d893559655b44f0509e2a42e42ee75b167e787ee1bb523963e28d01f",
         deps = [
             "@org_codehaus_plexus_plexus_utils",
         ],
@@ -220,12 +215,11 @@ def dependencies():
 
     import_external(
         name = "org_apache_maven_maven_resolver_provider",
-        artifact = "org.apache.maven:maven-resolver-provider:3.5.4",
-        artifact_sha256 = "3a5d15bf994da32621a3beabe76f8a611bf92b6a1e42a43d827ff5a3d94851c4",
-        srcjar_sha256 = "3174c174d35da70b92f0fc983c6fd92e1617a77feafc1cb833674f14897f792a",
+        artifact = "org.apache.maven:maven-resolver-provider:3.8.4",
+        artifact_sha256 = "046c7d1635f91283b4f7a41b579953857914c7e0d96545b557491537b327e156",
+        srcjar_sha256 = "07a0e9709661b72031a96e2bcd1212aa72b1e669080d9030bbc29c7cad7a61a1",
         deps = [
             "@javax_inject_javax_inject",
-            "@org_apache_commons_commons_lang3",
             "@org_apache_maven_maven_model",
             "@org_apache_maven_maven_model_builder",
             "@org_apache_maven_maven_repository_metadata",

@@ -1,3 +1,19 @@
+load("//:third_party/org_sonatype_sisu.bzl", org_sonatype_sisu_deps = "dependencies")
+
+load("//:third_party/org_eclipse_sisu.bzl", org_eclipse_sisu_deps = "dependencies")
+
+load("//:third_party/org_eclipse_aether.bzl", org_eclipse_aether_deps = "dependencies")
+
+load("//:third_party/org_checkerframework.bzl", org_checkerframework_deps = "dependencies")
+
+load("//:third_party/javax_enterprise.bzl", javax_enterprise_deps = "dependencies")
+
+load("//:third_party/com_google_j2objc.bzl", com_google_j2objc_deps = "dependencies")
+
+load("//:third_party/com_google_errorprone.bzl", com_google_errorprone_deps = "dependencies")
+
+load("//:third_party/aopalliance.bzl", aopalliance_deps = "dependencies")
+
 load("//:third_party/javax_annotation.bzl", javax_annotation_deps = "dependencies")
 
 load("//:third_party/org_xmlunit.bzl", org_xmlunit_deps = "dependencies")
@@ -30,7 +46,6 @@ load("//:third_party/org_reactivestreams.bzl", org_reactivestreams_deps = "depen
 load("//:third_party/org_portable_scala.bzl", org_portable_scala_deps = "dependencies")
 load("//:third_party/org_ow2_asm.bzl", org_ow2_asm_deps = "dependencies")
 load("//:third_party/org_objenesis.bzl", org_objenesis_deps = "dependencies")
-load("//:third_party/org_mortbay_jetty.bzl", org_mortbay_jetty_deps = "dependencies")
 load("//:third_party/org_mockito.bzl", org_mockito_deps = "dependencies")
 load("//:third_party/org_joda.bzl", org_joda_deps = "dependencies")
 load("//:third_party/org_javassist.bzl", org_javassist_deps = "dependencies")
@@ -204,8 +219,6 @@ def managed_third_party_dependencies():
 
     org_mockito_deps()
 
-    org_mortbay_jetty_deps()
-
     org_objenesis_deps()
 
     org_ow2_asm_deps()
@@ -267,3 +280,19 @@ def managed_third_party_dependencies():
     org_xmlunit_deps()
 
     javax_annotation_deps()
+
+    aopalliance_deps()
+
+    com_google_errorprone_deps()
+
+    com_google_j2objc_deps()
+
+    javax_enterprise_deps()
+
+    org_checkerframework_deps()
+
+    org_eclipse_aether_deps()
+
+    org_eclipse_sisu_deps()
+
+    org_sonatype_sisu_deps()

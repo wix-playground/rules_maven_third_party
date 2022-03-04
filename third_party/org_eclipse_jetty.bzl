@@ -91,9 +91,9 @@ def dependencies():
 
     import_external(
         name = "org_eclipse_jetty_jetty_http",
-        artifact = "org.eclipse.jetty:jetty-http:9.4.44.v20210927",
-        artifact_sha256 = "0a09fac4c0ea826f920cfe8d5beced61dcd8fec0eae99b88c7619609fa0dc403",
-        srcjar_sha256 = "5d11274eefac7c5ab79ee8d606b55232284cb1eca7241cfce0f0c292f0805a49",
+        artifact = "org.eclipse.jetty:jetty-http:9.4.43.v20210629",
+        artifact_sha256 = "bcbf228fed3984962be41910193fb8d6fe3fbaa8a39b8cc6bc7c20e1e82e0937",
+        srcjar_sha256 = "6cd7b79461b3f34fd6fd2ff30365b87b50543203f90fb0348c6fe633ca1353e6",
         deps = [
             "@org_eclipse_jetty_jetty_io",
             "@org_eclipse_jetty_jetty_util",
@@ -103,9 +103,9 @@ def dependencies():
 
     import_external(
         name = "org_eclipse_jetty_jetty_io",
-        artifact = "org.eclipse.jetty:jetty-io:9.4.44.v20210927",
-        artifact_sha256 = "3c6f1105500921aa4f9687c3a1b5fd9eba4661a5f438aa089829c2ecc9726745",
-        srcjar_sha256 = "35c1d56be44844a51669206c5b4ff1fd5e39cac0cde2ae10ebc514e0b087671a",
+        artifact = "org.eclipse.jetty:jetty-io:9.4.43.v20210629",
+        artifact_sha256 = "0f37f12273dbd0ae216549e425203f51f63cbf4bfef3f994d832d24730f03f0b",
+        srcjar_sha256 = "5d037cbd5e1d7ccb53cf8537525c93b192f7bb4af5b12ae16e0a5037c1c6f457",
         deps = [
             "@org_eclipse_jetty_jetty_util",
         ],
@@ -137,9 +137,9 @@ def dependencies():
 
     import_external(
         name = "org_eclipse_jetty_jetty_server",
-        artifact = "org.eclipse.jetty:jetty-server:9.4.44.v20210927",
-        artifact_sha256 = "d4f51fb02454b1c79489418f080d3409c557abca181f083881977b7a729a8f86",
-        srcjar_sha256 = "24b41fe85e2aaf382fcb15d948dc1857876d44413ee73c6370fb64db8bbdb183",
+        artifact = "org.eclipse.jetty:jetty-server:9.4.43.v20210629",
+        artifact_sha256 = "7b64a7e1cbd249c0e510d6cda545dbf9393d41d9a904f9243fdaf64f98cc60e8",
+        srcjar_sha256 = "27d1ab80e3199f249a1799cb40c15321bf747563785d8f81a72fada57c31ed2b",
         deps = [
             "@javax_servlet_javax_servlet_api//:linkable",
             "@org_eclipse_jetty_jetty_http",
@@ -195,9 +195,9 @@ def dependencies():
 
     import_external(
         name = "org_eclipse_jetty_jetty_webapp",
-        artifact = "org.eclipse.jetty:jetty-webapp:9.4.44.v20210927",
-        artifact_sha256 = "b447a5dd9957f2cd414041aea46d2812bd39acc175d6d396941f8e1ce2995e96",
-        srcjar_sha256 = "d19891ccb0d3c676c71a2afeaa13bc5fade973e242a0705a952a8198db86150e",
+        artifact = "org.eclipse.jetty:jetty-webapp:9.4.43.v20210629",
+        artifact_sha256 = "1d995f459e8cf9418a19028cd5bd5e011dec1a3ab742380a37988f02ad80e95b",
+        srcjar_sha256 = "5770ed5896e4f6c872579fdbf8d4f6fed76b8a8be6434243ad5c53692a509c91",
         deps = [
             "@org_eclipse_jetty_jetty_servlet",
             "@org_eclipse_jetty_jetty_xml",
@@ -207,9 +207,9 @@ def dependencies():
 
     import_external(
         name = "org_eclipse_jetty_jetty_xml",
-        artifact = "org.eclipse.jetty:jetty-xml:9.4.44.v20210927",
-        artifact_sha256 = "5d8a77311c87015006547d23bd06e36b02212c48ca26c2b0b30b8d2ca3c6e6c3",
-        srcjar_sha256 = "e1a92231a24e0d91cb1c013d2accde3dfe6f72d45bddd66c3819765c87ff1502",
+        artifact = "org.eclipse.jetty:jetty-xml:9.4.43.v20210629",
+        artifact_sha256 = "8e66e09a3e0e2e5c8e8cf4658f2237c6a873aed511e4610aba121701192833e7",
+        srcjar_sha256 = "1a7e10ccaa69b076ff8a0e18090cb9bab1cb8a520436b6131b166cb4808c0bcf",
         deps = [
             "@org_eclipse_jetty_jetty_util",
         ],

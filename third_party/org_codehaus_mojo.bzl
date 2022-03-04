@@ -3,9 +3,9 @@ load(":import_external.bzl", import_external = "import_external")
 def dependencies():
     import_external(
         name = "org_codehaus_mojo_mrm_api",
-        artifact = "org.codehaus.mojo:mrm-api:1.1.0",
-        artifact_sha256 = "4c0a1988b4b5b096519df75d87d728024257ece82991e3323eddb8c01defdb9f",
-        srcjar_sha256 = "5e0e444a3aef8b2de6d5f396677d750f06805a637a4dfdad9225fb43f74f62a3",
+        artifact = "org.codehaus.mojo:mrm-api:1.3.0",
+        artifact_sha256 = "a16d141933e6ce6bc324b9937c89cebd146fed1579b2ec1c2ad5038df0af5cff",
+        srcjar_sha256 = "1b2802f5c51dd3570165da38f08fef97c788ada3dcc905b617194b005dae7d9e",
         deps = [
             "@org_apache_maven_archetype_archetype_common",
             "@org_apache_maven_maven_artifact",
@@ -18,9 +18,9 @@ def dependencies():
 
     import_external(
         name = "org_codehaus_mojo_mrm_maven_plugin",
-        artifact = "org.codehaus.mojo:mrm-maven-plugin:1.1.0",
-        artifact_sha256 = "c75750bab97565d64b81de2a2d2d9d9ba02cbeb1da1cf19ad622a06650599239",
-        srcjar_sha256 = "804ce9df3ff7ce4843754dac6bb2c8c673b41006061bf8e1f86afa0dacc140d6",
+        artifact = "org.codehaus.mojo:mrm-maven-plugin:1.3.0",
+        artifact_sha256 = "c92f6e891a26564e87cd9ce4558aef185992d26ee61e1efcf7f642e65bb09a49",
+        srcjar_sha256 = "bd951ef479ad04ee0c84494354f4f9dc2eb33103b853337e92a07c50d6fd0652",
         deps = [
             "@commons_lang_commons_lang",
             "@org_apache_maven_maven_artifact",
@@ -33,7 +33,8 @@ def dependencies():
             "@org_codehaus_mojo_mrm_api",
             "@org_codehaus_mojo_mrm_servlet",
             "@org_codehaus_plexus_plexus_utils",
-            "@org_mortbay_jetty_jetty",
+            "@org_eclipse_jetty_jetty_server",
+            "@org_eclipse_jetty_jetty_webapp",
         ],
         excludes = [
             "org.mortbay.jetty:servlet-api",
@@ -43,9 +44,9 @@ def dependencies():
 
     import_external(
         name = "org_codehaus_mojo_mrm_servlet",
-        artifact = "org.codehaus.mojo:mrm-servlet:1.1.0",
-        artifact_sha256 = "d46f0a8799479e100e9f0fb5ea1a419806b2656405b53687ec588c90c6f48473",
-        srcjar_sha256 = "a0a405b989bb4f38ce0527bfed80449ffb55ca7adbe6389cdd43500c6276b523",
+        artifact = "org.codehaus.mojo:mrm-servlet:1.3.0",
+        artifact_sha256 = "3882b3f29912bbacad98d966b23697139688bfd305123a4801e62cafafc21192",
+        srcjar_sha256 = "dabbf949207b1e8c8db077e0fd95737581c1aff72574f5222c6d0d4e0b518093",
         deps = [
             "@commons_io_commons_io",
             "@commons_lang_commons_lang",
