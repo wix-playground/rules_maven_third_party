@@ -1,0 +1,28 @@
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: bazel cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/bazel/repository_cache
+            ~/.cache/bazel/disk_cache
+          key: ${{ runner.os }}-bazel
+      - name: run bazel
+        run: >
+          bazel test //...
+          --disk_cache=~/.cache/bazel/disk_cache
+          --repository_cache=~/.cache/bazel/repository_cache
+          --keep_going
+          --test_output=errors
+      - name: run bazel on example
+        run: >
+          cd example && bazel test //...
+          --disk_cache=~/.cache/bazel/disk_cache
+          --repository_cache=~/.cache/bazel/repository_cache
+          --keep_going
+          --test_output=errors
