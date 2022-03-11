@@ -140,7 +140,6 @@ _managed_third_party = repository_rule(
         "import_external_rule_path": attr.string(),  # bzl file to load rule for generated external definitions
         "import_external_macro_name": attr.string(),  # name to be loaded from bzl file to load rule for generated external definitions
         "remote_resolver_url": attr.string(mandatory = False),  # remote resolver url if supported
-        "_artifacts_indicator": attr.label(default = "@core_server_build_tools//third_party/maven:managed_artifacts.bzl"),
     },
 )
 
