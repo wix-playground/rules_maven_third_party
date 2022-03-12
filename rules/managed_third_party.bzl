@@ -65,18 +65,6 @@ def _parse_maven_coordinate_string(mvn_coord):
     else:
         fail("Could not parse maven coordinate", attr = mvn_coord)
 
-def _parse_repository_spec_list(repository_specs):
-    """
-    Given a list containing either strings or repository maps (see above), returns a list containing repository maps.
-    """
-    repos = []
-    for repo in repository_specs:
-        if type(repo) == "string":
-            repos.append({"repo_url": repo})
-        else:
-            repos.append(repo)
-    return repos
-
 def _parse_artifact_spec_list(artifact_specs):
     """
     Given a list containing either strings or artifact maps (see above), returns a list containing artifact maps.
@@ -89,38 +77,22 @@ def _parse_artifact_spec_list(artifact_specs):
             artifacts.append(artifact)
     return artifacts
 
-def _artifact_spec_to_json(artifact_spec):
-    """
-    Given an artifact spec, returns the json serialization of the object.
-    """
-    maybe_exclusion_specs_jsons = []
-    for spec in _parse_exclusion_spec_list(artifact_spec.get("exclusions") or []):
-        maybe_exclusion_specs_jsons.append(_exclusion_spec_to_json(spec))
-    exclusion_specs_json = (("[" + ", ".join(maybe_exclusion_specs_jsons) + "]") if len(maybe_exclusion_specs_jsons) > 0 else None)
+def _artifact_to_json(artifact_spec):
+    artifact = dict(
+        artifact_spec.items(),
+        exclusions = _parse_exclusion_spec_list(artifact_spec.get("exclusions") or []),
+    )
 
-    required = "{ \"group\": \"" + artifact_spec["group"] + \
-               "\", \"artifact\": \"" + artifact_spec["artifact"] + \
-               "\", \"version\": \"" + artifact_spec["version"] + "\""
+    return artifact
 
-    with_packaging = required + ((", \"packaging\": \"" + artifact_spec["packaging"] + "\"") if artifact_spec.get("packaging") != None else "")
-    with_classifier = with_packaging + ((", \"classifier\": \"" + artifact_spec["classifier"] + "\"") if artifact_spec.get("classifier") != None else "")
-    with_exclusions = with_classifier + ((", \"exclusions\": " + exclusion_specs_json) if artifact_spec.get("exclusions") != None else "")
-    with_neverlink = with_exclusions + ((", \"neverlink\": " + str(artifact_spec.get("neverlink")).lower()) if artifact_spec.get("neverlink") != None else "")
-    with_testonly = with_neverlink + ((", \"testonly\": " + str(artifact_spec.get("testonly")).lower()) if artifact_spec.get("testonly") != None else "")
-    with_flatten = with_testonly + ((", \"flattenTransitiveDeps\": " + str(artifact_spec.get("flatten_transitive_deps")).lower()) if artifact_spec.get("flatten_transitive_deps") != None else "")
-    with_aliases = with_flatten + ((", \"aliases\": " + str(artifact_spec.get("aliases"))) if artifact_spec.get("aliases") != None else "")
-    with_tags = with_aliases + ((", \"tags\": " + str(artifact_spec.get("tags"))) if artifact_spec.get("tags") != None else "")
-
-    return with_tags + " }"
-
-def _exclusion_spec_to_json(exclusion_spec):
-    """
-    Given an artifact exclusion spec, returns the json serialization of the object.
-    """
-    return "{ \"group\": \"" + exclusion_spec["group"] + "\", \"artifact\": \"" + exclusion_spec["artifact"] + "\" }"
+def _artifacts_to_json(artifact_specs):
+    return json.encode_indent(
+        [_artifact_to_json(artifact) for artifact in _parse_artifact_spec_list(artifact_specs)],
+        indent = "  ",
+    )
 
 def _impl(repository_ctx):
-    repository_ctx.file("artifacts_list", "\n".join(repository_ctx.attr.artifacts))
+    repository_ctx.file("artifacts_list", repository_ctx.attr.artifacts)
 
     repository_ctx.file(
         "BUILD.bazel",
@@ -135,11 +107,22 @@ def _impl(repository_ctx):
 _managed_third_party = repository_rule(
     implementation = _impl,
     attrs = {
-        "artifacts": attr.string_list(),  # list of artifact objects, each as json
-        "repository_urls": attr.string_list(),  # list of maven repository servers
-        "import_external_rule_path": attr.string(),  # bzl file to load rule for generated external definitions
-        "import_external_macro_name": attr.string(),  # name to be loaded from bzl file to load rule for generated external definitions
-        "remote_resolver_url": attr.string(mandatory = False),  # remote resolver url if supported
+        "artifacts": attr.string(
+            doc = "list of artifact objects as json",
+        ),
+        "repository_urls": attr.string_list(
+            doc = "list of maven repository servers",
+        ),
+        "import_external_rule_path": attr.string(
+            doc = "bzl file to load rule for generated external definitions",
+        ),
+        "import_external_macro_name": attr.string(
+            doc = "name to be loaded from bzl file to load rule for generated external definitions",
+        ),
+        "remote_resolver_url": attr.string(
+            mandatory = False,
+            doc = "remote resolver url if supported",
+        ),
     },
 )
 
@@ -148,13 +131,11 @@ def managed_third_party(
         name = "managed_third_party",
         remote_resolver_url = None,
         **kwargs):
-    artifacts_json_strings = []
-    for artifact in _parse_artifact_spec_list(artifacts):
-        artifacts_json_strings.append(_artifact_spec_to_json(artifact))
+    artifacts_json = _artifacts_to_json(artifacts)
 
     _managed_third_party(
         name = name,
         remote_resolver_url = remote_resolver_url,
-        artifacts = artifacts_json_strings,
+        artifacts = artifacts_json,
         **kwargs
     )

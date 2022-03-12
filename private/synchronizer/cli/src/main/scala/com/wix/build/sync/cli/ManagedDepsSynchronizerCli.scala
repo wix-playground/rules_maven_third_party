@@ -5,8 +5,8 @@ import com.wix.build.sync._
 import com.wix.build.sync.core.{DependenciesSynchronizer, ManagedDependenciesSynchronizer}
 import org.slf4j.LoggerFactory
 
+import java.io.{BufferedInputStream, File, FileInputStream}
 import java.nio.file.Paths
-import scala.io.Source
 
 object ManagedDepsSynchronizerCli extends SynchronizerCli {
   override def resolver(config: ManagedDepsSynchronizerConfig): MavenDependencyResolver = {
@@ -26,9 +26,8 @@ abstract class SynchronizerCli {
   def main(args: Array[String]): Unit = {
     val config = ManagedDepsSynchronizerConfig.parse(args)
 
-    val serializedArtifacts = getLines(config.pathToArtifactsFile)
-
-    val highLevelDeps = serializedArtifacts.map(RulesJvmExternalDomain.convertJsonStringToMavenDep)
+    val highLevelDeps = RulesMavenThirdPartyDomain
+      .convertJsonStringToMavenDep(new FileInputStream(config.pathToArtifactsFile))
 
     val artifactsChecksumCache = cache(config)
 
@@ -67,13 +66,6 @@ abstract class SynchronizerCli {
     } else {
       new VoidArtifactsShaCache
     }
-  }
-
-  private def getLines(filePath: String): List[String] = {
-    val source = Source.fromFile(filePath)
-    val lines = source.getLines().toList
-    source.close()
-    lines
   }
 }
 
