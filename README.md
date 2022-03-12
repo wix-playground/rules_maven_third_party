@@ -7,6 +7,7 @@ See [example](examples/) for a complete workspace.
 
 Running `bazel run @managed_third_party//:resolve -- --resolve-locally` generates pin 
 under `third_party` directory. Default location can be changed with `--destination` command line option.
+`DESTINATION_DIRECTORY` environment variable can be used to generate pin outside the current workspace.
 
 Pin files can be loaded with:
 ```starlark
