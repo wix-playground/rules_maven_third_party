@@ -3,7 +3,10 @@ package com.wix.build.sync.cli
 import com.wix.build.maven._
 import org.specs2.mutable.SpecWithJUnit
 
-class RulesJvmExternalDomainTest extends SpecWithJUnit {
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
+
+class RulesMavenThirdPartyDomainTest extends SpecWithJUnit {
   "RulesJvmExternal" should {
     "convert dependency json string to Maven dependency" in {
       val groupId = "org.apache.kafka"
@@ -12,7 +15,7 @@ class RulesJvmExternalDomainTest extends SpecWithJUnit {
       val exclusionGroupId = "log4j"
       val exclusionArtifactId = "log4j"
       val input =
-        s"""{
+        s"""[{
            |  "group": "$groupId",
            |  "artifact": "$artifactId",
            |  "version": "$version",
@@ -22,13 +25,17 @@ class RulesJvmExternalDomainTest extends SpecWithJUnit {
            |      "artifact": "$exclusionArtifactId"
            |    }
            |  ]
-           |}""".stripMargin
+           |}]""".stripMargin
 
-      val mavenDep: Dependency = RulesJvmExternalDomain.convertJsonStringToMavenDep(input)
-      mavenDep mustEqual Dependency(
-        coordinates = Coordinates(groupId, artifactId, version),
-        scope = MavenScope.Compile,
-        exclusions = Set(Exclusion(exclusionGroupId, exclusionArtifactId))
+      val inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8))
+
+      val mavenDeps = RulesMavenThirdPartyDomain.convertJsonStringToMavenDep(inputStream)
+      mavenDeps mustEqual List(
+        Dependency(
+          coordinates = Coordinates(groupId, artifactId, version),
+          scope = MavenScope.Compile,
+          exclusions = Set(Exclusion(exclusionGroupId, exclusionArtifactId))
+        )
       )
     }
   }
