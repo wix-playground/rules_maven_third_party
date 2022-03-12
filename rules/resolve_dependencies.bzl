@@ -18,7 +18,7 @@ def _impl(ctx):
     cmd = "".join(cmd_parts).format(
         resolver = resolver,
         artifacts_file = artifacts_file.short_path,
-        target_repo = "$BUILD_WORKING_DIRECTORY",
+        target_repo = "${DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}",
         repository_urls = ",".join(ctx.attr.repository_urls),
         import_external_rule_path = ctx.attr.import_external_rule_path,
         import_external_macro_name = ctx.attr.import_external_macro_name,
