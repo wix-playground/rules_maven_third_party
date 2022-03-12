@@ -3,7 +3,7 @@
 Maven artifact resolver for Bazel JVM projects
 
 ## Usage 
-See [example](examples/) for a complete workspace.
+See [example](example/) for a complete workspace.
 
 Running `bazel run @managed_third_party//:resolve -- --resolve-locally` generates pin 
 under `third_party` directory. Default location can be changed with `--destination` command line option.
