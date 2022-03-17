@@ -8,7 +8,6 @@ scala_library(
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
         "@com_fasterxml_jackson_core_jackson_annotations",
-        "@com_github_pathikrit_better_files_2_12",
         "@org_slf4j_slf4j_api",
     ],
 )

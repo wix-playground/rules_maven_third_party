@@ -10,7 +10,6 @@ scala_library(
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/translation",
-        "@com_github_pathikrit_better_files_2_12",
         "@com_github_tomakehurst_wiremock_jre8",
         "@org_eclipse_jgit_org_eclipse_jgit",
     ],

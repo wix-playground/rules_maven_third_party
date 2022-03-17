@@ -1,11 +1,13 @@
 package com.wix.build.sync
 
-import better.files.File
 import com.wix.build.maven.Coordinates
 import com.wix.build.maven.mapper.Mapper
 import org.slf4j.LoggerFactory
 
+import java.io.FileInputStream
+import java.nio.file.{Files, Paths}
 import scala.collection.{Map, mutable}
+import scala.util.Properties
 
 trait ArtifactsChecksumCache {
   def getChecksum(artifact: Coordinates): Option[String]
@@ -28,21 +30,21 @@ class ArtifactsChecksumFileCache(fileAccessor: ArtifactsChecksumCacheFileAccesso
 
   override def flush(): Unit = fileAccessor.storeChecksums(artifactsChecksums)
 
-  private def loadCachedChecksums(): mutable.Map[String, String] = scala.collection.mutable.Map(fileAccessor.readChecksums().toList: _*)
+  private def loadCachedChecksums(): mutable.Map[String, String] = mutable.Map(fileAccessor.readChecksums().toList: _*)
 }
 
 class ArtifactsChecksumCacheFileAccessor {
   private val log = LoggerFactory.getLogger(getClass)
   private val mapper = Mapper.mapper
-  private val cacheFile = File.home / ".cache" / "artifact_checksums.json"
+  private val cacheFile = Paths.get(Properties.userHome, ".cache", "artifact_checksums.json").toFile
 
   def readChecksums(): Map[String, String] = {
     try {
-      val source = cacheFile.contentAsString
-      mapper.readValue(source, classOf[Map[String, String]])
+      val inputStream = new FileInputStream(cacheFile)
+      mapper.readValue(inputStream, classOf[Map[String, String]])
     } catch {
       case _: Exception =>
-        log.warn(s"Cache file does not exists or is incorrectly formatted, file location: ${cacheFile.path}")
+        log.warn(s"Cache file does not exist or is incorrectly formatted, file location: ${cacheFile}")
         Map[String, String]()
     }
   }
@@ -50,9 +52,11 @@ class ArtifactsChecksumCacheFileAccessor {
   def storeChecksums(checksums: Map[String, String]): Unit = {
     val serializedContent = mapper.writeValueAsString(checksums)
 
-    cacheFile
-      .createIfNotExists(asDirectory = false, createParents = true)
-      .overwrite(serializedContent)
+    if (!cacheFile.exists()) {
+      cacheFile.getParentFile.mkdirs()
+    }
+
+    Files.writeString(cacheFile.toPath, serializedContent)
   }
 }
 

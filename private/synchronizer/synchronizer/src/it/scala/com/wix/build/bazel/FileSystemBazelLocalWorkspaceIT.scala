@@ -1,20 +1,20 @@
 package com.wix.build.bazel
 
-import better.files._
 import com.wix.build.bazel.FakeLocalBazelWorkspace.{thirdPartyImportFilesPathRoot, thirdPartyReposFilePath}
 import com.wix.build.bazel.ThirdPartyOverridesMakers.runtimeOverrides
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 
-import java.io.FileNotFoundException
+import java.io.{File, FileNotFoundException}
+import java.nio.file.{Files, Paths}
 
 //noinspection TypeAnnotation
 class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
   "FileSystemBazelLocalWorkspace" should {
     "throw exception when given filepath does not exist" in {
-      val nonExistingPath = file"/not-very-likely-to-exists-path"
+      val nonExistingPath = Paths.get("/not-very-likely-to-exists-path")
 
-      new FileSystemBazelLocalWorkspace(nonExistingPath, new ThirdPartyPaths("third_party")) must throwA[FileNotFoundException]
+      new FileSystemBazelLocalWorkspace(nonExistingPath.toFile, new ThirdPartyPaths("third_party")) must throwA[FileNotFoundException]
     }
 
     "return empty third party repos content if third party repos file does not exists" in new blankWorkspaceCtx {
@@ -23,7 +23,8 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
 
     "Get third party repos file content" in new blankWorkspaceCtx {
       val thirdPartyReposContent = "some content"
-      blankWorkspaceRootPath.createChild("third_party.bzl").overwrite(thirdPartyReposContent)
+
+      Files.writeString(blankWorkspaceRootPath.toPath.resolve("third_party.bzl"), thirdPartyReposContent)
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).thirdPartyReposFileContent() mustEqual thirdPartyReposContent
     }
@@ -37,10 +38,10 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
 
     "Get BUILD.bazel file content given package that exist on path" in new blankWorkspaceCtx {
       val packageName = "some/package"
-      val buildFile = blankWorkspaceRootPath / packageName / "BUILD.bazel"
-      buildFile.createIfNotExists(createParents = true)
+      val buildFile = Paths.get(blankWorkspaceRootPath.toString, packageName, "BUILD.bazel")
+      buildFile.getParent.toFile.mkdirs()
       val buildFileContent = "some build content"
-      buildFile.overwrite(buildFileContent)
+      Files.writeString(buildFile, buildFileContent)
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).buildFileContent(packageName) must beSome(buildFileContent)
     }
@@ -61,20 +62,20 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
         val objectMapper = ThirdPartyOverridesReader.mapper
         objectMapper.writeValueAsString(originalOverrides)
       }
-      (blankWorkspaceRootPath / "bazel_migration" / "third_party_targets.overrides")
-        .createIfNotExists(createParents = true)
-        .overwrite(json)
+      val overridesFile = Paths.get(blankWorkspaceRootPath.getPath, "bazel_migration", "third_party_targets.overrides").toFile
+      overridesFile.getParentFile.mkdirs()
+      Files.writeString(overridesFile.toPath, json)
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).thirdPartyOverrides() mustEqual originalOverrides
     }
 
     "write third party repos file content" in new blankWorkspaceCtx {
-      val thirdPartyReposFile = blankWorkspaceRootPath.createChild(thirdPartyReposFilePath)
+      val thirdPartyReposFile = blankWorkspaceRootPath.toPath.resolve(thirdPartyReposFilePath)
       val newContent = "newContent"
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).overwriteThirdPartyReposFile(newContent)
 
-      thirdPartyReposFile.contentAsString mustEqual newContent
+      Files.readString(thirdPartyReposFile) mustEqual newContent
     }
 
     "write local artifact overrides file" in new blankWorkspaceCtx {
@@ -82,7 +83,8 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
       val newContent = "newContent"
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).overwriteLocalArtifactOverridesFile(newContent)
-      localArtifactOverridesFile.contentAsString mustEqual newContent
+
+      Files.readString(localArtifactOverridesFile.toPath) mustEqual newContent
     }
 
     "not fail if local artifact overrides file does not exist" in new blankWorkspaceCtx {
@@ -94,10 +96,10 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
       val buildFileContent = "some build file content"
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).overwriteBuildFile(newPackage, buildFileContent)
-      val buildFile = blankWorkspaceRootPath / newPackage / "BUILD.bazel"
+      val buildFile = Paths.get(blankWorkspaceRootPath.getPath, newPackage, "BUILD.bazel")
 
-      buildFile.exists aka "build file exists" must beTrue
-      buildFile.contentAsString mustEqual buildFileContent
+      buildFile.toFile.exists aka "build file exists" must beTrue
+      Files.readString(buildFile) mustEqual buildFileContent
     }
 
     "allow reading a Third Party Import Targets File after creating it" in new blankWorkspaceCtx {
@@ -108,7 +110,8 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
     }
 
     "allow overwriting and then reading the contents of Third Party Import Targets File" in new blankWorkspaceCtx {
-      val thirdPartyImportFile = blankWorkspaceRootPath.createChild(thirdPartyImportFilesPathRoot, true).createChild(s"$someGroup.bzl")
+      val thirdPartyImportFile = blankWorkspaceRootPath.toPath.resolve(thirdPartyImportFilesPathRoot)
+      thirdPartyImportFile.toFile.mkdirs()
       val newContent = "newContent"
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).overwriteThirdPartyImportTargetsFile(someGroup, newContent)
@@ -132,21 +135,23 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
     }
 
     "Get Empty Third Party Import Targets Files content" in new blankWorkspaceCtx {
-      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).allThirdPartyImportTargetsFilesContent() must be empty
+      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).allThirdPartyImportTargetsFilesContent() must beEmpty
     }
 
     "Get All Third Party Import Targets Files content" in new blankWorkspaceCtx {
       writeImportFiles(Map(someGroup -> thirdPartyImportFileContent,
         anotherGroup -> anotherThirdPartyImportFileContent))
 
-      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).allThirdPartyImportTargetsFilesContent() must containTheSameElementsAs(Seq(thirdPartyImportFileContent, anotherThirdPartyImportFileContent))
+      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath)
+        .allThirdPartyImportTargetsFilesContent() must containTheSameElementsAs(Seq(thirdPartyImportFileContent, anotherThirdPartyImportFileContent))
     }
 
     "Get All Third Party Import Targets Files content except manually managed files" in new blankWorkspaceCtx {
       writeImportFiles(Map(someGroup -> thirdPartyImportFileContent))
       writeCustomImportFiles(Map(anotherGroup -> anotherThirdPartyImportFileContent))
 
-      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).allThirdPartyImportTargetsFilesContent() must containTheSameElementsAs(Seq(thirdPartyImportFileContent))
+      aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath)
+        .allThirdPartyImportTargetsFilesContent() must containTheSameElementsAs(Seq(thirdPartyImportFileContent))
     }
 
     "return empty workspace name if workspace does not exist" in new blankWorkspaceCtx {
@@ -155,13 +160,15 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
 
     "return workspace name" in new blankWorkspaceCtx {
       val workspaceName = "some_workspace_name"
-      (blankWorkspaceRootPath / "WORKSPACE")
-        .createIfNotExists(createParents = true)
-        .overwrite(
-          s"""
-             |workspace(name = "$workspaceName")
-             |load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-                    """.stripMargin)
+      val workspacePath = Paths.get(blankWorkspaceRootPath.getPath, "WORKSPACE")
+
+      Files.writeString(
+        workspacePath,
+        s"""
+          |workspace(name = "$workspaceName")
+          |load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+                    """.stripMargin
+      )
 
       aFileSystemBazelLocalWorkspace(blankWorkspaceRootPath).localWorkspaceName mustEqual workspaceName
     }
@@ -170,9 +177,8 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
   }
 
   trait blankWorkspaceCtx extends Scope {
-    val blankWorkspaceRootPath = File.newTemporaryDirectory("bazel")
-    blankWorkspaceRootPath
-      .toJava.deleteOnExit()
+    val blankWorkspaceRootPath = Files.createTempDirectory("bazel").toFile
+    blankWorkspaceRootPath.deleteOnExit()
 
     val thirdPartyImportFileContent = "some content"
     val anotherThirdPartyImportFileContent = "some other content"
@@ -180,30 +186,26 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
     val anotherGroup = "another_group"
 
     def createLocalArtifactOverridesFile(content: String = ""): File = {
-      blankWorkspaceRootPath
-        .createChild("third_party", asDirectory = true)
-        .createChild("maven", asDirectory = true)
-        .createChild("local_artifact_overrides.bzl")
-        .overwrite(content)
+      val overridesFile = Paths.get(blankWorkspaceRootPath.getPath, "third_party/maven/local_artifact_overrides.bzl")
+      overridesFile.toFile.getParentFile.mkdirs()
+      Files.writeString(overridesFile, content).toFile
     }
 
     def writeImportFiles(files: Map[String, String]) = {
-      val thirdPartyImportFilesDir = blankWorkspaceRootPath.createChild(thirdPartyImportFilesPathRoot, true)
+      val thirdPartyImportFilesDir = blankWorkspaceRootPath.toPath.resolve(thirdPartyImportFilesPathRoot)
+      thirdPartyImportFilesDir.toFile.mkdirs()
 
-      files.foreach { f =>
-        val (group_name, content) = f
-        val thirdPartyImportFile = thirdPartyImportFilesDir.createChild(s"$group_name.bzl")
-        thirdPartyImportFile.overwrite(content)
+      files.foreach { case (group_name, content) =>
+        Files.writeString(thirdPartyImportFilesDir.resolve(s"$group_name.bzl"), content)
       }
     }
 
     def writeCustomImportFiles(files: Map[String, String]) = {
-      val thirdPartyCustomImportFilesDir = blankWorkspaceRootPath.createChild(thirdPartyImportFilesPathRoot + "/custom", true)
+      val thirdPartyCustomImportFilesDir = blankWorkspaceRootPath.toPath.resolve(thirdPartyImportFilesPathRoot + "/custom")
+      thirdPartyCustomImportFilesDir.toFile.mkdirs()
 
-      files.foreach { f =>
-        val (group_name, content) = f
-        val thirdPartyImportFile = thirdPartyCustomImportFilesDir.createChild(s"$group_name.bzl")
-        thirdPartyImportFile.overwrite(content)
+      files.foreach { case (group_name, content) =>
+        Files.writeString(thirdPartyCustomImportFilesDir.resolve(s"$group_name.bzl"), content)
       }
 
     }
