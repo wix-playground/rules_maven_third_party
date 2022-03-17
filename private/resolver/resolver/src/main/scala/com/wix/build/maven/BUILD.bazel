@@ -6,10 +6,9 @@ scala_library(
     deps = [
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven/resolver",
-        "@com_github_pathikrit_better_files_2_12",
         "@io_get_coursier_coursier_2_12",
         "@io_get_coursier_coursier_cache_2_12",
-        "@io_get_coursier_coursier_util_2_12",
+        "@io_get_coursier_coursier_core_2_12",
         "@org_apache_maven_maven_model",
         "@org_apache_maven_maven_resolver_provider",
         "@org_apache_maven_resolver_maven_resolver_api",

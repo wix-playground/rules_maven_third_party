@@ -27,7 +27,6 @@ TOOL_DEPS = [
     wix.artifact(group = "com.fasterxml.jackson.module", artifact = "jackson-module-scala_" + SCALA_VERSION, version = "2.9.9"),
     wix.artifact(group = "org.codehaus.plexus", artifact = "plexus-interpolation", version = "1.26"),
     wix.artifact(group = "org.codehaus.plexus", artifact = "plexus-utils", version = "3.4.1"),
-    wix.artifact(group = "com.github.pathikrit", artifact = "better-files_" + SCALA_VERSION, version = "3.8.0"),
     wix.artifact(group = "io.get-coursier", artifact = "coursier_" + SCALA_VERSION, version = "2.0.13"),
     wix.artifact(group = "org.apache.maven.resolver", artifact = "maven-resolver-api", version = "1.7.3"),
     wix.artifact(group = "org.apache.maven.resolver", artifact = "maven-resolver-util", version = "1.7.3"),

@@ -1,14 +1,14 @@
 package com.wix.build.sync.e2e
 
-import better.files.File
-import com.wix.build.bazel.{ImportExternalTargetsFileReader, ThirdPartyPaths, ValidatedCoordinates}
+import com.wix.build.bazel.{ImportExternalTargetsFileReader, ThirdPartyPaths}
 import com.wix.build.maven.Coordinates
 import com.wix.build.translation.MavenToBazelTranslations._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.transport.RefSpec
 
-import java.nio.charset.StandardCharsets
+import java.io.File
+import java.nio.file.{Files, Paths}
 import scala.util.Try
 
 class FakeRemoteRepository() {
@@ -21,10 +21,9 @@ class FakeRemoteRepository() {
     this
   }
 
-  def commitThirdParties(thirdPartyFiles: Map[String, String]) = {
+  def commitThirdParties(thirdPartyFiles: Map[String, String]): Unit = {
     thirdPartyFiles foreach (f => writeThirdPartyFile(f._1, f._2))
   }
-
 
   private val DefaultRemote = "origin"
   private val DefaultBranch = "master"
@@ -37,13 +36,14 @@ class FakeRemoteRepository() {
   def remoteURI: String = remoteRepo.pathAsString
 
   private def writeThirdPartyReposFile(content: String) = {
-    val thirdPartyReposFile = localClone.path.createChild(thirdPartyReposFilePath)
+    val thirdPartyReposFile = Paths.get(localClone.pathAsString, thirdPartyReposFilePath)
     val git = localClone.git
-    thirdPartyReposFile.overwrite(content)
-    git.add()
-      .addFilepattern(thirdPartyReposFile.name)
-      .call()
 
+    Files.writeString(thirdPartyReposFile, content)
+
+    git.add()
+      .addFilepattern(thirdPartyReposFile.toFile.getName)
+      .call()
 
     git.commit()
       .setMessage("first commit")
@@ -58,14 +58,15 @@ class FakeRemoteRepository() {
 
 
   private def writeThirdPartyFile(fileName: String, content: String) = {
-    val thirdPartyFile = localClone.path.createChild(thirdPartyImportFilesPathRoot, true).createChild(fileName)
+    val thirdPartyFile = Paths.get(localClone.pathAsString, thirdPartyReposFilePath, fileName)
     val git = localClone.git
-    thirdPartyFile.overwrite(content)
+
+    Files.writeString(thirdPartyFile, content)
+
     git.add()
       .addFilepattern(thirdPartyImportFilesPathRoot)
-      .addFilepattern(thirdPartyFile.name)
+      .addFilepattern(thirdPartyFile.toFile.getName)
       .call()
-
 
     git.commit()
       .setMessage("blahhhh")
@@ -81,13 +82,15 @@ class FakeRemoteRepository() {
   def hasWorkspaceRuleFor(coordinates: Coordinates, branchName: String): Try[String] = {
     val importExternalRuleName = coordinates.workspaceRuleName
     val groupId = coordinates.groupIdForBazel
-    updatedContentOfFileIn(branchName, s"$thirdPartyImportFilesPathRoot/$groupId.bzl").map((importExternalTargetsContent) => {
-      val maybeRule: Option[ValidatedCoordinates] = ImportExternalTargetsFileReader(importExternalTargetsContent).findCoordinatesByName(importExternalRuleName)
-      maybeRule match {
-        case Some(c) if c.coordinates == coordinates => "success"
-        case _ => throw new RuntimeException(s"Could not find workspace rule for $coordinates in bazel remote repository")
+    updatedContentOfFileIn(branchName, relativePath = s"$thirdPartyImportFilesPathRoot/$groupId.bzl")
+      .map { importExternalTargetsContent =>
+        val maybeRule = ImportExternalTargetsFileReader(importExternalTargetsContent)
+          .findCoordinatesByName(importExternalRuleName)
+        maybeRule match {
+          case Some(c) if c.coordinates == coordinates => "success"
+          case _ => throw new RuntimeException(s"Could not find workspace rule for $coordinates in bazel remote repository")
+        }
       }
-    })
   }
 
 
@@ -97,13 +100,14 @@ class FakeRemoteRepository() {
     git.clean().setCleanDirectories(true).setForce(true).call()
     Try {
       git.reset().setRef(s"$DefaultRemote/$branchName").setMode(ResetType.HARD).call()
-      val fullPath = localClone.path / relativePath
-      if (!fullPath.exists)
+      val fullPath = Paths.get(localClone.pathAsString, relativePath)
+      val file = fullPath.toFile
+      if (!file.exists)
         throw new RuntimeException(s"path $relativePath does not exist")
-      if (fullPath.isDirectory)
+      if (file.isDirectory)
         throw new RuntimeException(s"path $relativePath is a directory")
 
-      fullPath.contentAsString(StandardCharsets.UTF_8)
+      Files.readString(fullPath)
     }
   }
 
@@ -112,14 +116,14 @@ class FakeRemoteRepository() {
 case class Commit(username: String, email: String, message: String, changedFiles: Set[String])
 
 case class GitRepository(path: File, git: Git) {
-  def pathAsString: String = path.pathAsString
+  def pathAsString: String = path.getPath
 }
 
 object GitRepository {
   def newRemote: GitRepository = {
     val remoteRepoDir = newDisposableDir("remote-dir")
     GitRepository(remoteRepoDir, Git.init()
-      .setDirectory(remoteRepoDir.toJava)
+      .setDirectory(remoteRepoDir)
       .setBare(true)
       .call())
   }
@@ -127,19 +131,20 @@ object GitRepository {
   def newLocalCloneOf(remoteRepo: GitRepository): GitRepository = {
     val localCloneDir = newDisposableDir("clone")
     GitRepository(localCloneDir, Git.cloneRepository()
-      .setURI(remoteRepo.path.pathAsString)
-      .setDirectory(localCloneDir.path.toFile)
+      .setURI(remoteRepo.path.getPath)
+      .setDirectory(localCloneDir)
       .call())
   }
 
   private def newDisposableDir(prefix: String): File = {
-    val tmpDir = File.newTemporaryDirectory(prefix)
-    tmpDir.toJava.deleteOnExit()
+    val tmpDir = Files.createTempDirectory(prefix).toFile
+    tmpDir.deleteOnExit()
     tmpDir
   }
 }
 
 object FakeRemoteRepository {
-  def newBlankRepository(): FakeRemoteRepository = (new FakeRemoteRepository).initWithThirdPartyReposFileContent("")
+  def newBlankRepository(): FakeRemoteRepository = (new FakeRemoteRepository)
+    .initWithThirdPartyReposFileContent(content = "")
 }
 

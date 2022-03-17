@@ -1,7 +1,6 @@
 package com.wix.build.bazel
 
-import better.files.File
-
+import java.io.File
 import scala.collection.mutable
 
 class FakeLocalBazelWorkspace(sourceFiles: mutable.Map[String, String] = mutable.Map.empty,
@@ -51,7 +50,7 @@ class FakeLocalBazelWorkspace(sourceFiles: mutable.Map[String, String] = mutable
   override def allThirdPartyImportTargetsFiles(): Map[File, String] =
     sourceFiles
       .filter(f => f._1.matches(s"$thirdPartyImportFilesPathRoot\\/[^\\/]+.bzl"))
-      .map(pair => (File(pair._1), pair._2)).toMap
+      .map(pair => (new File(pair._1), pair._2)).toMap
 
   override def overwriteBuildFile(packageName: String, content: String): Unit =
     sourceFiles.put(packageName + "/BUILD.bazel", content)
@@ -60,7 +59,7 @@ class FakeLocalBazelWorkspace(sourceFiles: mutable.Map[String, String] = mutable
 
   override def deleteAllThirdPartyImportTargetsFiles(): Unit = {
     allThirdPartyImportTargetsFiles().foreach { case (file: File, _: String) =>
-      sourceFiles - file.pathAsString
+      sourceFiles - file.getPath
     }
   }
 }

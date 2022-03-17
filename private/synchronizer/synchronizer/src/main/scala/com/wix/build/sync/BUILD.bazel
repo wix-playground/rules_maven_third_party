@@ -10,8 +10,6 @@ scala_library(
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/git",
         "@com_fasterxml_jackson_core_jackson_databind",
-        "@com_fasterxml_jackson_module_jackson_module_scala_2_12",
-        "@com_github_pathikrit_better_files_2_12",
         "@commons_codec_commons_codec",
         "@org_apache_maven_maven_artifact",
         "@org_scalaj_scalaj_http_2_12",

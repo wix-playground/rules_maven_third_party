@@ -1,21 +1,12 @@
 load("//:third_party/org_sonatype_sisu.bzl", org_sonatype_sisu_deps = "dependencies")
-
 load("//:third_party/org_eclipse_sisu.bzl", org_eclipse_sisu_deps = "dependencies")
-
 load("//:third_party/org_eclipse_aether.bzl", org_eclipse_aether_deps = "dependencies")
-
 load("//:third_party/org_checkerframework.bzl", org_checkerframework_deps = "dependencies")
-
 load("//:third_party/javax_enterprise.bzl", javax_enterprise_deps = "dependencies")
-
 load("//:third_party/com_google_j2objc.bzl", com_google_j2objc_deps = "dependencies")
-
 load("//:third_party/com_google_errorprone.bzl", com_google_errorprone_deps = "dependencies")
-
 load("//:third_party/aopalliance.bzl", aopalliance_deps = "dependencies")
-
 load("//:third_party/javax_annotation.bzl", javax_annotation_deps = "dependencies")
-
 load("//:third_party/org_xmlunit.bzl", org_xmlunit_deps = "dependencies")
 load("//:third_party/org_eclipse_jetty.bzl", org_eclipse_jetty_deps = "dependencies")
 load("//:third_party/org_eclipse_jetty_http2.bzl", org_eclipse_jetty_http2_deps = "dependencies")
@@ -94,7 +85,6 @@ load("//:third_party/com_google_guava.bzl", com_google_guava_deps = "dependencie
 load("//:third_party/com_google_code_findbugs.bzl", com_google_code_findbugs_deps = "dependencies")
 load("//:third_party/com_github_tomakehurst.bzl", com_github_tomakehurst_deps = "dependencies")
 load("//:third_party/com_github_scopt.bzl", com_github_scopt_deps = "dependencies")
-load("//:third_party/com_github_pathikrit.bzl", com_github_pathikrit_deps = "dependencies")
 load("//:third_party/com_github_alexarchambault.bzl", com_github_alexarchambault_deps = "dependencies")
 load("//:third_party/com_fasterxml_jackson_module.bzl", com_fasterxml_jackson_module_deps = "dependencies")
 load("//:third_party/com_fasterxml_jackson_datatype.bzl", com_fasterxml_jackson_datatype_deps = "dependencies")
@@ -120,8 +110,6 @@ def managed_third_party_dependencies():
     com_fasterxml_jackson_module_deps()
 
     com_github_alexarchambault_deps()
-
-    com_github_pathikrit_deps()
 
     com_github_scopt_deps()
 

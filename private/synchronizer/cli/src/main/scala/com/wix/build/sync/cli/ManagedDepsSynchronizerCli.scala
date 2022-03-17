@@ -5,7 +5,7 @@ import com.wix.build.sync._
 import com.wix.build.sync.core.{DependenciesSynchronizer, ManagedDependenciesSynchronizer}
 import org.slf4j.LoggerFactory
 
-import java.io.{BufferedInputStream, File, FileInputStream}
+import java.io.FileInputStream
 import java.nio.file.Paths
 
 object ManagedDepsSynchronizerCli extends SynchronizerCli {
@@ -15,7 +15,7 @@ object ManagedDepsSynchronizerCli extends SynchronizerCli {
     else
       throw new IllegalArgumentException(
         "resolveLocally is set to false, but this client does not support dependency " +
-          "resolution on a remote server. Use --resolveLocally to use local resolution."
+          "resolution on a remote server. Use --resolve-locally to use local resolution."
       )
   }
 }

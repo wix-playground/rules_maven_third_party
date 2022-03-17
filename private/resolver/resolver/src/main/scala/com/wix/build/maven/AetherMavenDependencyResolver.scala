@@ -3,7 +3,6 @@ package com.wix.build.maven
 import AetherDependencyConversions._
 import resolver.ManualRepositorySystemFactory
 
-import better.files.File
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
@@ -19,6 +18,7 @@ import org.eclipse.aether.util.graph.transformer.ConflictResolver
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy
 
+import java.io.File
 import java.nio.file.{Files, Path}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -133,7 +133,7 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
 
 
   private def withSession[T](ignoreMissingDependencies: Boolean, f: DefaultRepositorySystemSession => T): T = {
-    val localRepo = new LocalRepository(localRepoPath.pathAsString)
+    val localRepo = new LocalRepository(localRepoPath.getPath)
     val session = MavenRepositorySystemUtils.newSession
     session.setArtifactDescriptorPolicy(new SimpleArtifactDescriptorPolicy(ignoreMissingDependencies, false))
     session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, localRepo))
@@ -181,8 +181,8 @@ class AetherMavenDependencyResolver(remoteRepoURLs: => List[String],
 
 object AetherMavenDependencyResolver {
   private def tempLocalRepoPath(): File = {
-    val tempDir = File.newTemporaryDirectory("local-repo")
-    tempDir.toJava.deleteOnExit()
+    val tempDir = Files.createTempDirectory("local-repo").toFile
+    tempDir.deleteOnExit()
     tempDir
   }
 }

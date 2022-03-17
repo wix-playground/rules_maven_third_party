@@ -1,6 +1,6 @@
 package com.wix.build.bazel
 
-import better.files.File
+import java.io.File
 
 trait BazelLocalWorkspace {
 
@@ -25,8 +25,8 @@ trait BazelLocalWorkspace {
   def allThirdPartyImportTargetsFiles(): Map[File, String]
 
   def allThirdPartyImportTargetsGroups(): Set[String] = {
-    allThirdPartyImportTargetsFiles().keys.map { file =>
-      val fileName = file.pathAsString.split("/").last
+    allThirdPartyImportTargetsFiles().keys.map { file: File =>
+      val fileName = file.getPath.split("/").last
       fileName.substring(0, fileName.lastIndexOf('.'))
     }.toSet
   }

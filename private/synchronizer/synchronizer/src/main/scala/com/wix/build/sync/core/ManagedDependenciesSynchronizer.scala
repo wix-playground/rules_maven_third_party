@@ -1,6 +1,5 @@
 package com.wix.build.sync.core
 
-import better.files.File
 import com.wix.build.bazel.{BazelDependenciesWriter, FileSystemBazelLocalWorkspace, ImportExternalLoadStatement, ThirdPartyPaths}
 import com.wix.build.maven._
 import com.wix.build.sync.ArtifactoryRemoteStorage.decorateNodesWithChecksum
@@ -27,7 +26,7 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
     )
 
     new BazelDependenciesWriter(
-      new FileSystemBazelLocalWorkspace(File(managedDependenciesRepoPath), new ThirdPartyPaths(destination)),
+      new FileSystemBazelLocalWorkspace(managedDependenciesRepoPath.toFile, new ThirdPartyPaths(destination)),
       importExternalLoadStatement = importExternalLoadStatement
     ).writeDependencies(dependenciesToUpdateWithChecksums)
   }
