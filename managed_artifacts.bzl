@@ -16,6 +16,10 @@ TEST_DEPS = [
     wix.artifact(group = "org.hamcrest", artifact = "hamcrest", version = "2.2"),
 ]
 
+COURSIER_DEPS = [
+    wix.artifact(group = "io.get-coursier", artifact = "coursier_" + SCALA_VERSION, version = "2.0.13"),
+]
+
 TOOL_DEPS = [
     wix.artifact(group = "org.slf4j", artifact = "jcl-over-slf4j", version = "1.7.25"),
     wix.artifact(group = "org.slf4j", artifact = "slf4j-api", version = "1.7.25"),
@@ -27,7 +31,6 @@ TOOL_DEPS = [
     wix.artifact(group = "com.fasterxml.jackson.module", artifact = "jackson-module-scala_" + SCALA_VERSION, version = "2.9.9"),
     wix.artifact(group = "org.codehaus.plexus", artifact = "plexus-interpolation", version = "1.26"),
     wix.artifact(group = "org.codehaus.plexus", artifact = "plexus-utils", version = "3.4.1"),
-    wix.artifact(group = "io.get-coursier", artifact = "coursier_" + SCALA_VERSION, version = "2.0.13"),
     wix.artifact(group = "org.apache.maven.resolver", artifact = "maven-resolver-api", version = "1.7.3"),
     wix.artifact(group = "org.apache.maven.resolver", artifact = "maven-resolver-util", version = "1.7.3"),
     wix.artifact(group = "org.apache.maven.resolver", artifact = "maven-resolver-impl", version = "1.7.3"),
@@ -54,4 +57,4 @@ TOOL_DEPS = [
     wix.artifact(group = "org.scala-lang", artifact = "scala-reflect", version = "2.12.13"),
 ]
 
-MANAGED_DEPS = TOOL_DEPS + TEST_DEPS
+MANAGED_DEPS = TOOL_DEPS + COURSIER_DEPS + TEST_DEPS

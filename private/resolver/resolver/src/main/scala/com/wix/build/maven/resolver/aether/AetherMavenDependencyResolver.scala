@@ -1,8 +1,8 @@
-package com.wix.build.maven
+package com.wix.build.maven.resolver.aether
 
-import AetherDependencyConversions._
-import resolver.ManualRepositorySystemFactory
-
+import com.wix.build.maven.resolver.ManualRepositorySystemFactory
+import com.wix.build.maven.resolver.aether.AetherDependencyConversions._
+import com.wix.build.maven._
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils

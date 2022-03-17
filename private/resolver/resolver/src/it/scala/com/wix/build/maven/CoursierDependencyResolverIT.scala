@@ -2,6 +2,7 @@ package com.wix.build.maven
 
 import com.wix.build.maven.ArtifactDescriptor.anArtifact
 import com.wix.build.maven.MavenMakers.{aDependency, randomDependency}
+import com.wix.build.maven.resolver.coursier.CoursierDependencyResolver
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.{AfterEach, Scope}
 

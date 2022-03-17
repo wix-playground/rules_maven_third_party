@@ -3,6 +3,7 @@ package com.wix.build.maven
 import ArtifactDescriptor.anArtifact
 import MavenMakers.{aDependency, randomDependency}
 
+import com.wix.build.maven.resolver.aether.AetherMavenDependencyResolver
 import org.specs2.specification.AfterEach
 
 //noinspection TypeAnnotation
