@@ -1,4 +1,5 @@
 package com.wix.build.maven
+package resolver.aether
 
 import org.eclipse.aether.graph.{DependencyVisitor, DependencyNode => AetherDependencyNode}
 import org.eclipse.aether.util.graph.transformer.ConflictResolver

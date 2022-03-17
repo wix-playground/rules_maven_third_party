@@ -1,13 +1,12 @@
-package com.wix.build.maven
+package com.wix.build.maven.resolver.coursier
 
-import CoursierDependencyResolver._
-
+import com.wix.build.maven.resolver.coursier.CoursierDependencyResolver._
+import com.wix.build.maven._
 import coursier.MavenRepository
 import coursier.cache.Cache
 import coursier.core.{Attributes, Classifier, Configuration, Module, ModuleName, Organization, Resolution, ResolutionProcess, Type, Dependency => CoursierDependency}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 
 class CoursierDependencyResolver(remoteRepoURLs: => List[String]) extends MavenDependencyResolver {
   override def managedDependenciesOf(artifact: Coordinates): List[Dependency] = ???

@@ -1,0 +1,17 @@
+package(default_visibility = ["//visibility:public"])
+
+scala_library(
+    name = "aether",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//private/resolver/api/src/main/scala/com/wix/build/maven",
+        "//private/resolver/resolver/src/main/scala/com/wix/build/maven/resolver",
+        "@org_apache_maven_maven_resolver_provider",
+        "@org_apache_maven_resolver_maven_resolver_api",
+        "@org_apache_maven_resolver_maven_resolver_connector_basic",
+        "@org_apache_maven_resolver_maven_resolver_impl",
+        "@org_apache_maven_resolver_maven_resolver_spi",
+        "@org_apache_maven_resolver_maven_resolver_transport_file",
+        "@org_apache_maven_resolver_maven_resolver_transport_http",
+    ],
+)

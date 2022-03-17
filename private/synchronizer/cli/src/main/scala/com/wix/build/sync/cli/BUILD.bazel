@@ -11,6 +11,7 @@ scala_library(
         "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
+        "//private/resolver/resolver/src/main/scala/com/wix/build/maven/resolver/aether",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync/core",

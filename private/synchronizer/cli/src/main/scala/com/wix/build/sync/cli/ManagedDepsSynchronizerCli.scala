@@ -1,6 +1,7 @@
 package com.wix.build.sync.cli
 
 import com.wix.build.maven._
+import com.wix.build.maven.resolver.aether.AetherMavenDependencyResolver
 import com.wix.build.sync._
 import com.wix.build.sync.core.{DependenciesSynchronizer, ManagedDependenciesSynchronizer}
 import org.slf4j.LoggerFactory
