@@ -24,7 +24,9 @@ class RulesMavenThirdPartyDomainTest extends SpecWithJUnit {
            |      "group": "$exclusionGroupId",
            |      "artifact": "$exclusionArtifactId"
            |    }
-           |  ]
+           |  ],
+           |  "neverlink": true,
+           |  "flatten_transitive_deps": true
            |}]""".stripMargin
 
       val inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8))
@@ -34,7 +36,9 @@ class RulesMavenThirdPartyDomainTest extends SpecWithJUnit {
         Dependency(
           coordinates = Coordinates(groupId, artifactId, version),
           scope = MavenScope.Compile,
-          exclusions = Set(Exclusion(exclusionGroupId, exclusionArtifactId))
+          exclusions = Set(Exclusion(exclusionGroupId, exclusionArtifactId)),
+          isNeverLink = true,
+          flattenTransitiveDeps = true
         )
       )
     }
