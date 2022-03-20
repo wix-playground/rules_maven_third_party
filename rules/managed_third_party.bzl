@@ -18,6 +18,7 @@ resolve_dependencies(
     import_external_rule_path = "{import_external_rule_path}",
     import_external_macro_name = "{import_external_macro_name}",
     remote_resolver_url = "{remote_resolver_url}",
+    resolver = "{resolver}",
 )
 """
 
@@ -101,6 +102,7 @@ def _impl(repository_ctx):
             import_external_rule_path = repository_ctx.attr.import_external_rule_path,
             import_external_macro_name = repository_ctx.attr.import_external_macro_name,
             remote_resolver_url = repository_ctx.attr.remote_resolver_url,
+            resolver = repository_ctx.attr.resolver,
         ),
     )
 
@@ -122,6 +124,10 @@ _managed_third_party = repository_rule(
         "remote_resolver_url": attr.string(
             mandatory = False,
             doc = "remote resolver url if supported",
+        ),
+        "resolver": attr.string(
+            default = "@rules_maven_third_party//private/synchronizer/cli/src/main/scala/com/wix/build/sync/cli",
+            doc = "resolver binary target",
         ),
     },
 )

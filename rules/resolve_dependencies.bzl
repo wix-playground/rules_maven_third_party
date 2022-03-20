@@ -1,7 +1,7 @@
 def _impl(ctx):
     artifacts_file = ctx.file.artifacts_file
 
-    resolver = ctx.attr._resolver[DefaultInfo].files_to_run.executable.short_path
+    resolver = ctx.attr.resolver[DefaultInfo].files_to_run.executable.short_path
 
     cmd_parts = [
         "#!/bin/bash\n\nset -euo pipefail\n\n",
@@ -38,7 +38,7 @@ def _impl(ctx):
     # compute runfiles
     runfiles = ctx.runfiles(
         files = [exec, artifacts_file] + additional_runfiles,
-    ).merge(ctx.attr._resolver[DefaultInfo].default_runfiles)
+    ).merge(ctx.attr.resolver[DefaultInfo].default_runfiles)
 
     return [DefaultInfo(executable = exec, runfiles = runfiles)]
 
@@ -54,7 +54,7 @@ resolve_dependencies = rule(
         "import_external_rule_path": attr.string(mandatory = True),
         "import_external_macro_name": attr.string(mandatory = True),
         "remote_resolver_url": attr.string(mandatory = False),
-        "_resolver": attr.label(
+        "resolver": attr.label(
             providers = [DefaultInfo],
             default = "@rules_maven_third_party//private/synchronizer/cli/src/main/scala/com/wix/build/sync/cli",
         ),
