@@ -1,6 +1,6 @@
 package com.wix.build.sync.cli
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.{JsonIgnoreProperties, JsonProperty}
 import com.wix.build.maven._
 import com.wix.build.maven.mapper.Mapper
 
@@ -37,10 +37,12 @@ object RulesMavenThirdPartyDomain {
                                                     packaging: Option[String],
                                                     classifier: Option[String],
                                                     exclusions: Option[Set[RulesMavenThirdPartyExclusion]],
+                                                    @JsonProperty("neverlink")
                                                     neverLink: Option[Boolean],
                                                     testonly: Option[Boolean],
                                                     tags: Option[Set[String]],
                                                     aliases: Option[Set[String]],
+                                                    @JsonProperty("flatten_transitive_deps")
                                                     flattenTransitiveDeps: Option[Boolean])
 
   @JsonIgnoreProperties(ignoreUnknown = true)
