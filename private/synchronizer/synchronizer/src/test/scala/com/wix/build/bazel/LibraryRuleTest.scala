@@ -12,6 +12,10 @@ class LibraryRuleTest extends SpecificationWithJUnit {
       rule.serialized must beEqualIgnoringSpaces(
         """scala_import(
           |    name = "name",
+          |    tags = [
+          |        "manual",
+          |        "no-index",
+          |    ],
           |)""".stripMargin)
     }
 
@@ -20,6 +24,10 @@ class LibraryRuleTest extends SpecificationWithJUnit {
       rule.serialized must beEqualIgnoringSpaces(
         """scala_library(
           |    name = "name",
+          |    tags = [
+          |        "manual",
+          |        "no-index",
+          |    ],
           |)""".stripMargin)
     }
 

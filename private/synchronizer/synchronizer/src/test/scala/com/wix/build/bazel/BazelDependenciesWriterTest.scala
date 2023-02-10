@@ -170,6 +170,10 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
                |    exports = [
                |       "${labelOfJarArtifact(transitiveJarArtifactDependency)}",
                |    ],
+               |    tags = [
+               |        "manual",
+               |        "no-index",
+               |    ],
                |)""".stripMargin
           ))
       }
@@ -189,6 +193,10 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
                |    name = "${baseDependency.coordinates.libraryRuleName}",
                |    exports = [
                |       "${labelOfPomArtifact(transitivePomArtifactDependency)}",
+               |    ],
+               |    tags = [
+               |        "manual",
+               |        "no-index",
                |    ],
                |)""".stripMargin
           ))

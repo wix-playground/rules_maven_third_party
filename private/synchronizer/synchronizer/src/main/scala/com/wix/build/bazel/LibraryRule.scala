@@ -38,7 +38,8 @@ case class LibraryRule(name: String,
       toListEntry("deps", compileTimeDeps) +
       toListEntry("runtime_deps", runtimeDeps) +
       toListEntry("data", data) +
-      toListEntry("excludes", exclusions)
+      toListEntry("excludes", exclusions) +
+      toListEntry("tags", Set("manual", "no-index"))
 
 
   private def toListEntry(keyName: String, elements: Iterable[String]): String = {
