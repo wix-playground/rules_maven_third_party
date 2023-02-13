@@ -2,7 +2,7 @@ package com.wix.build.bazel
 
 import com.wix.build.maven._
 
-class RuleResolver(localWorkspaceName: String, thirdPartyDestination: String) {
+class RuleResolver(thirdPartyDestination: String) {
 
   def `for`(artifact: Coordinates,
             runtimeDependencies: Set[BazelDep] = Set.empty,
@@ -14,10 +14,12 @@ class RuleResolver(localWorkspaceName: String, thirdPartyDestination: String) {
             snapshotSources: Boolean = false,
             neverlink: Boolean = false,
             aliases: Set[String] = Set.empty,
-            tags: Set[String] = Set.empty): RuleToPersist =
+            tags: Set[String] = Set.empty,
+            remapping: Map[String, String] = Map.empty): RuleToPersist =
     artifact.packaging match {
       case Packaging("jar") => RuleToPersist(
-        ImportExternalRule.of(artifact,
+        ImportExternalRule.of(
+          artifact,
           aliases,
           tags,
           runtimeDependencies,
@@ -27,9 +29,11 @@ class RuleResolver(localWorkspaceName: String, thirdPartyDestination: String) {
           checksum,
           srcChecksum,
           snapshotSources,
-          neverlink = neverlink
+          neverlink = neverlink,
+          remapping = remapping
         ),
-        ImportExternalRule.ruleLocatorFrom(artifact))
+        ImportExternalRule.ruleLocatorFrom(artifact)
+      )
       case Packaging("pom") => RuleToPersist(
         LibraryRule.pomLibraryRule(
           artifact,
@@ -53,8 +57,11 @@ trait RuleWithDeps {
 
 case class RuleToPersist(rule: RuleWithDeps, ruleTargetLocator: String) {
   def withUpdateDeps(runtimeDeps: Set[String], compileTimeDeps: Set[String]): RuleToPersist = {
-    copy(rule = rule.updateDeps(runtimeDeps = rule.runtimeDeps ++ runtimeDeps,
-      compileTimeDeps = rule.compileTimeDeps ++ compileTimeDeps)
+    copy(
+      rule = rule.updateDeps(
+        runtimeDeps = rule.runtimeDeps ++ runtimeDeps,
+        compileTimeDeps = rule.compileTimeDeps ++ compileTimeDeps
+      )
     )
   }
 }

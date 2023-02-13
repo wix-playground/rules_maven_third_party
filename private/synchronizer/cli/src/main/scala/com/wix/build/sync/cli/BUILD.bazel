@@ -4,13 +4,11 @@ scala_library(
     name = "cli_lib",
     srcs = glob(["*.scala"]),
     runtime_deps = [
-        "//private/synchronizer/cli/src/main/resources",
         "@ch_qos_logback_logback_classic",
     ],
     deps = [
         "//private/mapper/src/main/com/wix/build/maven/mapper",
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
-        "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven/resolver/aether",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/sync",

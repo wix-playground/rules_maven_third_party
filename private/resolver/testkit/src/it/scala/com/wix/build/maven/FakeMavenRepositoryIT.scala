@@ -8,10 +8,9 @@ import org.specs2.specification.BeforeAll
 
 //noinspection TypeAnnotation
 class FakeMavenRepositoryIT extends SpecificationWithJUnit with ResponseMatchers with BeforeAll {
-  val remoteMavenRepo = new FakeMavenRepository()
-
   implicit lazy val DefaultBaseUri: BaseUri = toBaseUri(remoteMavenRepo.url)
 
+  val remoteMavenRepo = new FakeMavenRepository()
   val jarContent = Array[Byte](54, 23, 23)
 
   "FakeMavenRepository as a jar repository" >> {

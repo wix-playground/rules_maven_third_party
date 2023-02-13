@@ -110,7 +110,7 @@ class RuleResolverTest extends SpecificationWithJUnit {
   }
 
   trait Context extends Scope with Mockito with MustThrownExpectations {
-    val ruleResolver = new RuleResolver(someWorkspace, "third_party")
+    val ruleResolver = new RuleResolver("third_party")
   }
 
   val thirdPartyPath = "third_party"

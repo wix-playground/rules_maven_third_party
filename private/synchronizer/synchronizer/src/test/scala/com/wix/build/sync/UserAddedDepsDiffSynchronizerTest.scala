@@ -195,29 +195,47 @@ class UserAddedDepsDiffSynchronizerTest extends SpecWithJUnit {
       resolver, false, _ => None, Set[Coordinates](), NeverLinkResolver())
 
     def synchronizer = new UserAddedDepsDiffSynchronizer(userAddedDepsDiffCalculator,
-      DefaultDiffWriter(targetFakeBazelRepository,
+      new DefaultDiffWriter(
+        targetFakeBazelRepository,
         maybeManagedDepsRepoPath = None,
         NeverLinkResolver(),
         importExternalLoadStatement,
-        maybeGitAdder = None))
+        maybeGitAdder = None,
+        isManagedInvocation = false
+      )
+    )
 
     def writerFor() = {
-      DefaultDiffWriter(targetFakeBazelRepository,
+      new DefaultDiffWriter(targetFakeBazelRepository,
         maybeManagedDepsRepoPath = None,
         NeverLinkResolver(),
         importExternalLoadStatement,
-        maybeGitAdder = None)
+        maybeGitAdder = None,
+        isManagedInvocation = false
+      )
     }
   }
 
   trait linkableCtx extends ctx {
-    def synchronizerWithLinkableArtifact(artifact: Coordinates) = new UserAddedDepsDiffSynchronizer(new UserAddedDepsDiffCalculator(
-      targetFakeBazelRepository, managedDepsFakeBazelRepository, resolver, false, _ => None, Set[Coordinates](), NeverLinkResolver()),
-      DefaultDiffWriter(targetFakeBazelRepository,
+    def synchronizerWithLinkableArtifact(artifact: Coordinates) = new UserAddedDepsDiffSynchronizer(
+      new UserAddedDepsDiffCalculator(
+        targetFakeBazelRepository,
+        managedDepsFakeBazelRepository,
+        resolver,
+        false,
+        _ => None,
+        Set[Coordinates](),
+        NeverLinkResolver()
+      ),
+      new DefaultDiffWriter(
+        targetFakeBazelRepository,
         maybeManagedDepsRepoPath = None,
         NeverLinkResolver(overrideGlobalNeverLinkDependencies = Set(artifact)),
         importExternalLoadStatement,
-        maybeGitAdder = None))
+        maybeGitAdder = None,
+        isManagedInvocation = false
+      )
+    )
   }
 
   class AlwaysFailsDiffCalculator extends DiffCalculatorAndAggregator {

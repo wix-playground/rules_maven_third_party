@@ -106,13 +106,13 @@ object BazelWorkspaceDriver {
                                      runtimeDependencies: Set[Coordinates],
                                      compileTimeDependencies: Set[Coordinates],
                                      exclusions: Set[Exclusion],
-                                     testOnly: Boolean = false,
+                                     testOnly: Boolean,
                                      checksum: Option[String],
                                      coordinatesToDep: (Coordinates, String) => BazelDep,
                                      thirdPartyPath: String,
                                      srcChecksum: Option[String],
-                                     neverlink: Boolean = false,
-                                     snapshotSources: Boolean = false) = {
+                                     neverlink: Boolean,
+                                     snapshotSources: Boolean) = {
     ImportExternalRule.of(
       artifact,
       runtimeDependencies = runtimeDependencies.map(coordinatesToDep(_, thirdPartyPath)),
@@ -155,16 +155,7 @@ object BazelWorkspaceDriver {
     }
 
   def includeLibraryTargetWith(artifact: Coordinates,
-                               runtimeDependencies: Set[Coordinates] = Set.empty,
-                               compileTimeDependenciesIgnoringVersion: Set[Coordinates] = Set.empty,
-                               exclusions: Set[Exclusion] = Set.empty,
-                               testOnly: Boolean = false,
-                               checksum: Option[String] = None,
-                               coordinatesToDep: (Coordinates, String) => BazelDep = resolveDepBy,
-                               thirdPartyPath: String,
-                               srcChecksum: Option[String] = None,
-                               neverlink: Boolean = false,
-                               snapshotSources: Boolean = false): Matcher[BazelWorkspaceDriver] =
+                               testOnly: Boolean = false): Matcher[BazelWorkspaceDriver] =
 
     be_===(BazelExternalDependency(
       importExternalRule = None,

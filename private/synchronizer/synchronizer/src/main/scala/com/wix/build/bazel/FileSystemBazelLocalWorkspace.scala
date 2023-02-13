@@ -1,11 +1,11 @@
 package com.wix.build.bazel
 
 import java.io.{File, FileNotFoundException, FilenameFilter}
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 
 class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyPaths) extends BazelLocalWorkspace {
   val localWorkspaceName: String = {
-    val workspaceFileContent = contentIfExistsOf(Paths.get(root.getPath, "WORKSPACE").toFile)
+    val workspaceFileContent = contentIfExistsOf(resolve("WORKSPACE").toFile)
     val validWorkspaceWith = """(?s).*workspace\s*\(\s*name\s*=\s*"([^"]+)"\s*\).*""".r
 
     workspaceFileContent match {
@@ -19,25 +19,30 @@ class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyP
   validate()
 
   override def overwriteBuildFile(packageName: String, content: String): Unit = {
-    val buildFilePath = Paths.get(root.getPath, packageName, "BUILD.bazel")
+    val buildFilePath = resolve(s"$packageName/BUILD.bazel")
     buildFilePath.getParent.toFile.mkdirs()
     Files.writeString(buildFilePath, content)
   }
 
   override def overwriteThirdPartyReposFile(thirdPartyReposContent: String): Unit = {
-    val path = Paths.get(root.getPath, thirdPartyPaths.thirdPartyReposFilePath)
+    val path = resolve(thirdPartyPaths.thirdPartyReposFilePath)
     Files.writeString(path, thirdPartyReposContent)
   }
 
+  override def writeReceipt(content: String): Unit = {
+    val path = resolve(thirdPartyPaths.receiptPath)
+    Files.writeString(path, content)
+  }
+
   override def overwriteLocalArtifactOverridesFile(managedArtifactsContent: String): Unit = {
-    val path = Paths.get(root.getPath, thirdPartyPaths.localArtifactOverridesFilePath)
+    val path = root.toPath.resolve(thirdPartyPaths.localArtifactOverridesFilePath)
     if (path.toFile.exists) {
       Files.writeString(path, managedArtifactsContent)
     }
   }
 
   override def overwriteThirdPartyImportTargetsFile(thirdPartyGroup: String, content: String): Unit = {
-    val targetsFile = Paths.get(root.getPath, s"${thirdPartyPaths.thirdPartyImportFilesPathRoot}/$thirdPartyGroup.bzl")
+    val targetsFile = root.toPath.resolve(s"${thirdPartyPaths.thirdPartyImportFilesPathRoot}/$thirdPartyGroup.bzl")
 
     if (content.isEmpty) {
       if (targetsFile.toFile.exists) targetsFile.toFile.delete()
@@ -49,16 +54,16 @@ class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyP
   }
 
   override def thirdPartyReposFileContent(): String =
-    contentIfExistsOf(Paths.get(root.getPath, thirdPartyPaths.thirdPartyReposFilePath).toFile).getOrElse("")
+    contentIfExistsOf(resolve(thirdPartyPaths.thirdPartyReposFilePath).toFile).getOrElse("def dependencies():")
 
   override def localArtifactOverridesFileContent(): String =
-    contentIfExistsOf(Paths.get(root.getPath, thirdPartyPaths.localArtifactOverridesFilePath).toFile).getOrElse("")
+    contentIfExistsOf(resolve(thirdPartyPaths.localArtifactOverridesFilePath).toFile).getOrElse("")
 
   override def buildFileContent(packageName: String): Option[String] =
-    contentIfExistsOf(Paths.get(root.getPath, packageName, "BUILD.bazel").toFile)
+    contentIfExistsOf(resolve(s"$packageName/BUILD.bazel").toFile)
 
   override def thirdPartyImportTargetsFileContent(thirdPartyGroup: String): Option[String] = contentIfExistsOf(
-    Paths.get(root.getPath, thirdPartyPaths.thirdPartyImportFilesPathRoot, s"$thirdPartyGroup.bzl").toFile
+    resolve(s"${thirdPartyPaths.thirdPartyImportFilesPathRoot}/$thirdPartyGroup.bzl").toFile
   )
 
   override def allThirdPartyImportTargetsFilesContent(): Set[String] = {
@@ -66,7 +71,7 @@ class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyP
   }
 
   override def allThirdPartyImportTargetsFiles(): Map[File, String] = {
-    val thirdPartyLocation = Paths.get(root.getPath, thirdPartyPaths.thirdPartyImportFilesPathRoot)
+    val thirdPartyLocation = resolve(thirdPartyPaths.thirdPartyImportFilesPathRoot)
     if (!thirdPartyLocation.toFile.exists())
       thirdPartyLocation.toFile.mkdirs()
 
@@ -76,7 +81,7 @@ class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyP
   }
 
   override def thirdPartyOverrides(): ThirdPartyOverrides = {
-    contentIfExistsOf(Paths.get(root.getPath, ThirdPartyOverridesPath).toFile)
+    contentIfExistsOf(resolve(ThirdPartyOverridesPath).toFile)
       .map(ThirdPartyOverridesReader.from)
       .getOrElse(ThirdPartyOverrides.empty)
   }
@@ -88,6 +93,8 @@ class FileSystemBazelLocalWorkspace(root: File, val thirdPartyPaths: ThirdPartyP
     if (!root.exists)
       throw new FileNotFoundException(root.getPath)
   }
+
+  private def resolve(path: String): Path = root.toPath.resolve(path)
 
   override def deleteAllThirdPartyImportTargetsFiles(): Unit = {
     allThirdPartyImportTargetsFiles().keys.foreach(_.delete())

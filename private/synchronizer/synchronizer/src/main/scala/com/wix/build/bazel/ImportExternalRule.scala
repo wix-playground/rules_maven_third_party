@@ -17,7 +17,8 @@ case class ImportExternalRule(name: String,
                               checksum: Option[String] = None,
                               srcChecksum: Option[String] = None,
                               snapshotSources: Boolean = false,
-                              neverlink: Boolean = false) extends RuleWithDeps {
+                              neverlink: Boolean = false,
+                              remapping: Map[String, String] = Map()) extends RuleWithDeps {
 
   def serialized: String = {
     s"""    $RuleType(
@@ -60,7 +61,8 @@ case class ImportExternalRule(name: String,
       toListEntry("transitive_closure_deps", transitiveClosureDeps) +
       toListEntry("excludes", exclusions) +
       toListEntry("aliases", aliases) +
-      toListEntry("tags", tags)
+      toListEntry("tags", tags) +
+      toDictEntry("remapping", remapping)
 
   private def serializedNeverlink =
     if (neverlink)
@@ -77,10 +79,26 @@ case class ImportExternalRule(name: String,
     }
   }
 
+  private def toDictEntry(keyName: String, map: Map[String, String]): String = {
+    if (map.isEmpty)
+      ""
+    else
+      s"""
+         |        $keyName = {
+         |            ${toPairsString(map)}
+         |        }       """.stripMargin
+  }
+
   private def toStringsList(elements: Iterable[String]): String = {
     elements.toList.sorted
       .map(e => s""""$e",""")
       .mkString("\n            ")
+  }
+
+  private def toPairsString(map: Map[String, String]): String = {
+    map.map { case (key, value) =>
+      s""""$key": "$value""""
+    }.mkString(",\n            ")
   }
 
   override def updateDeps(runtimeDeps: Set[String], compileTimeDeps: Set[String]): ImportExternalRule =
@@ -103,7 +121,8 @@ object ImportExternalRule {
          srcChecksum: Option[String] = None,
          snapshotSources: Boolean = false,
          neverlink: Boolean = false,
-         testOnly: Boolean = false): ImportExternalRule = {
+         testOnly: Boolean = false,
+         remapping: Map[String, String] = Map.empty): ImportExternalRule = {
     ImportExternalRule(
       name = artifact.workspaceRuleName,
       aliases = aliases,
@@ -118,6 +137,7 @@ object ImportExternalRule {
       srcChecksum = srcChecksum,
       snapshotSources = snapshotSources,
       neverlink = neverlink,
+      remapping = remapping
     )
   }
 
@@ -127,6 +147,14 @@ object ImportExternalRule {
     else
       ""
     s"@${coordinates.workspaceRuleName}$suffix"
+  }
+
+  def jarLabelWithVersion(coordinates: Coordinates, linkableSuffixNeeded: Boolean = false): String = {
+    val suffix = if (linkableSuffixNeeded)
+      "//:linkable"
+    else
+      ""
+    s"@${coordinates.workspaceRuleNameVersioned}$suffix"
   }
 
   def linkableLabelBy(coordinates: Coordinates): String = s"@${coordinates.workspaceRuleName}//:linkable"

@@ -266,12 +266,6 @@ class BazelMavenManagedDepsSynchronizerAcceptanceTest extends SpecificationWithJ
     )
   }
 
-  private implicit class CoordinatesExtended(coordinates: Coordinates) {
-    def asDependency: Dependency = Dependency(coordinates, MavenScope.Compile)
-
-    def asRootArtifact: ArtifactDescriptor = ArtifactDescriptor.rootFor(coordinates)
-  }
-
   private def matchTo(change: Change): Matcher[Change] = {
     ((_: Change).message) ^^ beEqualTo(change.message)
   }
