@@ -100,10 +100,10 @@ def dependencies():
         srcjar_sha256 = "fafad083994e9c7adafef7eb089ceac5312bb69e8b8811116c89ff7742b0193d",
         deps = [
             "@org_apache_maven_wagon_wagon_ssh_common",
+            "@org_codehaus_plexus_plexus_utils",
         ],
         runtime_deps = [
             "@org_apache_maven_wagon_wagon_provider_api",
-            "@org_codehaus_plexus_plexus_utils",
         ],
     )
 

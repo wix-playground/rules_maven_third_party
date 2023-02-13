@@ -1,10 +1,28 @@
+load("//:third_party/org_sonatype_sisu.bzl", org_sonatype_sisu_deps = "dependencies")
+
+load("//:third_party/org_eclipse_sisu.bzl", org_eclipse_sisu_deps = "dependencies")
+
+load("//:third_party/org_eclipse_aether.bzl", org_eclipse_aether_deps = "dependencies")
+
+load("//:third_party/org_checkerframework.bzl", org_checkerframework_deps = "dependencies")
+
+load("//:third_party/javax_enterprise.bzl", javax_enterprise_deps = "dependencies")
+
+load("//:third_party/javax_annotation.bzl", javax_annotation_deps = "dependencies")
+
+load("//:third_party/com_google_j2objc.bzl", com_google_j2objc_deps = "dependencies")
+
+load("//:third_party/com_google_errorprone.bzl", com_google_errorprone_deps = "dependencies")
+
+load("//:third_party/com_google_code_findbugs.bzl", com_google_code_findbugs_deps = "dependencies")
+
+load("//:third_party/aopalliance.bzl", aopalliance_deps = "dependencies")
+
 load("//:third_party/xml_apis.bzl", xml_apis_deps = "dependencies")
 
 load("//:third_party/oro.bzl", oro_deps = "dependencies")
 
 load("//:third_party/org_xmlunit.bzl", org_xmlunit_deps = "dependencies")
-
-load("//:third_party/org_typelevel.bzl", org_typelevel_deps = "dependencies")
 
 load("//:third_party/org_tukaani.bzl", org_tukaani_deps = "dependencies")
 
@@ -20,11 +38,7 @@ load("//:third_party/org_scala_lang_modules.bzl", org_scala_lang_modules_deps = 
 
 load("//:third_party/org_ow2_asm.bzl", org_ow2_asm_deps = "dependencies")
 
-load("//:third_party/org_mortbay_jetty.bzl", org_mortbay_jetty_deps = "dependencies")
-
 load("//:third_party/org_iq80_snappy.bzl", org_iq80_snappy_deps = "dependencies")
-
-load("//:third_party/org_fusesource_jansi.bzl", org_fusesource_jansi_deps = "dependencies")
 
 load("//:third_party/org_eclipse_jgit.bzl", org_eclipse_jgit_deps = "dependencies")
 
@@ -82,14 +96,6 @@ load("//:third_party/jakarta_xml_bind.bzl", jakarta_xml_bind_deps = "dependencie
 
 load("//:third_party/jakarta_activation.bzl", jakarta_activation_deps = "dependencies")
 
-load("//:third_party/io_github_alexarchambault_windows_ansi.bzl", io_github_alexarchambault_windows_ansi_deps = "dependencies")
-
-load("//:third_party/io_github_alexarchambault.bzl", io_github_alexarchambault_deps = "dependencies")
-
-load("//:third_party/io_get_coursier.bzl", io_get_coursier_deps = "dependencies")
-
-load("//:third_party/io_argonaut.bzl", io_argonaut_deps = "dependencies")
-
 load("//:third_party/dom4j.bzl", dom4j_deps = "dependencies")
 
 load("//:third_party/commons_lang.bzl", commons_lang_deps = "dependencies")
@@ -120,17 +126,11 @@ load("//:third_party/com_github_tomakehurst.bzl", com_github_tomakehurst_deps = 
 
 load("//:third_party/com_github_scopt.bzl", com_github_scopt_deps = "dependencies")
 
-load("//:third_party/com_github_pathikrit.bzl", com_github_pathikrit_deps = "dependencies")
-
 load("//:third_party/com_github_jknack.bzl", com_github_jknack_deps = "dependencies")
-
-load("//:third_party/com_github_alexarchambault.bzl", com_github_alexarchambault_deps = "dependencies")
 
 load("//:third_party/com_fasterxml_jackson_module.bzl", com_fasterxml_jackson_module_deps = "dependencies")
 
 load("//:third_party/com_fasterxml_jackson_core.bzl", com_fasterxml_jackson_core_deps = "dependencies")
-
-load("//:third_party/com_chuusai.bzl", com_chuusai_deps = "dependencies")
 
 load("//:third_party/classworlds.bzl", classworlds_deps = "dependencies")
 
@@ -152,17 +152,11 @@ def managed_third_party_dependencies():
 
     classworlds_deps()
 
-    com_chuusai_deps()
-
     com_fasterxml_jackson_core_deps()
 
     com_fasterxml_jackson_module_deps()
 
-    com_github_alexarchambault_deps()
-
     com_github_jknack_deps()
-
-    com_github_pathikrit_deps()
 
     com_github_scopt_deps()
 
@@ -193,14 +187,6 @@ def managed_third_party_dependencies():
     commons_lang_deps()
 
     dom4j_deps()
-
-    io_argonaut_deps()
-
-    io_get_coursier_deps()
-
-    io_github_alexarchambault_deps()
-
-    io_github_alexarchambault_windows_ansi_deps()
 
     jakarta_activation_deps()
 
@@ -258,11 +244,7 @@ def managed_third_party_dependencies():
 
     org_eclipse_jgit_deps()
 
-    org_fusesource_jansi_deps()
-
     org_iq80_snappy_deps()
-
-    org_mortbay_jetty_deps()
 
     org_ow2_asm_deps()
 
@@ -278,10 +260,28 @@ def managed_third_party_dependencies():
 
     org_tukaani_deps()
 
-    org_typelevel_deps()
-
     org_xmlunit_deps()
 
     oro_deps()
 
     xml_apis_deps()
+
+    aopalliance_deps()
+
+    com_google_code_findbugs_deps()
+
+    com_google_errorprone_deps()
+
+    com_google_j2objc_deps()
+
+    javax_annotation_deps()
+
+    javax_enterprise_deps()
+
+    org_checkerframework_deps()
+
+    org_eclipse_aether_deps()
+
+    org_eclipse_sisu_deps()
+
+    org_sonatype_sisu_deps()
