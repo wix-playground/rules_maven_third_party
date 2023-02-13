@@ -3,11 +3,10 @@ load("@rules_maven_third_party//:import_external.bzl", import_external = "import
 def dependencies():
     import_external(
         name = "org_codehaus_plexus_plexus_archiver",
-        artifact = "org.codehaus.plexus:plexus-archiver:3.4",
-        artifact_sha256 = "3c6611c98547dbf3f5125848c273ba719bc10df44e3f492fa2e302d6135a6ea5",
-        srcjar_sha256 = "1887e8269928079236c9e1a75af5b5e256f4bfafaaed18da5c9c84faf5b26a91",
+        artifact = "org.codehaus.plexus:plexus-archiver:4.2.6",
+        artifact_sha256 = "5bd081cc9a00b1c2c0396c1fea1926e28eba322d7e68bf3c4d9c0bd408de6ff8",
+        srcjar_sha256 = "2904cdcdbd3e24fa68f432564d8e0634a3d1b2e9c059bde0913ce3bd91aeff75",
         deps = [
-            "@commons_io_commons_io",
             "@org_apache_commons_commons_compress",
             "@org_codehaus_plexus_plexus_io",
             "@org_codehaus_plexus_plexus_utils",
@@ -20,13 +19,18 @@ def dependencies():
 
 
     import_external(
+        name = "org_codehaus_plexus_plexus_classworlds",
+        artifact = "org.codehaus.plexus:plexus-classworlds:2.4",
+        artifact_sha256 = "259d528a29722cab6349d7e7d432e3fd4877c087ffcb04985a6612e97023bba8",
+        srcjar_sha256 = "2949b80b5a0d5d828a4a4667f98c6365e61980b457e1894d3beb977910ebeef9",
+    )
+
+
+    import_external(
         name = "org_codehaus_plexus_plexus_component_annotations",
-        artifact = "org.codehaus.plexus:plexus-component-annotations:1.7.1",
-        artifact_sha256 = "a7fee9435db716bff593e9fb5622bcf9f25e527196485929b0cd4065c43e61df",
-        srcjar_sha256 = "18999359e8c1c5eb1f17a06093ceffc21f84b62b4ee0d9ab82f2e10d11049a78",
-        excludes = [
-            "junit:junit",
-        ],
+        artifact = "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+        artifact_sha256 = "4df7a6a7be64b35bbccf60b5c115697f9ea3421d22674ae67135dde375fcca1f",
+        srcjar_sha256 = "527768d357304e0ad56b74ca77f27ba28b4a456680450ef45a30bfaf613469e6",
     )
 
 
@@ -60,16 +64,17 @@ def dependencies():
 
     import_external(
         name = "org_codehaus_plexus_plexus_interpolation",
-        artifact = "org.codehaus.plexus:plexus-interpolation:1.11",
-        artifact_sha256 = "fd9507feb858fa620d1b4aa4b7039fdea1a77e09d3fd28cfbddfff468d9d8c28",
-        srcjar_sha256 = "92e960ff19db5b1f8cd399d20bd52c2dd3c81c080029f2a9b7c77e077d0b0d83",
+        artifact = "org.codehaus.plexus:plexus-interpolation:1.26",
+        artifact_sha256 = "b3b5412ce17889103ea564bcdfcf9fb3dfa540344ffeac6b538a73c9d7182662",
+        srcjar_sha256 = "048ec9a9ae5fffbe8fa463824b852ea60d9cebd7397446f6a516fcde05863366",
     )
 
 
     import_external(
         name = "org_codehaus_plexus_plexus_io",
-        artifact = "org.codehaus.plexus:plexus-io:2.7.1",
-        artifact_sha256 = "20aa9dd74536ad9ce65d1253b5c4386747483a7a65c48008c9affb51854539cf",
+        artifact = "org.codehaus.plexus:plexus-io:3.2.0",
+        artifact_sha256 = "15cf8cbd9e014b7156482bbb48e515613158bdd9b4b908d21e6b900f7876f6ff",
+        srcjar_sha256 = "cc6aeb4522a42c1eb441336e6953069ace6a901d85ce251c20eda7baded9a10b",
         deps = [
             "@commons_io_commons_io",
             "@org_codehaus_plexus_plexus_utils",
@@ -79,9 +84,9 @@ def dependencies():
 
     import_external(
         name = "org_codehaus_plexus_plexus_utils",
-        artifact = "org.codehaus.plexus:plexus-utils:3.0.24",
-        artifact_sha256 = "83ee748b12d06afb0ad4050a591132b3e8025fbb1990f1ed002e8b73293e69b4",
-        srcjar_sha256 = "ec01853bc765eddc0accf19993482c14ab0aa59dccec4efd361ef23649153935",
+        artifact = "org.codehaus.plexus:plexus-utils:3.4.1",
+        artifact_sha256 = "52d85e04b3918722af11d12855b4a8257df96a0e76c8f4e3852e6faa851f357b",
+        srcjar_sha256 = "a4399a142c0e639a7b20d621204e0805d1fb287f4fd70a26b2fe60a3b0b56192",
     )
 
 

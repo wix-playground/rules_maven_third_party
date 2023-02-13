@@ -2,17 +2,6 @@ load("@rules_maven_third_party//:import_external.bzl", import_external = "import
 
 def dependencies():
     import_external(
-        name = "org_scala_lang_modules_scala_collection_compat_2_12",
-        artifact = "org.scala-lang.modules:scala-collection-compat_2.12:2.2.0",
-        artifact_sha256 = "16de54c297c50b1a1a8b3e3801a64c7756b64e07567a1293a6bbb5377677674c",
-        srcjar_sha256 = "3a7471030a534106f97e479b0370f355e9fd03a335d81162a57dfb3b18185073",
-        deps = [
-            "@org_scala_lang_scala_library",
-        ],
-    )
-
-
-    import_external(
         name = "org_scala_lang_modules_scala_parser_combinators_2_12",
         artifact = "org.scala-lang.modules:scala-parser-combinators_2.12:1.1.2",
         artifact_sha256 = "24985eb43e295a9dd77905ada307a850ca25acf819cdb579c093fc6987b0dbc2",
