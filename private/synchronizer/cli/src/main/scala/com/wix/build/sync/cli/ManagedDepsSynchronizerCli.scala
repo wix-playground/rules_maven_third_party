@@ -16,7 +16,7 @@ object ManagedDepsSynchronizerCli extends SynchronizerCli {
     else
       throw new IllegalArgumentException(
         "resolveLocally is set to false, but this client does not support dependency " +
-          "resolution on a remote server. Use --resolve-locally to use local resolution."
+          "resolution on a remote server. Use --resolveLocally to use local resolution."
       )
   }
 }

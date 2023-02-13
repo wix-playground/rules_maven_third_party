@@ -14,21 +14,21 @@ object ThirdPartyOverridesReader {
   def mapper: ObjectMapper = {
     val objectMapper = new ObjectMapper()
       .registerModule(DefaultScalaModule)
-    objectMapper.registerModule(overrideCoordinatesKeyModule(objectMapper))
+    objectMapper.registerModule(overrideCoordinatesKeyModule())
     objectMapper
   }
 
-  private def overrideCoordinatesKeyModule(mapper: ObjectMapper): Module =
+  private def overrideCoordinatesKeyModule(): Module =
     new SimpleModule()
-      .addKeyDeserializer(classOf[OverrideCoordinates], new OverrideCoordinatesKeyDeserializer(mapper))
-      .addKeySerializer(classOf[OverrideCoordinates], new OverrideCoordinatesKeySerializer(mapper))
+      .addKeyDeserializer(classOf[OverrideCoordinates], new OverrideCoordinatesKeyDeserializer())
+      .addKeySerializer(classOf[OverrideCoordinates], new OverrideCoordinatesKeySerializer())
 
-  private class OverrideCoordinatesKeySerializer(mapper: ObjectMapper) extends JsonSerializer[OverrideCoordinates] {
+  private class OverrideCoordinatesKeySerializer() extends JsonSerializer[OverrideCoordinates] {
     override def serialize(value: OverrideCoordinates, gen: JsonGenerator, serializers: SerializerProvider): Unit =
       gen.writeFieldName(value.groupId + ":" + value.artifactId)
   }
 
-  private class OverrideCoordinatesKeyDeserializer(mapper: ObjectMapper) extends KeyDeserializer {
+  private class OverrideCoordinatesKeyDeserializer() extends KeyDeserializer {
     override def deserializeKey(key: String, ctxt: DeserializationContext): AnyRef =
       key.split(':') match {
         case Array(groupId, artifactId) => OverrideCoordinates(groupId, artifactId)

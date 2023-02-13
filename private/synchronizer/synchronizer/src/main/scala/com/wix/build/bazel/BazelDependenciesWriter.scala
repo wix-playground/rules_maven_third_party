@@ -10,7 +10,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
   private val thirdPartyPaths = localWorkspace.thirdPartyPaths
 
   val importExternalTargetsFile: ImportExternalTargetsFile = ImportExternalTargetsFile(importExternalLoadStatement, localWorkspace)
-  val ruleResolver: RuleResolver = new RuleResolver(localWorkspace.localWorkspaceName, localWorkspace.thirdPartyPaths.thirdPartyImportFilesPathRoot)
+  val ruleResolver: RuleResolver = new RuleResolver(localWorkspace.thirdPartyPaths.thirdPartyImportFilesPathRoot)
   val annotatedDepNodeTransformer: AnnotatedDependencyNodeTransformer = new AnnotatedDependencyNodeTransformer(neverLinkResolver, localWorkspace.thirdPartyPaths.thirdPartyImportFilesPathRoot)
 
   def writeDependencies(dependencyNodes: BazelDependencyNode*): Set[String] =
@@ -19,6 +19,15 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
   def writeDependencies(dependencyNodes: Set[BazelDependencyNode]): Set[String] = {
     writeThirdPartyFolderContent(dependencyNodes, deleteOld = true)
     writeThirdPartyReposFile(dependencyNodes, findNoLongerUsedGroupIds())
+    computeAffectedFilesBy(dependencyNodes.map(_.toMavenNode))
+  }
+
+  def writeFromSratchDependencies(dependencyNodes: Set[BazelDependencyNode]): Set[String] = {
+    localWorkspace.deleteAllThirdPartyImportTargetsFiles()
+    localWorkspace.overwriteThirdPartyReposFile("def dependencies():")
+    writeThirdPartyFolderContent(dependencyNodes, deleteOld = false, addRemmaping = true)
+    writeReceipt(dependencyNodes)
+    writeThirdPartyReposFile(dependencyNodes, Set())
     computeAffectedFilesBy(dependencyNodes.map(_.toMavenNode))
   }
 
@@ -36,7 +45,8 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     writeThirdPartyFolderContent(dependenciesForThirdPartyFolder, deleteOld = false)
     localDepsToDelete.foreach(overwriteThirdPartyFolderFilesWithDeletedContent)
 
-    val noLongerUsedGroupIds = localDepsToDelete.filter(depToDelete => localWorkspace.thirdPartyImportTargetsFileContent(ImportExternalRule.ruleLocatorFrom(depToDelete)).isEmpty)
+    val noLongerUsedGroupIds = localDepsToDelete
+      .filter(depToDelete => localWorkspace.thirdPartyImportTargetsFileContent(ImportExternalRule.ruleLocatorFrom(depToDelete)).isEmpty)
     writeThirdPartyReposFile(dependenciesForThirdPartyReposFile, noLongerUsedGroupIds.map(_.groupIdForBazel))
     writeLocalArtifactOverridesFile(userAddedDependecies)
   }
@@ -65,13 +75,31 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     localWorkspace.overwriteThirdPartyReposFile(nonEmptyContent)
   }
 
-  private def writeThirdPartyFolderContent(dependencyNodes: Set[BazelDependencyNode], deleteOld: Boolean): Unit = {
+  private def writeReceipt(dependencyNodes: Set[BazelDependencyNode]): Unit = {
+    localWorkspace.writeReceipt(
+      dependencyNodes.map { node =>
+        import node.baseDependency._
+        s"${coordinates.serialized} @${coordinates.workspaceRuleName} @${coordinates.workspaceRuleNameVersioned}"
+      }.mkString("\n")
+    )
+  }
+
+  private def writeThirdPartyFolderContent(dependencyNodes: Set[BazelDependencyNode],
+                                           deleteOld: Boolean,
+                                           addRemmaping: Boolean = false): Unit = {
     if (deleteOld)
       localWorkspace.deleteAllThirdPartyImportTargetsFiles()
 
     val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
 
-    val targetsToPersist = annotatedDependencyNodes.flatMap(maybeRuleBy)
+    val targetsToPersist = if (addRemmaping) {
+      val userLabels = dependencyNodes.map(dep => "@" + dep.baseDependency.coordinates.workspaceRuleName)
+
+      annotatedDependencyNodes.flatMap(node => maybeRuleWithRemapping(node, userLabels))
+
+    } else
+      annotatedDependencyNodes.flatMap(maybeRuleBy)
+
     val groupedTargets = targetsToPersist.groupBy(_.ruleTargetLocator).values
     groupedTargets.foreach { targetsGroup =>
       val sortedTargets = targetsGroup.toSeq.sortBy(_.rule.name)
@@ -81,25 +109,36 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
 
   private def maybeRuleBy(dependencyNode: AnnotatedDependencyNode): Option[RuleToPersist] =
     dependencyNode.baseDependency.coordinates.packaging match {
-      case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode))
+      case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode, Set.empty))
       case _ => None
     }
 
-  private def createRuleBy(dependencyNode: AnnotatedDependencyNode): RuleToPersist = {
-    val runtimeDependenciesOverrides = localWorkspace
-      .thirdPartyOverrides()
-      .runtimeDependenciesOverridesOf(
-        OverrideCoordinates(
-          dependencyNode.baseDependency.coordinates.groupId,
-          dependencyNode.baseDependency.coordinates.artifactId
-        )
-      )
+  private def maybeRuleWithRemapping(dependencyNode: AnnotatedDependencyNode, overriddenLabels: Set[String]): Option[RuleToPersist] = {
+    dependencyNode.baseDependency.coordinates.packaging match {
+      case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode, overriddenLabels))
+      case _ => None
+    }
+  }
+
+  private def collectMappings(node: AnnotatedDependencyNode, overrideLabels: Set[String]): Map[String, String] = {
+    val pairs = node.compileTimeDependencies.map(dep => dep.toLabel -> dep.toVersionedLabel) ++
+      node.runtimeDependencies.map(dep => dep.toLabel -> dep.toVersionedLabel) +
+      (s"@${node.baseDependency.coordinates.workspaceRuleName}" -> s"@${node.baseDependency.coordinates.workspaceRuleNameVersioned}")
+    pairs.filter {
+      case (key, _) =>
+        overrideLabels.contains(key)
+    }.toMap
+  }
+
+  private def createRuleBy(dependencyNode: AnnotatedDependencyNode, overrideLabels: Set[String]): RuleToPersist = {
+    val runtimeDependenciesOverrides = localWorkspace.thirdPartyOverrides().runtimeDependenciesOverridesOf(
+      OverrideCoordinates(dependencyNode.baseDependency.coordinates.groupId,
+        dependencyNode.baseDependency.coordinates.artifactId)
+    )
 
     val compileTimeDependenciesOverrides = localWorkspace.thirdPartyOverrides().compileTimeDependenciesOverridesOf(
-      OverrideCoordinates(
-        dependencyNode.baseDependency.coordinates.groupId,
-        dependencyNode.baseDependency.coordinates.artifactId
-      )
+      OverrideCoordinates(dependencyNode.baseDependency.coordinates.groupId,
+        dependencyNode.baseDependency.coordinates.artifactId)
     )
 
     val ruleToPersist = ruleResolver.`for`(
@@ -113,7 +152,8 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
       checksum = dependencyNode.checksum,
       srcChecksum = dependencyNode.srcChecksum,
       snapshotSources = dependencyNode.snapshotSources,
-      neverlink = dependencyNode.neverlink
+      neverlink = dependencyNode.neverlink,
+      remapping = if (overrideLabels.nonEmpty) collectMappings(dependencyNode, overrideLabels) else Map.empty
     )
 
     // TODO: try to move this BEFORE the `for` so won't need `withUpdateDeps` in trait

@@ -21,6 +21,10 @@ object MavenToBazelTranslations {
       s"$artifactIdPart$classifierPart"
     }
 
+    def workspaceRuleNameVersioned: String = {
+      s"${workspaceRuleName}_${fixNameToBazelConventions(version)}"
+    }
+
     private def fixNameToBazelConventions(id: String): String = {
       id.replace('-', '_').replace('.', '_')
     }

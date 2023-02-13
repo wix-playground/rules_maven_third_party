@@ -10,6 +10,8 @@ trait BazelLocalWorkspace {
 
   def overwriteThirdPartyReposFile(thirdPartyReposContent: String): Unit
 
+  def writeReceipt(content: String): Unit
+
   def overwriteLocalArtifactOverridesFile(managedArtifactsContent: String): Unit
 
   def thirdPartyReposFileContent(): String
@@ -53,6 +55,7 @@ trait BazelLocalWorkspace {
 
 class ThirdPartyPaths(destination: String) {
   val thirdPartyReposFilePath: String = s"$destination.bzl"
+  val receiptPath: String = s"$destination-receipt.txt"
   val thirdPartyImportFilesPathRoot: String = s"$destination"
   val localArtifactOverridesFilePath: String = s"$destination/maven/local_artifact_overrides.bzl"
 }

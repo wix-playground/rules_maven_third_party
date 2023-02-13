@@ -25,7 +25,7 @@ class UserAddedDepsDiffSynchronizer(calculator: DiffCalculatorAndAggregator,
         userAddedDependencies,
         diffResult.updatedBazelLocalNodes,
         diffResult.preExistingLocalNodes,
-        diffResult.localDepsToDelete
+        diffResult.localDepsToDelete,
       )
       log.info(s"Finished writing updates.")
       PrettyReportPrinter.printReport(report)

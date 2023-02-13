@@ -6,20 +6,22 @@ import com.wix.build.maven._
 import com.wix.build.sync.ArtifactoryRemoteStorage._
 import org.slf4j.LoggerFactory
 
-case class DiffSynchronizer(maybeBazelRepositoryWithManagedDependencies: Option[BazelRepository],
-                            targetRepository: BazelRepository, resolver: MavenDependencyResolver,
-                            dependenciesRemoteStorage: DependenciesRemoteStorage,
-                            neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
-                            importExternalLoadStatement: ImportExternalLoadStatement,
-                            maybeGitAdder: Option[GitAdder]) {
+class DiffSynchronizer(maybeBazelRepositoryWithManagedDependencies: Option[BazelRepository],
+                       targetRepository: BazelRepository, resolver: MavenDependencyResolver,
+                       dependenciesRemoteStorage: DependenciesRemoteStorage,
+                       neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
+                       importExternalLoadStatement: ImportExternalLoadStatement,
+                       maybeGitAdder: Option[GitAdder]) {
 
-  private val diffCalculator = DiffCalculator(maybeBazelRepositoryWithManagedDependencies, resolver, dependenciesRemoteStorage)
-  private val diffWriter = DefaultDiffWriter(
+  private val diffCalculator = new DiffCalculator(maybeBazelRepositoryWithManagedDependencies, resolver, dependenciesRemoteStorage)
+  private val diffWriter = new DefaultDiffWriter(
     targetRepository,
     maybeManagedDepsRepoPath = maybeBazelRepositoryWithManagedDependencies.map(_.repoPath),
     neverLinkResolver,
     importExternalLoadStatement,
-    maybeGitAdder)
+    maybeGitAdder,
+    false
+  )
 
   def sync(userAddedDependencies: Set[Dependency], localNodes: Set[DependencyNode]): Unit = {
     val updatedLocalNodes = diffCalculator.calculateDivergentDependencies(localNodes)
@@ -28,9 +30,9 @@ case class DiffSynchronizer(maybeBazelRepositoryWithManagedDependencies: Option[
   }
 }
 
-case class DiffCalculator(maybeBazelRepositoryWithManagedDependencies: Option[BazelRepository],
-                          resolver: MavenDependencyResolver,
-                          dependenciesRemoteStorage: DependenciesRemoteStorage) {
+class DiffCalculator(maybeBazelRepositoryWithManagedDependencies: Option[BazelRepository],
+                     resolver: MavenDependencyResolver,
+                     dependenciesRemoteStorage: DependenciesRemoteStorage) {
   def calculateDivergentDependencies(localNodes: Set[DependencyNode]): Set[BazelDependencyNode] = {
     val managedNodes = maybeBazelRepositoryWithManagedDependencies.map { repoWithManaged =>
       val reader = new BazelDependenciesReader(repoWithManaged.resetAndCheckoutMaster())
@@ -57,11 +59,12 @@ trait DiffWriter {
                                   localDepsToDelete: Set[DependencyNode] = Set()): Unit
 }
 
-case class DefaultDiffWriter(targetRepository: BazelRepository,
-                             maybeManagedDepsRepoPath: Option[String],
-                             neverLinkResolver: NeverLinkResolver,
-                             importExternalLoadStatement: ImportExternalLoadStatement,
-                             maybeGitAdder: Option[GitAdder]) extends DiffWriter {
+class DefaultDiffWriter(targetRepository: BazelRepository,
+                        maybeManagedDepsRepoPath: Option[String],
+                        neverLinkResolver: NeverLinkResolver,
+                        importExternalLoadStatement: ImportExternalLoadStatement,
+                        maybeGitAdder: Option[GitAdder],
+                        isManagedInvocation: Boolean) extends DiffWriter {
   private val log = LoggerFactory.getLogger(getClass)
 
   def persistResolvedDependencies(userAddedDependencies: Set[Dependency],
@@ -74,12 +77,15 @@ case class DefaultDiffWriter(targetRepository: BazelRepository,
     //can be removed at phase 2
     val nodesWithPomPackaging = libraryRulesNodes.filter(_.baseDependency.coordinates.packaging.value == "pom").map(_.toBazelNode)
 
-    writer.writeDependencies(
-      userAddedDependencies,
-      divergentLocalDependencies,
-      divergentLocalDependencies ++ nodesWithPomPackaging,
-      localDepsToDelete.map(_.baseDependency.coordinates)
-    )
+    if (isManagedInvocation)
+      writer.writeFromSratchDependencies(divergentLocalDependencies)
+    else
+      writer.writeDependencies(
+        userAddedDependencies,
+        divergentLocalDependencies,
+        divergentLocalDependencies ++ nodesWithPomPackaging,
+        localDepsToDelete.map(_.baseDependency.coordinates)
+      )
 
     val modifiedFilesToPersist = writer.computeAffectedFilesBy((divergentLocalDependencies ++ nodesWithPomPackaging).map(_.toMavenNode))
     log.info(s"modified ${modifiedFilesToPersist.size} files.")

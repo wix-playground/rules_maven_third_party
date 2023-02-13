@@ -374,7 +374,6 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
   val jars = List(artifactA, artifactB, artifactC)
 
   val resolver = new RuleResolver(
-    localWorkspaceName = "some_workspace",
     thirdPartyDestination = "third_party"
   )
 

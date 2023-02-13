@@ -26,6 +26,8 @@ class FakeLocalBazelWorkspace(sourceFiles: mutable.Map[String, String] = mutable
   override def overwriteThirdPartyReposFile(skylarkFileContent: String): Unit =
     sourceFiles.put(thirdPartyReposFilePath, skylarkFileContent)
 
+  def writeReceipt(content: String): Unit = ???
+
   override def overwriteLocalArtifactOverridesFile(managedArtifactsContent: String): Unit = {
     sourceFiles.put(localArtifactOverridesFilePath, managedArtifactsContent)
   }

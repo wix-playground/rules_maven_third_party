@@ -17,8 +17,8 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
       new FileSystemBazelLocalWorkspace(nonExistingPath.toFile, new ThirdPartyPaths("third_party")) must throwA[FileNotFoundException]
     }
 
-    "return empty third party repos content if third party repos file does not exists" in new blankWorkspaceCtx {
-      new FileSystemBazelLocalWorkspace(blankWorkspaceRootPath, new ThirdPartyPaths("third_party")).thirdPartyReposFileContent() mustEqual ""
+    "return initial skeleton for third party repos content if third party repos file does not exists" in new blankWorkspaceCtx {
+      new FileSystemBazelLocalWorkspace(blankWorkspaceRootPath, new ThirdPartyPaths("third_party")).thirdPartyReposFileContent() mustEqual "def dependencies():"
     }
 
     "Get third party repos file content" in new blankWorkspaceCtx {

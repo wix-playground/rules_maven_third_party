@@ -10,7 +10,6 @@ specs2_ite2e_test(
     ],
     deps = [
         "//private/resolver/api/src/main/scala/com/wix/build/maven",
-        "//private/resolver/resolver/src/main/scala/com/wix/build/maven",
         "//private/resolver/resolver/src/main/scala/com/wix/build/maven/resolver/aether",
         "//private/resolver/testkit/src/main/scala/com/wix/build/maven",
         "//private/synchronizer/synchronizer/src/main/scala/com/wix/build/bazel",

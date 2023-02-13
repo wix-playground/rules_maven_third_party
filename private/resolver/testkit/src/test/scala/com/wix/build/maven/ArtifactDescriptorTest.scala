@@ -1,6 +1,5 @@
 package com.wix.build.maven
 
-import com.wix.build.maven._
 import org.specs2.matcher.XmlMatchers._
 import org.specs2.mutable.SpecificationWithJUnit
 
@@ -22,6 +21,21 @@ class ArtifactDescriptorTest extends SpecificationWithJUnit {
     }
 
     "build pom.xml" in {
+      val expectedOldVersion: Elem = <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                                              xmlns="http://maven.apache.org/POM/4.0.0"
+                                              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <modelVersion>4.0.0</modelVersion>
+        <groupId>
+          {baseCoordiantes.groupId}
+        </groupId>
+        <artifactId>
+          {baseCoordiantes.artifactId}
+        </artifactId>
+        <version>
+          {baseCoordiantes.version}
+        </version>
+      </project>
+
       val expected: Elem = <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
                                     xmlns="http://maven.apache.org/POM/4.0.0"
                                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -39,7 +53,7 @@ class ArtifactDescriptorTest extends SpecificationWithJUnit {
 
       val pom: Elem = XML.loadString(baseDescriptor.pomXml)
 
-      pom must beEqualToIgnoringSpace(expected)
+      pom must (beEqualToIgnoringSpace(expectedOldVersion) or beEqualToIgnoringSpace(expected))
     }
 
     "build pom.xml with dependency and exclusions" in {
