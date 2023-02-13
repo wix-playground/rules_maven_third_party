@@ -56,14 +56,21 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "141a3919b37c80a846796f792dcf6ea7cd6e7b7ca4297603ca961cd22750c951",
-    strip_prefix = "rules_scala-5.0.0",
-    url = "https://github.com/bazelbuild/rules_scala/archive/refs/tags/v5.0.0.tar.gz",
+    sha256 = "265adb4c0121024f13772815c674d793d7c949739d0133ed61cfd68ce73a49a5",
+    strip_prefix = "rules_scala-56bfe4f3cb79e1d45a3b64dde59a3773f67174e2",
+    url = "https://github.com/bazelbuild/rules_scala/archive/56bfe4f3cb79e1d45a3b64dde59a3773f67174e2.tar.gz",
 )
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config(scala_version = "2.12.13")
+scala_config(
+    enable_compiler_dependency_tracking = True,
+    scala_version = "2.12.13",
+)
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "rules_scala_setup")
+
+rules_scala_setup()
 
 register_toolchains("//:custom_scala_toolchain", ":testing_toolchain")
 
