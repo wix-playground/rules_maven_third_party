@@ -13,7 +13,7 @@ scala_toolchain(
         ":scala_macro_classpath_provider",
     ],
     dependency_mode = "plus-one",
-    dependency_tracking_method = "ast",
+    dependency_tracking_method = "ast-plus",
     strict_deps_mode = "warn",
     unused_dependency_checker_mode = "warn",
     visibility = ["//visibility:public"],
