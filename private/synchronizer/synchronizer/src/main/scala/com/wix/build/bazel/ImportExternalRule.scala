@@ -86,7 +86,7 @@ case class ImportExternalRule(name: String,
       s"""
          |        $keyName = {
          |            ${toPairsString(map)}
-         |        }       """.stripMargin
+         |        },""".stripMargin
   }
 
   private def toStringsList(elements: Iterable[String]): String = {
@@ -97,8 +97,8 @@ case class ImportExternalRule(name: String,
 
   private def toPairsString(map: Map[String, String]): String = {
     map.map { case (key, value) =>
-      s""""$key": "$value""""
-    }.mkString(",\n            ")
+      s""""$key": "$value","""
+    }.mkString("\n            ")
   }
 
   override def updateDeps(runtimeDeps: Set[String], compileTimeDeps: Set[String]): ImportExternalRule =
