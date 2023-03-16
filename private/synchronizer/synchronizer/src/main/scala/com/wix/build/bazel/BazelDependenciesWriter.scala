@@ -3,6 +3,8 @@ package com.wix.build.bazel
 import com.wix.build.maven._
 import com.wix.build.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
 
+import scala.collection.immutable
+
 class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
                               neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
                               importExternalLoadStatement: ImportExternalLoadStatement) {
@@ -93,9 +95,13 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
 
     val targetsToPersist = if (addRemmaping) {
-      val userLabels = dependencyNodes.map(dep => "@" + dep.baseDependency.coordinates.workspaceRuleName)
+      val userLabelsToVersions = dependencyNodes.toList
+        .map { dep =>
+          val coordinates = dep.baseDependency.coordinates
+          ("@" + coordinates.workspaceRuleName) -> ("@" + coordinates.workspaceRuleNameVersioned)
+        }.toMap
 
-      annotatedDependencyNodes.flatMap(node => maybeRuleWithRemapping(node, userLabels))
+      annotatedDependencyNodes.flatMap(node => maybeRuleWithRemapping(node, userLabelsToVersions))
 
     } else
       annotatedDependencyNodes.flatMap(maybeRuleBy)
@@ -109,28 +115,28 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
 
   private def maybeRuleBy(dependencyNode: AnnotatedDependencyNode): Option[RuleToPersist] =
     dependencyNode.baseDependency.coordinates.packaging match {
-      case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode, Set.empty))
+      case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode, Map.empty))
       case _ => None
     }
 
-  private def maybeRuleWithRemapping(dependencyNode: AnnotatedDependencyNode, overriddenLabels: Set[String]): Option[RuleToPersist] = {
+  private def maybeRuleWithRemapping(dependencyNode: AnnotatedDependencyNode,
+                                     overriddenLabels: Map[String, String]): Option[RuleToPersist] = {
     dependencyNode.baseDependency.coordinates.packaging match {
       case Packaging("pom") | Packaging("jar") => Some(createRuleBy(dependencyNode, overriddenLabels))
       case _ => None
     }
   }
 
-  private def collectMappings(node: AnnotatedDependencyNode, overrideLabels: Set[String]): Map[String, String] = {
-    val pairs = node.compileTimeDependencies.map(dep => dep.toLabel -> dep.toVersionedLabel) ++
-      node.runtimeDependencies.map(dep => dep.toLabel -> dep.toVersionedLabel) +
-      (s"@${node.baseDependency.coordinates.workspaceRuleName}" -> s"@${node.baseDependency.coordinates.workspaceRuleNameVersioned}")
-    pairs.filter {
-      case (key, _) =>
-        overrideLabels.contains(key)
+  private def collectMappings(node: AnnotatedDependencyNode, overriddenLabels: Map[String, String]): Map[String, String] = {
+    val deps = node.compileTimeDependencies.map(_.toLabel) ++
+      node.runtimeDependencies.map(_.toLabel) + s"@${node.baseDependency.coordinates.workspaceRuleName}"
+
+    deps.collect { case dep if overriddenLabels.contains(dep) =>
+        dep -> overriddenLabels(dep)
     }.toMap
   }
 
-  private def createRuleBy(dependencyNode: AnnotatedDependencyNode, overrideLabels: Set[String]): RuleToPersist = {
+  private def createRuleBy(dependencyNode: AnnotatedDependencyNode, overriddenLabels: Map[String, String]): RuleToPersist = {
     val runtimeDependenciesOverrides = localWorkspace.thirdPartyOverrides().runtimeDependenciesOverridesOf(
       OverrideCoordinates(dependencyNode.baseDependency.coordinates.groupId,
         dependencyNode.baseDependency.coordinates.artifactId)
@@ -153,7 +159,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
       srcChecksum = dependencyNode.srcChecksum,
       snapshotSources = dependencyNode.snapshotSources,
       neverlink = dependencyNode.neverlink,
-      remapping = if (overrideLabels.nonEmpty) collectMappings(dependencyNode, overrideLabels) else Map.empty
+      remapping = if (overriddenLabels.nonEmpty) collectMappings(dependencyNode, overriddenLabels) else Map.empty
     )
 
     // TODO: try to move this BEFORE the `for` so won't need `withUpdateDeps` in trait
