@@ -81,7 +81,13 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     localWorkspace.writeReceipt(
       dependencyNodes.map { node =>
         import node.baseDependency._
-        s"${coordinates.serialized} @${coordinates.workspaceRuleName} @${coordinates.workspaceRuleNameVersioned}"
+        val isJar = node.baseDependency.coordinates.packaging == Packaging("jar")
+
+        val coords = coordinates.serialized
+        val label = s"@${coordinates.workspaceRuleName}"
+        val canonicalLabel = s"@${coordinates.workspaceRuleNameVersioned}"
+
+        s"$coords $label ${if (isJar) canonicalLabel else label}"
       }.mkString("\n")
     )
   }
