@@ -24,14 +24,23 @@ object DependencyConfigAugmenter {
           .map(node => collectTransitiveDeps(config, node, lookup))
           .map(node => addAliases(config, node))
           .map(node => addTags(config, node))
+          .map(node => addNeverlink(config, node))
       }
       .map(node => new CoordKey(node.baseDependency.coordinates) -> node)
-      .toSeq
   }
 
   private def update(in: Map[CoordKey, BazelDependencyNode],
                      withValues: Seq[(CoordKey, BazelDependencyNode)]): Map[CoordKey, BazelDependencyNode] = {
     in ++ withValues
+  }
+
+  private def addNeverlink(config: Dependency, dependencyNode: BazelDependencyNode): BazelDependencyNode = {
+    if (config.isNeverLink)
+      dependencyNode.copy(
+        baseDependency = dependencyNode.baseDependency.withIsNeverLink(config.isNeverLink)
+      )
+    else
+      dependencyNode
   }
 
   private def addAliases(config: Dependency, dependencyNode: BazelDependencyNode): BazelDependencyNode = {
