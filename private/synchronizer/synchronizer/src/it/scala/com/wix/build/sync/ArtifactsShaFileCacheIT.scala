@@ -14,7 +14,7 @@ class ArtifactsShaFileCacheIT extends SpecificationWithJUnit {
 
   "ArtifactsShaFileCache" should {
     "return checksum as cache already has it" in new ctx {
-      fileAccessor.readChecksums() returns Map[String, String](artifact.serialized -> sha256Checksum)
+      fileAccessor.readChecksums() returns Map[String, String](artifact.serialized -> sha256Checksum.sum)
       val cache = new ArtifactsChecksumFileCache(fileAccessor)
 
       cache.getChecksum(artifact) must beSome(sha256Checksum)
@@ -40,17 +40,25 @@ class ArtifactsShaFileCacheIT extends SpecificationWithJUnit {
       fileAccessor.readChecksums() returns Map[String, String]()
       val cache = new ArtifactsChecksumFileCache(fileAccessor)
       cache.setChecksum(artifact, sha256Checksum)
-      val otherChecksum = UUID.randomUUID().toString
+      val otherChecksum = Checksum(UUID.randomUUID().toString)
 
       cache.setChecksum(artifact, otherChecksum)
 
       cache.getChecksum(artifact) must beSome(otherChecksum)
     }
+
+    "store artifacts without checksum" in new ctx {
+      fileAccessor.readChecksums() returns Map[String, String]()
+      val cache = new ArtifactsChecksumFileCache(fileAccessor)
+      cache.setChecksum(artifact, NoChecksum)
+
+      cache.getChecksum(artifact) must beSome(NoChecksum)
+    }
   }
 
   trait ctx extends Scope {
     val fileAccessor = Mockito.mock[ArtifactsChecksumCacheFileAccessor]
-    val sha256Checksum = UUID.randomUUID().toString
+    val sha256Checksum = Checksum(UUID.randomUUID().toString)
     val artifact = Coordinates("org.specs2", "specs2-analysis_2.12", "4.3.1")
   }
 }

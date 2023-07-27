@@ -21,28 +21,44 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
   override def checksumFor(node: DependencyNode): Option[String] = {
     val artifact = node.baseDependency.coordinates
 
-    getChecksum(artifact)
-      .orElse(getChecksumFromCache(artifact))
+    getChecksumFromCache(artifact)
+      .orElse(getChecksum(artifact))
       .orElse {
         log.warn("Fallback to calculating checksum by downloading the bytes...")
         calculateChecksum(artifact)
-      }.toOption
+      }
+      .toOption
+      .collect { case Checksum(sum) => sum }
   }
 
-  private def getChecksumFromCache(artifact: Coordinates): Try[String] =
+  private def getChecksumFromCache(artifact: Coordinates): Try[ArtifactChecksum] =
     cache.getChecksum(artifact) match {
-      case Some(value) => Success(value)
-      case None => throw ArtifactNotFoundException(s"Cache does not have checksum for artifact ${artifact.serialized}")
+      case Some(value) => {
+        Success(value)
+      }
+      case None => {
+        Failure {
+          ArtifactNotFoundException(s"Cache does not have checksum for artifact ${artifact.serialized}")
+        }
+      }
     }
 
-  private def getChecksum(coordinates: Coordinates): Try[Sha256] = getWithFallback(getArtifactSha256, coordinates)
+  private def getChecksum(coordinates: Coordinates): Try[ArtifactChecksum] = {
+    val checksum = getWithFallback(getArtifactSha256, coordinates)
 
-  private def calculateChecksum(coordinates: Coordinates): Try[Sha256] =
+    checksum match {
+      case Success(checksum) => cache.setChecksum(coordinates, checksum)
+      case Failure(_) => cache.setChecksum(coordinates, NoChecksum)
+    }
+
+    checksum
+  }
+
+  private def calculateChecksum(coordinates: Coordinates): Try[ArtifactChecksum] =
     for {
       res <- getWithFallback(getArtifactBytes, coordinates)
       sha256 <- calculateSha256(res)
     } yield {
-      cache.setChecksum(coordinates, sha256)
       sha256
     }
 
@@ -53,7 +69,7 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
     Try {
       attempts.collectFirst {
         case Success(e) => e
-      }.getOrElse {
+      } getOrElse {
         val failures = attempts.toList.collect { case Failure(t) => t }
         val failuresAsStr = failures.map(_.getMessage).mkString("\n")
         val message = s"Failed to fetch resource\n$failuresAsStr"
@@ -63,9 +79,9 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
     }
   }
 
-  private def getArtifactSha256(artifact: Coordinates, baseUrl: String): Try[Sha256] = {
+  private def getArtifactSha256(artifact: Coordinates, baseUrl: String): Try[ArtifactChecksum] = {
     val url = s"$baseUrl/${artifact.toSha256Path}"
-    extract(response = httpClient(url).asString, inUrl = url)
+    extract(response = httpClient(url).asString, inUrl = url).map(sum => Checksum(sum))
   }
 
   private def getArtifactBytes(artifact: Coordinates, baseUrl: String): Try[Array[Byte]] = {
@@ -81,9 +97,9 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
       case r => Failure(errorFetchingArtifactException(inUrl, r))
     }
 
-  private def calculateSha256(jar: Array[Byte]) = {
+  private def calculateSha256(jar: Array[Byte]): Try[ArtifactChecksum] = {
     Try {
-      DigestUtils.sha256Hex(jar)
+      Checksum(DigestUtils.sha256Hex(jar))
     }
   }
 

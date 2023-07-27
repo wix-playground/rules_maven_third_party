@@ -10,27 +10,40 @@ import scala.collection.{Map, mutable}
 import scala.util.Properties
 
 trait ArtifactsChecksumCache {
-  def getChecksum(artifact: Coordinates): Option[String]
+  def getChecksum(artifact: Coordinates): Option[ArtifactChecksum]
 
-  def setChecksum(artifact: Coordinates, checksum: String): Unit
+  def setChecksum(artifact: Coordinates, checksum: ArtifactChecksum): Unit
 
   def flush(): Unit
 }
 
+trait ArtifactChecksum
+
+case object NoChecksum extends ArtifactChecksum
+
+case class Checksum(sum: String) extends ArtifactChecksum
+
 class ArtifactsChecksumFileCache(fileAccessor: ArtifactsChecksumCacheFileAccessor) extends ArtifactsChecksumCache {
   private val artifactsChecksums = loadCachedChecksums()
 
-  override def getChecksum(artifact: Coordinates): Option[String] = {
-    artifactsChecksums.get(artifact.serialized)
+  override def getChecksum(artifact: Coordinates): Option[ArtifactChecksum] = {
+    artifactsChecksums
+      .get(artifact.serialized)
+      .map(sum => if (sum == "n/a") NoChecksum else Checksum(sum))
   }
 
-  override def setChecksum(artifact: Coordinates, checksum: String): Unit = {
-    artifactsChecksums.update(artifact.serialized, checksum)
+  override def setChecksum(artifact: Coordinates, checksum: ArtifactChecksum): Unit = checksum match {
+    case NoChecksum =>
+      artifactsChecksums.update(artifact.serialized, "n/a")
+    case Checksum(sum) =>
+      artifactsChecksums.update(artifact.serialized, sum)
   }
+
 
   override def flush(): Unit = fileAccessor.storeChecksums(artifactsChecksums)
 
   private def loadCachedChecksums(): mutable.Map[String, String] = mutable.Map(fileAccessor.readChecksums().toList: _*)
+
 }
 
 class ArtifactsChecksumCacheFileAccessor {
@@ -50,7 +63,7 @@ class ArtifactsChecksumCacheFileAccessor {
   }
 
   def storeChecksums(checksums: Map[String, String]): Unit = {
-    val serializedContent = mapper.writeValueAsString(checksums)
+    val serializedContent = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(checksums)
 
     if (!cacheFile.exists()) {
       cacheFile.getParentFile.mkdirs()
@@ -61,9 +74,9 @@ class ArtifactsChecksumCacheFileAccessor {
 }
 
 class VoidArtifactsShaCache extends ArtifactsChecksumCache {
-  override def getChecksum(artifact: Coordinates): Option[String] = None
+  override def getChecksum(artifact: Coordinates): Option[ArtifactChecksum] = None
 
-  override def setChecksum(artifact: Coordinates, checksum: String): Unit = {}
+  override def setChecksum(artifact: Coordinates, checksum: ArtifactChecksum): Unit = {}
 
   override def flush(): Unit = {}
 }
