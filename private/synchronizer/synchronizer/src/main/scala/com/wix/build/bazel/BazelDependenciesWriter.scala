@@ -2,12 +2,13 @@ package com.wix.build.bazel
 
 import com.wix.build.maven._
 import com.wix.build.translation.MavenToBazelTranslations.`Maven Coordinates to Bazel rules`
-
-import scala.collection.immutable
+import org.slf4j.LoggerFactory
 
 class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
                               neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
                               importExternalLoadStatement: ImportExternalLoadStatement) {
+
+  private val log = LoggerFactory.getLogger(getClass)
 
   private val thirdPartyPaths = localWorkspace.thirdPartyPaths
 
@@ -100,6 +101,8 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
 
     val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
 
+    reportMissingJars(annotatedDependencyNodes)
+
     val targetsToPersist = if (addRemapping) {
       val userLabelsToVersions = dependencyNodes.toList
         .map { dep =>
@@ -108,15 +111,24 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
         }.toMap
 
       annotatedDependencyNodes.flatMap(node => maybeRuleWithRemapping(node, userLabelsToVersions))
-
-    } else
+    } else {
       annotatedDependencyNodes.flatMap(maybeRuleBy)
+    }
 
     val groupedTargets = targetsToPersist.groupBy(_.ruleTargetLocator).values
     groupedTargets.foreach { targetsGroup =>
       val sortedTargets = targetsGroup.toSeq.sortBy(_.rule.name)
       sortedTargets.foreach(overwriteThirdPartyFolderFiles)
     }
+  }
+
+  private def reportMissingJars(annotatedDependencyNodes: Set[AnnotatedDependencyNode]): Unit = {
+    // We don't add checksums for SNAPSHOTS, but for other artifacts it means they don't exist
+    annotatedDependencyNodes
+      .filter(node => node.checksum.isEmpty && !node.baseDependency.version.endsWith("-SNAPSHOT"))
+      .foreach { node =>
+        log.error(s"Invalid coords for ${node.baseDependency.coordinates.serialized}")
+      }
   }
 
   private def maybeRuleBy(dependencyNode: AnnotatedDependencyNode): Option[RuleToPersist] =
@@ -138,7 +150,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
       node.runtimeDependencies.map(_.toLabel) + s"@${node.baseDependency.coordinates.workspaceRuleName}"
 
     deps.collect { case dep if overriddenLabels.contains(dep) =>
-        dep -> overriddenLabels(dep)
+      dep -> overriddenLabels(dep)
     }.toMap
   }
 
