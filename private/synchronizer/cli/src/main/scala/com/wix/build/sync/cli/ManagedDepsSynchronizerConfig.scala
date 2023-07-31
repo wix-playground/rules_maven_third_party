@@ -98,6 +98,12 @@ abstract class SynchronizerConfigParser {
         config.copy(importExternalLoadStatement = config.importExternalLoadStatement.copy(importExternalMacroName = name))
       }
 
+    opt[String](name = "maven-archive-macro-name")
+      .optional()
+      .action { case (name, config) =>
+        config.copy(importExternalLoadStatement = config.importExternalLoadStatement.copy(mavenArchiveMacroName = name))
+      }
+
     opt[String](name = "import-external-rule-path")
       .required()
       .text("bzl file to load rule from for generated external definitions")

@@ -9,6 +9,12 @@ import org.specs2.specification.Scope
 
 //noinspection TypeAnnotation
 class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
+  val jars = List(artifactA, artifactB, artifactC)
+
+  val resolver = new RuleResolver(
+    thirdPartyDestination = "third_party"
+  )
+
   "Import External Targets File reader" should {
     trait ctx extends Scope {
       val thirdPartyPath = "third_party"
@@ -251,7 +257,7 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
       val newJar = Coordinates("new.group", "new-artifact", "3.0")
 
       val expectedImportExternalTargetsFile =
-        s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external")
+        s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external", maven_archive = "maven_archive")
            |
            |def dependencies():
            |${importExternalRuleWith(newJar).serialized}
@@ -363,19 +369,13 @@ class ImportExternalTargetsFileTest extends SpecificationWithJUnit {
   }
 
   private def contentWith(firstJar: String, rest: String) = {
-    s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external")
+    s"""load("@managed_repo//:import_external.bzl", import_external = "my_import_external", maven_archive = "maven_archive")
        |
        |def dependencies():
        |$firstJar
        |
        |$rest""".stripMargin
   }
-
-  val jars = List(artifactA, artifactB, artifactC)
-
-  val resolver = new RuleResolver(
-    thirdPartyDestination = "third_party"
-  )
 
   def importExternalRuleWith(artifact: Coordinates,
                              runtimeDependencies: Set[Coordinates] = Set.empty,

@@ -1,5 +1,6 @@
 load("@io_bazel_rules_scala//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 load("//rules:import_external_alias.bzl", "import_external_alias")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 REPOSITORY_URLS = [
     "https://repo1.maven.org/maven2",
@@ -39,3 +40,32 @@ def _import_external_sources(name, artifact, fetch_sources, **kwargs):
             name = fixed_alias,
             actual = "@" + name,
         )
+
+def maven_archive(name, artifact):
+    http_archive(
+        name = name,
+        urls = _convert_to_url(artifact),
+        build_file_content = """filegroup(name = "unpacked", srcs = glob(["**/*"],exclude=["BUILD.bazel","WORKSPACE","*.zip","*.tar.gz"]), visibility = ["//visibility:public"])
+filegroup(name = "archive", srcs = glob(["*.zip","*.tar.gz"]), visibility = ["//visibility:public"])
+""",
+    )
+
+def _convert_to_url(artifact):
+    parts = artifact.split(":")
+    group_id_part = parts[0].replace(".", "/")
+    artifact_id = parts[1]
+    version = parts[2]
+    packaging = "jar"
+    classifier_part = ""
+    if len(parts) == 4:
+        packaging = parts[2]
+        version = parts[3]
+    elif len(parts) == 5:
+        packaging = parts[2]
+        classifier_part = "-" + parts[3]
+        version = parts[4]
+
+    final_name = artifact_id + "-" + version + classifier_part + "." + packaging
+    url_suffix = group_id_part + "/" + artifact_id + "/" + version + "/" + final_name
+
+    return [url + "/" + url_suffix for url in REPOSITORY_URLS]
