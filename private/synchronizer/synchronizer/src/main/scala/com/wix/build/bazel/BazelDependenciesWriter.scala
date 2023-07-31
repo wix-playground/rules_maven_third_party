@@ -27,7 +27,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
   def writeFromSratchDependencies(dependencyNodes: Set[BazelDependencyNode]): Set[String] = {
     localWorkspace.deleteAllThirdPartyImportTargetsFiles()
     localWorkspace.overwriteThirdPartyReposFile("def dependencies():")
-    writeThirdPartyFolderContent(dependencyNodes, deleteOld = false, addRemmaping = true)
+    writeThirdPartyFolderContent(dependencyNodes, deleteOld = false, addRemapping = true)
     writeReceipt(dependencyNodes)
     writeThirdPartyReposFile(dependencyNodes, Set())
     computeAffectedFilesBy(dependencyNodes.map(_.toMavenNode))
@@ -94,13 +94,13 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
 
   private def writeThirdPartyFolderContent(dependencyNodes: Set[BazelDependencyNode],
                                            deleteOld: Boolean,
-                                           addRemmaping: Boolean = false): Unit = {
+                                           addRemapping: Boolean = false): Unit = {
     if (deleteOld)
       localWorkspace.deleteAllThirdPartyImportTargetsFiles()
 
     val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
 
-    val targetsToPersist = if (addRemmaping) {
+    val targetsToPersist = if (addRemapping) {
       val userLabelsToVersions = dependencyNodes.toList
         .map { dep =>
           val coordinates = dep.baseDependency.coordinates
