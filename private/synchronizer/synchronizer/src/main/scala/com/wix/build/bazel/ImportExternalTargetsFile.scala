@@ -49,8 +49,9 @@ case class ImportExternalTargetsFile(importExternalLoadStatement: ImportExternal
 }
 
 case class ImportExternalLoadStatement(importExternalRulePath: String,
-                                       importExternalMacroName: String) {
-  val loadStatement = s"""load("$importExternalRulePath", import_external = "$importExternalMacroName")"""
+                                       importExternalMacroName: String,
+                                       mavenArchiveMacroName: String = "maven_archive") {
+  val loadStatement = s"""load("$importExternalRulePath", import_external = "$importExternalMacroName", maven_archive = "$mavenArchiveMacroName")"""
 }
 
 case class HeadersAppender(importExternalLoadStatement: ImportExternalLoadStatement) {
