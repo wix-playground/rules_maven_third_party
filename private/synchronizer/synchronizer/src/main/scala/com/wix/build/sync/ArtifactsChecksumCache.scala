@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 
 import java.io.FileInputStream
 import java.nio.file.{Files, Paths}
-import scala.collection.{Map, mutable}
+import scala.collection.{Map, concurrent}
 import scala.util.Properties
 
 trait ArtifactsChecksumCache {
@@ -42,7 +42,8 @@ class ArtifactsChecksumFileCache(fileAccessor: ArtifactsChecksumCacheFileAccesso
 
   override def flush(): Unit = fileAccessor.storeChecksums(artifactsChecksums)
 
-  private def loadCachedChecksums(): mutable.Map[String, String] = mutable.Map(fileAccessor.readChecksums().toList: _*)
+  private def loadCachedChecksums(): concurrent.Map[String, String] =
+    concurrent.TrieMap(fileAccessor.readChecksums().toList: _*)
 
 }
 
