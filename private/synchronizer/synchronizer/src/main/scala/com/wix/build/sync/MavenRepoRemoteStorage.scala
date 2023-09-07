@@ -1,22 +1,26 @@
 package com.wix.build.sync
 
 import com.wix.build.maven._
-import com.wix.build.sync.ArtifactoryRemoteStorage.{Sha256, _}
+import com.wix.build.sync.ArtifactoryRemoteStorage._
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
-import scalaj.http.{BaseHttp, HttpOptions, HttpResponse}
 
+import java.net.{HttpURLConnection, URI}
+import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import java.net.http.HttpClient.Redirect
+import java.net.http.HttpResponse.BodyHandlers
+import java.time.Duration
+import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
 class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCache) extends DependenciesRemoteStorage {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  private def httpClient = new BaseHttp(options = Seq(
-    HttpOptions.connTimeout(10000),
-    HttpOptions.readTimeout(50000),
-    HttpOptions.followRedirects(false) // don't redirect (SNAPSHOTs case) to avoid calculating unstable checksum
-  ))
+  private val httpClient = HttpClient.newBuilder()
+    .connectTimeout(Duration.ofSeconds(2))
+    .followRedirects(Redirect.NEVER) // don't redirect (SNAPSHOTs case) to avoid calculating unstable checksum
+    .build()
 
   override def checksumFor(node: DependencyNode): Option[String] = {
     val artifact = node.baseDependency.coordinates
@@ -33,14 +37,12 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
 
   private def getChecksumFromCache(artifact: Coordinates): Try[ArtifactChecksum] =
     cache.getChecksum(artifact) match {
-      case Some(value) => {
+      case Some(value) =>
         Success(value)
-      }
-      case None => {
+      case None =>
         Failure {
           ArtifactNotFoundException(s"Cache does not have checksum for artifact ${artifact.serialized}")
         }
-      }
     }
 
   private def getChecksum(coordinates: Coordinates): Try[ArtifactChecksum] = {
@@ -48,19 +50,27 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
 
     checksum match {
       case Success(checksum) => cache.setChecksum(coordinates, checksum)
-      case Failure(_) => cache.setChecksum(coordinates, NoChecksum)
+      case Failure(_: ArtifactNotFoundException) =>
+        cache.setChecksum(coordinates, NoChecksum)
+      case Failure(e) =>
+        log.error("Failed fetching resource - existing.", e)
+        sys.exit(1)
     }
 
     checksum
   }
 
-  private def calculateChecksum(coordinates: Coordinates): Try[ArtifactChecksum] =
+  private def calculateChecksum(coordinates: Coordinates): Try[ArtifactChecksum] = {
     for {
       res <- getWithFallback(getArtifactBytes, coordinates)
       sha256 <- calculateSha256(res)
     } yield {
       sha256
     }
+  }
+
+  def allAttemptsWereNotFound(failures: List[Throwable]): Boolean =
+    failures.forall(_.isInstanceOf[ArtifactNotFoundException])
 
   private def getWithFallback[T](getter: (Coordinates, String) => Try[T],
                                  coordinates: Coordinates): Try[T] = {
@@ -74,26 +84,42 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
         val failuresAsStr = failures.map(_.getMessage).mkString("\n")
         val message = s"Failed to fetch resource\n$failuresAsStr"
         log.warn(message)
-        throw new RuntimeException(message)
+
+        if (allAttemptsWereNotFound(failures)) {
+          throw ArtifactNotFoundException(failuresAsStr)
+        }
+        else {
+          log.error(s"Exiting - failed connection: $failuresAsStr")
+          sys.exit(1)
+        }
       }
     }
   }
 
+  private def getRequestFor(url: String) = HttpRequest
+    .newBuilder(URI.create(url))
+    .timeout(Duration.ofSeconds(30))
+    .GET()
+    .build()
+
   private def getArtifactSha256(artifact: Coordinates, baseUrl: String): Try[ArtifactChecksum] = {
     val url = s"$baseUrl/${artifact.toSha256Path}"
-    extract(response = httpClient(url).asString, inUrl = url).map(sum => Checksum(sum))
+    val request = getRequestFor(url)
+    val response = retry(2)(request, BodyHandlers.ofString())
+    extract(response = response, inUrl = url).map(sum => Checksum(sum))
   }
 
   private def getArtifactBytes(artifact: Coordinates, baseUrl: String): Try[Array[Byte]] = {
     val url = s"$baseUrl/${artifact.toArtifactPath}"
-    extract(response = httpClient(url).asBytes, inUrl = url)
+    val request = getRequestFor(url)
+    val response = retry(2)(request, BodyHandlers.ofByteArray())
+    extract(response = response, inUrl = url)
   }
 
   private def extract[T](response: HttpResponse[T], inUrl: String): Try[T] =
     response match {
-      case r if r.isSuccess => Success(r.body)
-      case r if r.is4xx => Failure(artifactNotFoundException(inUrl))
-      // TODO: should probably sleep and retry in case of response code 5xx
+      case r if r.statusCode() == HttpURLConnection.HTTP_OK => Success(r.body)
+      case r if r.statusCode() == HttpURLConnection.HTTP_NOT_FOUND => Failure(artifactNotFoundException(inUrl))
       case r => Failure(errorFetchingArtifactException(inUrl, r))
     }
 
@@ -107,5 +133,26 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
     ArtifactNotFoundException(s"Got 'NotFound' from $url")
 
   private def errorFetchingArtifactException[T](url: String, r: HttpResponse[T]) =
-    ErrorFetchingArtifactException(s"Got Error [${r.code} : ${r.statusLine}] from $url")
+    ErrorFetchingArtifactException(s"Got Error [${r.statusCode()} : ${r.body()}] from $url")
+
+  @tailrec
+  private def retryTry[T](n: Int)(httpRequest: HttpRequest, bodyHandler: HttpResponse.BodyHandler[T]): Try[HttpResponse[T]] = {
+    val response = Try(httpClient.send(httpRequest, bodyHandler))
+    val sleepMillis = 1000
+    response match {
+      case Success(r) if r.statusCode() >= 500 && r.statusCode() < 599 =>
+        log.warn(s"Retrying GET to ${httpRequest.uri()}, previously failed status ${r.statusCode()}, sleeping for $sleepMillis millis")
+        Thread.sleep(sleepMillis)
+        retryTry[T](n - 1)(httpRequest, bodyHandler)
+      case Failure(t) =>
+        log.warn(s"Retrying GET to ${httpRequest.uri()}, previously failed with ${t}, sleeping for $sleepMillis millis")
+        Thread.sleep(sleepMillis)
+        retryTry[T](n - 1)(httpRequest, bodyHandler)
+      case _ => response
+    }
+  }
+
+  private def retry[T](n: Int)(httpRequest: HttpRequest, bodyHandler: HttpResponse.BodyHandler[T]): HttpResponse[T] = {
+    retryTry(n)(httpRequest, bodyHandler).get
+  }
 }

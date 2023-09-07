@@ -50,7 +50,6 @@ TOOL_DEPS = [
     wix.artifact(group = "org.scala-lang", artifact = "scala-library", version = "2.12.13"),
     wix.artifact(group = "com.github.tomakehurst", artifact = "wiremock-jre8", version = "2.32.0"),
     wix.artifact(group = "org.eclipse.jgit", artifact = "org.eclipse.jgit", version = "5.11.0.202103091610-r"),
-    wix.artifact(group = "org.scalaj", artifact = "scalaj-http_" + SCALA_VERSION, version = "2.4.2"),
     wix.artifact(group = "org.scala-lang.modules", artifact = "scala-xml_" + SCALA_VERSION, version = "2.0.1"),
     wix.artifact(group = "org.scala-lang.modules", artifact = "scala-parser-combinators_" + SCALA_VERSION, version = "1.1.2"),
     wix.artifact(group = "org.scala-lang", artifact = "scala-compiler", version = "2.12.13"),

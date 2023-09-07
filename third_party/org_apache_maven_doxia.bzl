@@ -1,4 +1,4 @@
-load(":import_external.bzl", import_external = "import_external")
+load(":import_external.bzl", import_external = "import_external", maven_archive = "maven_archive")
 
 def dependencies():
     import_external(
