@@ -54,6 +54,7 @@ class ArtifactsChecksumCacheFileAccessor {
 
   def readChecksums(): Map[String, String] = {
     try {
+      log.warn(s"Artifact checksum cache file location: ${cacheFile} - delete the file if you get stale checksums.")
       val inputStream = new FileInputStream(cacheFile)
       mapper.readValue(inputStream, classOf[Map[String, String]])
     } catch {
