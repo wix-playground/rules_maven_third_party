@@ -138,7 +138,7 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
   @tailrec
   private def retryTry[T](n: Int)(httpRequest: HttpRequest, bodyHandler: HttpResponse.BodyHandler[T]): Try[HttpResponse[T]] = {
     val response = Try(httpClient.send(httpRequest, bodyHandler))
-    val sleepMillis = 1
+    val sleepMillis = 1000
     response match {
       case Success(r) if r.statusCode() >= 500 && r.statusCode() < 599 =>
         log.warn(s"Retrying GET to ${httpRequest.uri()}, previously failed status ${r.statusCode()}, sleeping for $sleepMillis millis")
