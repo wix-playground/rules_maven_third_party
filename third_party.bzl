@@ -28,7 +28,6 @@ load("//:third_party/org_tukaani.bzl", org_tukaani_deps = "dependencies")
 load("//:third_party/org_specs2.bzl", org_specs2_deps = "dependencies")
 load("//:third_party/org_sonatype_plexus.bzl", org_sonatype_plexus_deps = "dependencies")
 load("//:third_party/org_slf4j.bzl", org_slf4j_deps = "dependencies")
-load("//:third_party/org_scalaj.bzl", org_scalaj_deps = "dependencies")
 load("//:third_party/org_scala_sbt.bzl", org_scala_sbt_deps = "dependencies")
 load("//:third_party/org_scala_lang.bzl", org_scala_lang_deps = "dependencies")
 load("//:third_party/org_scala_lang_modules.bzl", org_scala_lang_modules_deps = "dependencies")
@@ -222,8 +221,6 @@ def managed_third_party_dependencies():
     org_scala_lang_deps()
 
     org_scala_sbt_deps()
-
-    org_scalaj_deps()
 
     org_slf4j_deps()
 
