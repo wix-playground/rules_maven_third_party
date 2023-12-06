@@ -19,7 +19,7 @@ class MavenRepoRemoteStorage(baseUrls: List[String], cache: ArtifactsChecksumCac
 
   private val httpClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(2))
-    .followRedirects(Redirect.NEVER) // don't redirect (SNAPSHOTs case) to avoid calculating unstable checksum
+    .followRedirects(Redirect.ALWAYS)
     .build()
 
   override def checksumFor(node: DependencyNode): Option[String] = {
