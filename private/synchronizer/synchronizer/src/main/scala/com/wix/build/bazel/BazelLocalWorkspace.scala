@@ -54,6 +54,9 @@ trait BazelLocalWorkspace {
 }
 
 class ThirdPartyPaths(destination: String, val destinationPackage: DestinationPackage) {
+  // TODO: remove after migration is finished
+  def this(destination: String) = this(destination, DestinationPackage.resolveFromDestination(destination))
+
   val thirdPartyReposFilePath: String = s"$destination.bzl"
   val receiptPath: String = s"$destination-receipt.txt"
   val thirdPartyImportFilesPathRoot: String = s"$destination"
