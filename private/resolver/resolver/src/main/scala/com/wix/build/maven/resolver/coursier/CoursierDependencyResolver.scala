@@ -20,7 +20,10 @@ class CoursierDependencyResolver(remoteRepoURLs: => List[String]) extends MavenD
     val repositories = remoteRepoURLs.map(repo => MavenRepository(repo))
     val dependencies = (baseDependencies ++ withManagedDependencies).map(toCoursierDependency)
 
-    val fetch = ResolutionProcess.fetch(repositories, Cache.default.fetch)
+    val fetch = ResolutionProcess.fetch(
+      repositories,
+      Cache.default.fetch
+    )
 
     val resolution = Resolution()
       .withRootDependencies(dependencies)

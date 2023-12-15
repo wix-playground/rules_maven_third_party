@@ -20,7 +20,7 @@ def specs2_ite2e_test(name, srcs, deps = [], runtime_deps = [], data = [], unuse
         deps = deps,
         runtime_deps = runtime_deps,
         data = data,
-        tags = ["E2E", "IT", "block-network"],
+        tags = ["E2E", "IT"],
         size = "large",
         timeout = "moderate",
         prefixes = ["IT", "E2E"],
