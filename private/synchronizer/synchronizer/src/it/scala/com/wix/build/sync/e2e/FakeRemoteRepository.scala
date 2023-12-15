@@ -1,6 +1,6 @@
 package com.wix.build.sync.e2e
 
-import com.wix.build.bazel.{ImportExternalTargetsFileReader, ThirdPartyPaths}
+import com.wix.build.bazel.{DestinationPackage, ImportExternalTargetsFileReader, ThirdPartyPaths}
 import com.wix.build.maven.Coordinates
 import com.wix.build.translation.MavenToBazelTranslations._
 import org.eclipse.jgit.api.Git
@@ -12,7 +12,8 @@ import java.nio.file.{Files, Paths}
 import scala.util.Try
 
 class FakeRemoteRepository() {
-  val thirdPartyPaths = new ThirdPartyPaths("third_party")
+  private val destination = "third_party"
+  val thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
 
   import thirdPartyPaths._
 

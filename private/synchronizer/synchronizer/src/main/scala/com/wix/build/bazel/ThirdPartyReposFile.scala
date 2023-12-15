@@ -8,18 +8,18 @@ import scala.util.matching.Regex
 object ThirdPartyReposFile {
 
   case class Builder(content: String = "") {
-    def fromCoordinates(coordinates: Coordinates, thirdPartyPath: String): Builder = {
+    def fromCoordinates(coordinates: Coordinates, destinationPackage: DestinationPackage): Builder = {
       coordinates.packaging match {
-        case Packaging("jar") => withLoadStatementsFor(coordinates, thirdPartyPath)
+        case Packaging("jar") => withLoadStatementsFor(coordinates, destinationPackage)
         case Packaging("war") => unchangedBuilder
         case _ => withMavenArtifact(coordinates)
       }
     }
 
-    def removeGroupIds(groupIdForBazel: String, thirdPartyPath: String): Builder = {
+    def removeGroupIds(groupIdForBazel: String, destinationPackage: DestinationPackage): Builder = {
       import NewLinesParser.removeMatched
 
-      val contentWithoutLoadStatement = regexOfLoadRuleWithNameMatching(groupIdForBazel, thirdPartyPath)
+      val contentWithoutLoadStatement = regexOfLoadRuleWithNameMatching(groupIdForBazel, destinationPackage)
         .findFirstMatchIn(content) match {
         case Some(m) => removeMatched(content, m)
         case None => content
@@ -34,17 +34,17 @@ object ThirdPartyReposFile {
       Builder(contentWithoutMethodCall)
     }
 
-    def withLoadStatementsFor(coordinates: Coordinates, thirdPartyPath: String): Builder = {
-      val updatedContent = regexOfLoadRuleWithNameMatching(coordinates.groupIdForBazel, thirdPartyPath)
+    def withLoadStatementsFor(coordinates: Coordinates, destinationPackage: DestinationPackage): Builder = {
+      val updatedContent = regexOfLoadRuleWithNameMatching(coordinates.groupIdForBazel, destinationPackage)
         .findFirstMatchIn(content) match {
-        case None => appendLoadStatements(content, coordinates, thirdPartyPath)
+        case None => appendLoadStatements(content, coordinates, destinationPackage)
         case _ => content
       }
       Builder(updatedContent)
     }
 
-    private def appendLoadStatements(thirdPartyRepos: String, coordinates: Coordinates, thirdPartyPath: String): String = {
-      s"""${serializedLoadImportExternalTargetsFile(coordinates, thirdPartyPath)}
+    private def appendLoadStatements(thirdPartyRepos: String, coordinates: Coordinates, destinationPackage: DestinationPackage): String = {
+      s"""${serializedLoadImportExternalTargetsFile(coordinates, destinationPackage)}
          |
          |${thirdPartyRepos.stripLineEnd}
          |
@@ -80,9 +80,9 @@ object ThirdPartyReposFile {
 
   }
 
-  def serializedLoadImportExternalTargetsFile(fromCoordinates: Coordinates, thirdPartyPath: String): String = {
+  def serializedLoadImportExternalTargetsFile(fromCoordinates: Coordinates, destinationPackage: DestinationPackage): String = {
     val groupId = fromCoordinates.groupIdForBazel
-    s"""load("//:$thirdPartyPath/${groupId}.bzl", ${groupId}_deps = "dependencies")"""
+    s"""load("${destinationPackage.bazelPackage}/${groupId}.bzl", ${groupId}_deps = "dependencies")"""
   }
 
   def serializedImportExternalTargetsFileMethodCall(fromCoordinates: Coordinates): String = {
@@ -114,8 +114,8 @@ object ThirdPartyReposFile {
     ("""(?s)if native\.existing_rule\("""" + pattern + """"\) == None:\s*?[^\s]+"""
       + """\(\s*?name\s*?=\s*?"""" + pattern + """",[\s#]*?artifact.*?\)""").r
 
-  private def regexOfLoadRuleWithNameMatching(pattern: String, thirdPartyPath: String) =
-    ("""(?s)load\("//:""" + thirdPartyPath + """/""" + pattern + """.bzl", """ + pattern + """_deps = "dependencies"\)""").r
+  private def regexOfLoadRuleWithNameMatching(pattern: String, destinationPackage: DestinationPackage) =
+    ("""(?s)load\("""" + destinationPackage.bazelPackage + """/""" + pattern + """.bzl", """ + pattern + """_deps = "dependencies"\)""").r
 
   private def regexOfImportExternalTargetsFileMethodCall(groupIdForBazel: String) = {
     (s"  ${groupIdForBazel}_deps\\(\\)").r

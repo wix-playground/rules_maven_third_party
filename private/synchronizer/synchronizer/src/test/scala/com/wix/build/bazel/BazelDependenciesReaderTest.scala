@@ -203,7 +203,10 @@ class BazelDependenciesReaderTest extends SpecificationWithJUnit {
   trait emptyThirdPartyReposCtx extends Scope {
     val localWorkspaceName = "local_workspace_name"
     val thirdPartyPath = "third_party"
-    val localWorkspace: BazelLocalWorkspace = new FakeLocalBazelWorkspace(localWorkspaceName = localWorkspaceName, thirdPartyPaths = new ThirdPartyPaths("third_party"))
+    val localWorkspace: BazelLocalWorkspace = new FakeLocalBazelWorkspace(
+      localWorkspaceName = localWorkspaceName,
+      thirdPartyPaths = new ThirdPartyPaths("third_party", DestinationPackage.resolveFromDestination("third_party"))
+    )
     val reader = new BazelDependenciesReader(localWorkspace)
 
     def defaultDependency(groupId: String, artifactId: String, version: String, exclusion: Set[Exclusion] = Set.empty) =

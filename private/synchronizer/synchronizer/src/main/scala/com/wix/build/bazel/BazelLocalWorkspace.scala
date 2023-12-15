@@ -35,7 +35,7 @@ trait BazelLocalWorkspace {
 
   def allThirdPartyFileLoadedGroups(): Set[String] = {
     val thirdPartyLoadStatementPattern = (
-      """^load\("//:""" + thirdPartyPaths.thirdPartyImportFilesPathRoot + """/([_a-zA-Z]+)\.bzl", [_a-zA-Z]+_deps = "dependencies"\)"""
+      """^load\("""" + thirdPartyPaths.destinationPackage.bazelPackage + """/([_a-zA-Z]+)\.bzl", [_a-zA-Z]+_deps = "dependencies"\)"""
       ).r
 
     thirdPartyReposFileContent().split("\n").collect {
@@ -53,9 +53,21 @@ trait BazelLocalWorkspace {
 
 }
 
-class ThirdPartyPaths(destination: String) {
+class ThirdPartyPaths(destination: String, val destinationPackage: DestinationPackage) {
   val thirdPartyReposFilePath: String = s"$destination.bzl"
   val receiptPath: String = s"$destination-receipt.txt"
   val thirdPartyImportFilesPathRoot: String = s"$destination"
   val localArtifactOverridesFilePath: String = s"$destination/maven/local_artifact_overrides.bzl"
+}
+
+case class DestinationPackage(bazelPackage: String)
+
+object DestinationPackage {
+  def resolveFromDestination(destination: String): DestinationPackage = {
+    val packagePath = s"/${destination}"
+    val lastIndexOfSlash = packagePath.lastIndexOf("/")
+    val parts = packagePath.splitAt(lastIndexOfSlash)
+    val thirdPartyPackage = s"//${parts._1.stripPrefix("/")}:${parts._2.stripPrefix("/")}"
+    DestinationPackage(thirdPartyPackage)
+  }
 }

@@ -10,15 +10,18 @@ import java.nio.file.{Files, Paths}
 
 //noinspection TypeAnnotation
 class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
+  private val destination = "third_party"
+  val thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
+
   "FileSystemBazelLocalWorkspace" should {
     "throw exception when given filepath does not exist" in {
       val nonExistingPath = Paths.get("/not-very-likely-to-exists-path")
 
-      new FileSystemBazelLocalWorkspace(nonExistingPath.toFile, new ThirdPartyPaths("third_party")) must throwA[FileNotFoundException]
+      new FileSystemBazelLocalWorkspace(nonExistingPath.toFile, thirdPartyPaths) must throwA[FileNotFoundException]
     }
 
     "return initial skeleton for third party repos content if third party repos file does not exists" in new blankWorkspaceCtx {
-      new FileSystemBazelLocalWorkspace(blankWorkspaceRootPath, new ThirdPartyPaths("third_party")).thirdPartyReposFileContent() mustEqual "def dependencies():"
+      new FileSystemBazelLocalWorkspace(blankWorkspaceRootPath, thirdPartyPaths).thirdPartyReposFileContent() mustEqual "def dependencies():"
     }
 
     "Get third party repos file content" in new blankWorkspaceCtx {
@@ -212,6 +215,10 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
   }
 
   private def aFileSystemBazelLocalWorkspace(on: File) = {
-    new FileSystemBazelLocalWorkspace(on, new ThirdPartyPaths("third_party"))
+    val destination = "third_party"
+    new FileSystemBazelLocalWorkspace(
+      on,
+      new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
+    )
   }
 }

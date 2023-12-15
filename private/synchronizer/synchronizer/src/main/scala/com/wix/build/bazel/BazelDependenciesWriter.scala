@@ -69,9 +69,10 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
     val actual = dependencyNodes.toList.sortBy(_.baseDependency.coordinates.workspaceRuleName)
     val existingThirdPartyReposFile = localWorkspace.thirdPartyReposFileContent()
     val thirdPartyReposBuilder = actual.map(_.baseDependency.coordinates)
-      .foldLeft(ThirdPartyReposFile.Builder(existingThirdPartyReposFile))(_.fromCoordinates(_, thirdPartyPaths.thirdPartyImportFilesPathRoot))
+      .foldLeft(ThirdPartyReposFile.Builder(existingThirdPartyReposFile))(_.fromCoordinates(_, thirdPartyPaths.destinationPackage))
 
-    val thirdPartyReposBuilderWithDeletions = noLongerUsedGroupIds.foldLeft(thirdPartyReposBuilder)(_.removeGroupIds(_, thirdPartyPaths.thirdPartyImportFilesPathRoot))
+    val thirdPartyReposBuilderWithDeletions = noLongerUsedGroupIds
+      .foldLeft(thirdPartyReposBuilder)(_.removeGroupIds(_, thirdPartyPaths.destinationPackage))
     val content = thirdPartyReposBuilderWithDeletions.content
 
     val nonEmptyContent = Option(content).filter(_.trim.nonEmpty).fold("  pass")(c => c)
