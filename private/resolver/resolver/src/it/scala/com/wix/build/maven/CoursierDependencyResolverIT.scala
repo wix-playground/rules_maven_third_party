@@ -9,6 +9,9 @@ import org.specs2.specification.{AfterEach, Scope}
 //noinspection TypeAnnotation
 class CoursierDependencyResolverIT extends SpecificationWithJUnit with AfterEach {
   sequential
+
+  System.setProperty("coursier.cache", System.getenv("TEST_TMPDIR"))
+
   val fakeMavenRepository = new FakeMavenRepository()
 
   "return only one entry for each dependency given transitive dependency has different scope" in new Context {
