@@ -1,6 +1,6 @@
 package com.wix.build.sync.cli
 
-import com.wix.build.bazel.ImportExternalLoadStatement
+import com.wix.build.bazel.{DestinationPackage, ImportExternalLoadStatement}
 import scopt.OptionParser
 
 object ManagedDepsSynchronizerConfig extends SynchronizerConfigParser
@@ -15,7 +15,9 @@ case class ManagedDepsSynchronizerConfig(pathToArtifactsFile: String,
                                          pollingMaxAttempts: Int,
                                          millisBetweenPollings: Int,
                                          cacheChecksums: Boolean,
-                                         importExternalLoadStatement: ImportExternalLoadStatement)
+                                         importExternalLoadStatement: ImportExternalLoadStatement) {
+  val destinationPackage: DestinationPackage = DestinationPackage.resolveFromDestination(destination)
+}
 
 abstract class SynchronizerConfigParser {
   val defaultConfiguration = ManagedDepsSynchronizerConfig(

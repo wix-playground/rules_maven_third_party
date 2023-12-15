@@ -66,7 +66,7 @@ class BazelWorkspaceDriver(bazelRepo: BazelLocalWorkspace) {
   }
 
   private def addImportFileLoadStatementsToThirdPartyReposFile(currentSkylarkFile: String, mavenJar: Coordinates) = {
-    s"""${serializedLoadImportExternalTargetsFile(mavenJar, bazelRepo.thirdPartyPaths.thirdPartyImportFilesPathRoot)}
+    s"""${serializedLoadImportExternalTargetsFile(mavenJar, bazelRepo.thirdPartyPaths.destinationPackage)}
        |
        |$currentSkylarkFile
        |

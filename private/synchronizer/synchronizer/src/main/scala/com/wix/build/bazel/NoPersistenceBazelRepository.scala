@@ -6,7 +6,10 @@ import java.io.File
 class NoPersistenceBazelRepository(local: File, thirdPartyDestination: String) extends BazelRepository {
 
   override def resetAndCheckoutMaster(): BazelLocalWorkspace =
-    new FileSystemBazelLocalWorkspace(local, new ThirdPartyPaths(thirdPartyDestination))
+    new FileSystemBazelLocalWorkspace(
+      local,
+      new ThirdPartyPaths(thirdPartyDestination, DestinationPackage.resolveFromDestination(thirdPartyDestination))
+    )
 
   override def persist(branchName: String, message: String): Unit = ()
 

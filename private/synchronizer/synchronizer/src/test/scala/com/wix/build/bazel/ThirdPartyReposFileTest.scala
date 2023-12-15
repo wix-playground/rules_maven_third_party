@@ -11,6 +11,7 @@ class ThirdPartyReposFileTest extends SpecificationWithJUnit {
 
   val jars = List(artifactA, artifactB, artifactC)
   val thirdPartyPath = "third_party"
+  val destinationPackage = DestinationPackage.resolveFromDestination(thirdPartyPath)
 
   "third party repos file parser" should {
     trait ctx extends Scope {
@@ -80,7 +81,7 @@ class ThirdPartyReposFileTest extends SpecificationWithJUnit {
     "do nothing in case one with same groupId but different artifactId is defined in third party repos" in {
       val thirdPartyRepos = createThirdPartyReposWithLoadStatementFor(jars)
       val newHead = jars.head.copy(artifactId = "bla-artifact")
-      ThirdPartyReposFile.Builder(thirdPartyRepos).withLoadStatementsFor(newHead, thirdPartyPath).content mustEqual thirdPartyRepos
+      ThirdPartyReposFile.Builder(thirdPartyRepos).withLoadStatementsFor(newHead, destinationPackage).content mustEqual thirdPartyRepos
     }
 
     "insert new load statement in case there is no load statement with same group id" in {
@@ -97,19 +98,19 @@ class ThirdPartyReposFileTest extends SpecificationWithJUnit {
            |    new_group_deps()
            |""".stripMargin
 
-      ThirdPartyReposFile.Builder(thirdPartyRepos).withLoadStatementsFor(newJar, thirdPartyPath).content mustEqual expectedThirdPartyRepos
+      ThirdPartyReposFile.Builder(thirdPartyRepos).withLoadStatementsFor(newJar, destinationPackage).content mustEqual expectedThirdPartyRepos
     }
 
     "ignore war dependencies" in {
       val warDependnecy = MavenMakers.someCoordinates("some-dep", Packaging("war"))
-      ThirdPartyReposFile.Builder("foo").fromCoordinates(warDependnecy, thirdPartyPath) mustEqual Builder("foo")
+      ThirdPartyReposFile.Builder("foo").fromCoordinates(warDependnecy, destinationPackage) mustEqual Builder("foo")
     }
 
     "delete load statement" in {
       val thirdPartyRepos = createThirdPartyReposWithLoadStatementFor(List(artifactA, artifactB, artifactC))
       val expectedThirdPartyRepos = createThirdPartyReposWithLoadStatementFor(List(artifactA, artifactB))
 
-      ThirdPartyReposFile.Builder(thirdPartyRepos).removeGroupIds(artifactC.groupId, thirdPartyPath).content mustEqual expectedThirdPartyRepos
+      ThirdPartyReposFile.Builder(thirdPartyRepos).removeGroupIds(artifactC.groupId, destinationPackage).content mustEqual expectedThirdPartyRepos
     }
 
     "delete 2 consecutive load statements which have no empty line in between them" in {
@@ -117,8 +118,8 @@ class ThirdPartyReposFileTest extends SpecificationWithJUnit {
       val expectedThirdPartyRepos = createThirdPartyReposWithLoadStatementFor(List(artifactA, artifactD))
 
       ThirdPartyReposFile.Builder(thirdPartyRepos)
-        .removeGroupIds(artifactB.groupId, thirdPartyPath)
-        .removeGroupIds(artifactC.groupId, thirdPartyPath).content mustEqual expectedThirdPartyRepos
+        .removeGroupIds(artifactB.groupId, destinationPackage)
+        .removeGroupIds(artifactC.groupId, destinationPackage).content mustEqual expectedThirdPartyRepos
     }
   }
 
@@ -149,13 +150,13 @@ class ThirdPartyReposFileTest extends SpecificationWithJUnit {
     val firstJar: Coordinates = coordinates.head
     val restOfJars = coordinates.tail
 
-    val restLoads = restOfJars.map(serializedLoadImportExternalTargetsFile(_, thirdPartyPath)).mkString(insertOnlyOneNewLineIfRequired)
+    val restLoads = restOfJars.map(serializedLoadImportExternalTargetsFile(_, destinationPackage)).mkString(insertOnlyOneNewLineIfRequired)
     val restCalls = restOfJars.map(serializedImportExternalTargetsFileMethodCall).mkString(insertOnlyOneNewLineIfRequired)
 
 
     s"""load("@core_server_build_tools//:macros.bzl", "maven_archive", "maven_proto")
        |
-       |${serializedLoadImportExternalTargetsFile(firstJar, thirdPartyPath)}
+       |${serializedLoadImportExternalTargetsFile(firstJar, destinationPackage)}
        |
        |$restLoads
        |

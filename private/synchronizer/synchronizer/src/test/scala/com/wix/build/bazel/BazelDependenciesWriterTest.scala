@@ -21,7 +21,10 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
     trait emptyThirdPartyReposCtx extends Scope {
       val localWorkspaceName = "some_workspace_name"
       val thirdPartyPath = "third_party"
-      val localWorkspace = new FakeLocalBazelWorkspace(localWorkspaceName = localWorkspaceName, thirdPartyPaths = new ThirdPartyPaths(thirdPartyPath))
+      val localWorkspace = new FakeLocalBazelWorkspace(
+        localWorkspaceName = localWorkspaceName,
+        thirdPartyPaths = new ThirdPartyPaths(thirdPartyPath, DestinationPackage.resolveFromDestination(thirdPartyPath))
+      )
 
       def writer = writerFor(localWorkspace)
 
@@ -418,7 +421,10 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
     "given an overrided set of neverlink coordinates" should {
       "write target with 'neverlink = 1 ' if came from overrided list" in {
         val localWorkspaceName = "some_workspace_name"
-        val localWorkspace = new FakeLocalBazelWorkspace(localWorkspaceName = localWorkspaceName, thirdPartyPaths = new ThirdPartyPaths("third_party"))
+        val destination = "third_party"
+        val localWorkspace = new FakeLocalBazelWorkspace(
+          localWorkspaceName = localWorkspaceName,
+          thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination)))
 
         val artifact = someCoordinates("some-artifact")
 

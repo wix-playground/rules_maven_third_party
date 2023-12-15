@@ -1,6 +1,6 @@
 package com.wix.build.sync.core
 
-import com.wix.build.bazel.{BazelDependenciesWriter, FileSystemBazelLocalWorkspace, ImportExternalLoadStatement, ThirdPartyPaths}
+import com.wix.build.bazel.{BazelDependenciesWriter, DestinationPackage, FileSystemBazelLocalWorkspace, ImportExternalLoadStatement, ThirdPartyPaths}
 import com.wix.build.maven._
 import com.wix.build.sync.ArtifactoryRemoteStorage.decorateNodesWithChecksum
 import com.wix.build.sync.DependenciesRemoteStorage
@@ -11,6 +11,7 @@ import java.nio.file.Path
 class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyResolver,
                                       managedDependenciesRepoPath: Path,
                                       destination: String,
+                                      destinationPackage: DestinationPackage,
                                       dependenciesRemoteStorage: DependenciesRemoteStorage,
                                       managedDependencies: List[Dependency],
                                       importExternalLoadStatement: ImportExternalLoadStatement)
@@ -26,7 +27,10 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
     )
 
     new BazelDependenciesWriter(
-      new FileSystemBazelLocalWorkspace(managedDependenciesRepoPath.toFile, new ThirdPartyPaths(destination)),
+      new FileSystemBazelLocalWorkspace(
+        managedDependenciesRepoPath.toFile,
+        new ThirdPartyPaths(destination, destinationPackage),
+      ),
       importExternalLoadStatement = importExternalLoadStatement
     ).writeDependencies(dependenciesToUpdateWithChecksums)
   }
