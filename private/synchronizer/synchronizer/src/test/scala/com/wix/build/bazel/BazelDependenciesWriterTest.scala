@@ -59,38 +59,50 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
         val matchingGroupId = baseDependency.coordinates.groupIdForBazel
       }
 
-      "write import_external rule with checksum to third party repos file " in new newRootDependencyNodeCtx {
-        writer.writeDependencies(aRootBazelDependencyNode(baseDependency, checksum = Some("checksum"), srcChecksum = Some("srcChecksum")))
+      "given failOnMissingArtifacts disabled" should {
+        "write import_external rule with checksum to third party repos file " in new newRootDependencyNodeCtx {
+          writer.writeDependencies(aRootBazelDependencyNode(baseDependency, checksum = Some("checksum"), srcChecksum = Some("srcChecksum")))
 
-        localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
-          containRootScalaImportExternalRuleFor(baseDependency.coordinates, "checksum", "srcChecksum")
+          localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
+            containRootScalaImportExternalRuleFor(baseDependency.coordinates, "checksum", "srcChecksum")
+        }
+
+        "write maven artifact coordinates to local artifact overrides file" in new newRootDependencyNodeCtx {
+          writer.writeDependencies(
+            Set(baseDependency),
+            Set(aRootBazelDependencyNode(baseDependency)),
+            Set.empty[BazelDependencyNode],
+            Set.empty[Coordinates]
+          )
+
+          localWorkspace.localArtifactOverridesFileContent() must containMavenArtifact(baseDependency.coordinates)
+        }
+
+        "write import_external rule with snapshotSources=1 to third party repos file " in new newRootDependencyNodeCtx {
+          writer.writeDependencies(aRootBazelSnapshotDependencyNode(baseSnapshotDependency))
+
+          localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
+            containRootSnapshotScalaImportExternalRuleFor(baseSnapshotDependency.coordinates, missingJar = true)
+        }
+
+        "write import_external rule with neverlink and linkable rule name to third party repos file " in new newRootDependencyNodeCtx {
+          writer.writeDependencies(aRootBazelDependencyNode(providedDependency))
+
+          localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
+            containScalaImportExternalRuleFor(providedDependency.coordinates,
+              s"""|neverlink = 1,
+                  |generated_linkable_rule_name = "linkable",""".stripMargin)
+        }
       }
 
-      "write maven artifact coordinates to local artifact overrides file" in new newRootDependencyNodeCtx {
-        writer.writeDependencies(
-          Set(baseDependency),
-          Set(aRootBazelDependencyNode(baseDependency)),
-          Set.empty[BazelDependencyNode],
-          Set.empty[Coordinates]
-        )
+      "given failOnMissingArtifacts enabled" should {
+        "write fails with missing artifacts" in new newRootDependencyNodeCtx {
+          override def writer: BazelDependenciesWriter =
+            writerFor(localWorkspace = localWorkspace, failOnMissingArtifacts = true)
 
-        localWorkspace.localArtifactOverridesFileContent() must containMavenArtifact(baseDependency.coordinates)
-      }
-
-      "write import_external rule with snapshotSources=1 to third party repos file " in new newRootDependencyNodeCtx {
-        writer.writeDependencies(aRootBazelSnapshotDependencyNode(baseSnapshotDependency))
-
-        localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
-          containRootSnapshotScalaImportExternalRuleFor(baseSnapshotDependency.coordinates, missingJar = true)
-      }
-
-      "write import_external rule with neverlink and linkable rule name to third party repos file " in new newRootDependencyNodeCtx {
-        writer.writeDependencies(aRootBazelDependencyNode(providedDependency))
-
-        localWorkspace.thirdPartyImportTargetsFileContent(matchingGroupId) must
-          containScalaImportExternalRuleFor(providedDependency.coordinates,
-            s"""|neverlink = 1,
-                |generated_linkable_rule_name = "linkable",""".stripMargin)
+          writer.writeDependencies(aRootBazelDependencyNode(baseDependency, checksum = None)) must
+            throwA[MissingArtifactsException]("some.group:some-dep:some-version")
+        }
       }
     }
 
@@ -520,9 +532,10 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
   }
 
   private def writerFor(localWorkspace: BazelLocalWorkspace,
-                        neverLinkResolver: NeverLinkResolver = NeverLinkResolver()) = {
+                        neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
+                        failOnMissingArtifacts: Boolean = false) = {
     val statement = ImportExternalLoadStatement(importExternalRulePath = "@some_workspace//:import_external.bzl", importExternalMacroName = "some_import_external")
-    new BazelDependenciesWriter(localWorkspace, neverLinkResolver, statement)
+    new BazelDependenciesWriter(localWorkspace, neverLinkResolver, statement, failOnMissingArtifacts)
   }
 
   private def containsExactlyOneRuleOfName(name: String): Matcher[String] = (countMatches(s"""name += +"$name"""".r, _: String)) ^^ equalTo(1)
