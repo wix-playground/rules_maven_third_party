@@ -33,7 +33,7 @@ abstract class SynchronizerConfigParser {
     millisBetweenPollings = 3000,
     cacheChecksums = true,
     importExternalLoadStatement = ImportExternalLoadStatement(null, null),
-    failOnMissingArtifacts = true,
+    failOnMissingArtifacts = false,
   )
 
   private val parser = new OptionParser[ManagedDepsSynchronizerConfig](toolName) {
