@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory
 
 class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
                               neverLinkResolver: NeverLinkResolver = NeverLinkResolver(),
-                              importExternalLoadStatement: ImportExternalLoadStatement) {
+                              importExternalLoadStatement: ImportExternalLoadStatement,
+                              failOnMissingArtifacts: Boolean = false) {
 
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -97,12 +98,11 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
   private def writeThirdPartyFolderContent(dependencyNodes: Set[BazelDependencyNode],
                                            deleteOld: Boolean,
                                            addRemapping: Boolean = false): Unit = {
+    val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
+    reportMissingJars(annotatedDependencyNodes)
+
     if (deleteOld)
       localWorkspace.deleteAllThirdPartyImportTargetsFiles()
-
-    val annotatedDependencyNodes = dependencyNodes.map(annotatedDepNodeTransformer.annotate)
-
-    reportMissingJars(annotatedDependencyNodes)
 
     val targetsToPersist = if (addRemapping) {
       val userLabelsToVersions = dependencyNodes.toList
@@ -124,11 +124,18 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
   }
 
   private def reportMissingJars(annotatedDependencyNodes: Set[AnnotatedDependencyNode]): Unit = {
-    // We don't add checksums for SNAPSHOTS, but for other artifacts it means they don't exist
-    annotatedDependencyNodes
-      .filter(node => node.checksum.isEmpty && !node.baseDependency.version.endsWith("-SNAPSHOT"))
-      .foreach { node =>
-        log.error(s"Invalid coords for ${node.baseDependency.coordinates.serialized}")
+    val missingArtifacts = annotatedDependencyNodes
+      // We don't add checksums for SNAPSHOTS, but for other artifacts it means they don't exist
+      .filter(!_.baseDependency.version.endsWith("-SNAPSHOT"))
+      .filter(_.checksum.isEmpty)
+      .map(_.baseDependency.coordinates.serialized)
+
+      if (failOnMissingArtifacts && missingArtifacts.nonEmpty) {
+        throw MissingArtifactsException(missingArtifacts)
+      }
+
+      missingArtifacts.foreach { missingArtifact =>
+        log.error(s"Invalid coords for $missingArtifact")
       }
   }
 

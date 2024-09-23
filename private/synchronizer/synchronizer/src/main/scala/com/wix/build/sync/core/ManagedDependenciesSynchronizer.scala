@@ -14,7 +14,8 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
                                       destinationPackage: DestinationPackage,
                                       dependenciesRemoteStorage: DependenciesRemoteStorage,
                                       managedDependencies: List[Dependency],
-                                      importExternalLoadStatement: ImportExternalLoadStatement)
+                                      importExternalLoadStatement: ImportExternalLoadStatement,
+                                      failOnMissingArtifacts: Boolean)
   extends DependenciesSynchronizer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -31,7 +32,8 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
         managedDependenciesRepoPath.toFile,
         new ThirdPartyPaths(destination, destinationPackage),
       ),
-      importExternalLoadStatement = importExternalLoadStatement
+      importExternalLoadStatement = importExternalLoadStatement,
+      failOnMissingArtifacts = failOnMissingArtifacts
     ).writeDependencies(dependenciesToUpdateWithChecksums)
   }
 
