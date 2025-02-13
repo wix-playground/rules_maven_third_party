@@ -73,7 +73,6 @@ declare_deps_provider(
 
 scala_testing_toolchain(
     name = "testing_toolchains_with_all_deps_impl",
-    testonly = True,
     dep_providers = [
         ":specs2_classpath_provider",
         ":specs2_junit_classpath_provider",
@@ -84,7 +83,6 @@ scala_testing_toolchain(
 
 toolchain(
     name = "testing_toolchain",
-    testonly = True,
     toolchain = ":testing_toolchains_with_all_deps_impl",
     toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
     visibility = ["//visibility:public"],
@@ -92,7 +90,6 @@ toolchain(
 
 declare_deps_provider(
     name = "junit_classpath_provider",
-    testonly = True,
     deps_id = "junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
@@ -103,7 +100,6 @@ declare_deps_provider(
 
 declare_deps_provider(
     name = "specs2_classpath_provider",
-    testonly = True,
     deps_id = "specs2_classpath",
     visibility = ["//visibility:public"],
     deps = [
@@ -116,7 +112,6 @@ declare_deps_provider(
 
 declare_deps_provider(
     name = "specs2_junit_classpath_provider",
-    testonly = True,
     deps_id = "specs2_junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
