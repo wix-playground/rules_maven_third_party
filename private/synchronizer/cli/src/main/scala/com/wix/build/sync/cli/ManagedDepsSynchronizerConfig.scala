@@ -70,11 +70,11 @@ abstract class SynchronizerConfigParser {
         case (_, config) => config.copy(resolveLocally = true)
       }
 
-    opt[Unit](name = "cache-checksums")
+    opt[Boolean](name = "cache-checksums")
       .optional()
       .text("Use artifact sha calculation caching instead of calculating it after downloading an artifact")
       .action {
-        case (_, config) => config.copy(cacheChecksums = true)
+        case (cacheChecksums, config) => config.copy(cacheChecksums = cacheChecksums)
       }
 
     opt[String](name = "destination")
