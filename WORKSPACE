@@ -7,6 +7,15 @@ local_repository(
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Use Zig for C++ toolchains
+load("//tools/toolchains/cc:repositories.bzl", "cc_repositories")
+
+cc_repositories()
+
+load("//tools/toolchains/cc:toolchains.bzl", "cc_toolchains")
+
+cc_toolchains()
+
 http_archive(
     name = "rules_java",
     sha256 = "8daa0e4f800979c74387e4cd93f97e576ec6d52beab8ac94710d2931c57f8d8b",
