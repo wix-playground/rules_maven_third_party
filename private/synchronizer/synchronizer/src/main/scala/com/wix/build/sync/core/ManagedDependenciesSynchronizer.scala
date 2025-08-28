@@ -15,7 +15,8 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
                                       dependenciesRemoteStorage: DependenciesRemoteStorage,
                                       managedDependencies: List[Dependency],
                                       importExternalLoadStatement: ImportExternalLoadStatement,
-                                      failOnMissingArtifacts: Boolean)
+                                      failOnMissingArtifacts: Boolean,
+                                      failOnSnapshotVersions: Boolean)
   extends DependenciesSynchronizer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -24,7 +25,8 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
 
     val dependenciesToUpdateWithChecksums = calcManagedNodesToSync(
       currentRepoDependencies,
-      managedDependencies
+      managedDependencies,
+      failOnSnapshotVersions
     )
 
     new BazelDependenciesWriter(
@@ -38,9 +40,21 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
   }
 
   private def calcManagedNodesToSync(currentRepoDependencies: List[Dependency],
-                                     managedDependencies: List[Dependency]): Set[BazelDependencyNode] = {
+                                     managedDependencies: List[Dependency],
+                                     failOnSnapshotVersions: Boolean): Set[BazelDependencyNode] = {
 
     val naiveDependencyGraph = mavenDependencyResolver.dependencyClosureOf(currentRepoDependencies, managedDependencies)
+
+    if (failOnSnapshotVersions) {
+      val snapshotDeps = naiveDependencyGraph.filter(_.isSnapshot)
+      if (snapshotDeps.nonEmpty) {
+        val snapshotDepsStr = snapshotDeps
+          .map(_.baseDependency.coordinates)
+          .map(d => s"${d.groupId}:${d.artifactId}:${d.version}").mkString("\n")
+
+        throw new IllegalStateException(s"Snapshot dependencies are not supported, found:\n$snapshotDepsStr")
+      }
+    }
 
     logger.info(s"syncing ${naiveDependencyGraph.size} dependencies which are the closure of the ${managedDependencies.size} managed dependencies")
 

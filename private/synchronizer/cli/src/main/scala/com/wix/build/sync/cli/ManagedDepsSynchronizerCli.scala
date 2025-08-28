@@ -58,7 +58,8 @@ abstract class SynchronizerCli {
       storage,
       managedDeps,
       config.importExternalLoadStatement,
-      config.failOnMissingArtifacts
+      config.failOnMissingArtifacts,
+      config.failOnSnapshotVersions
     )
   }
 

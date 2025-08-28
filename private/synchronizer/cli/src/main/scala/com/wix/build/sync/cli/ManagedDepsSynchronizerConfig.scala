@@ -16,7 +16,8 @@ case class ManagedDepsSynchronizerConfig(pathToArtifactsFile: String,
                                          millisBetweenPollings: Int,
                                          cacheChecksums: Boolean,
                                          importExternalLoadStatement: ImportExternalLoadStatement,
-                                         failOnMissingArtifacts: Boolean) {
+                                         failOnMissingArtifacts: Boolean,
+                                         failOnSnapshotVersions: Boolean) {
   val destinationPackage: DestinationPackage = DestinationPackage.resolveFromDestination(destination)
 }
 
@@ -34,6 +35,7 @@ abstract class SynchronizerConfigParser {
     cacheChecksums = true,
     importExternalLoadStatement = ImportExternalLoadStatement(null, null),
     failOnMissingArtifacts = false,
+    failOnSnapshotVersions = false,
   )
 
   private val parser = new OptionParser[ManagedDepsSynchronizerConfig](toolName) {
@@ -120,6 +122,13 @@ abstract class SynchronizerConfigParser {
       .text("Fail with an exception, aggregating all missing artifacts, if any")
       .action {
         case (param, config) => config.copy(failOnMissingArtifacts = param)
+      }
+
+    opt[Boolean](name = "fail-on-snapshot-versions")
+      .optional()
+      .text("Fail with an exception, if snapshot versions are detected among managed dependencies")
+      .action {
+        case (param, config) => config.copy(failOnSnapshotVersions = param)
       }
 
     help("help")
