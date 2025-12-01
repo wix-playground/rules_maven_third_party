@@ -12,6 +12,7 @@ def _impl(ctx):
         " --import-external-rule-path=\"{import_external_rule_path}\"",
         " --import-external-macro-name=\"{import_external_macro_name}\"",
         " --remote-resolver-url=\"{remote_resolver_url}\"",
+        " --destination=\"{destination}\"",
         " $@\n",
     ]
 
@@ -23,6 +24,7 @@ def _impl(ctx):
         import_external_rule_path = ctx.attr.import_external_rule_path,
         import_external_macro_name = ctx.attr.import_external_macro_name,
         remote_resolver_url = ctx.attr.remote_resolver_url,
+        destination = ctx.attr.destination,
     )
 
     additional_runfiles = []
@@ -54,6 +56,10 @@ resolve_dependencies = rule(
         "import_external_rule_path": attr.string(mandatory = True),
         "import_external_macro_name": attr.string(mandatory = True),
         "remote_resolver_url": attr.string(mandatory = False),
+        "destination": attr.string(
+            default = "third_party",
+            doc = "Destination path for generated .bzl files relative to workspace root",
+        ),
         "resolver": attr.label(
             providers = [DefaultInfo],
             default = "@rules_maven_third_party//private/synchronizer/cli/src/main/scala/com/wix/build/sync/cli",

@@ -18,6 +18,7 @@ resolve_dependencies(
     import_external_rule_path = "{import_external_rule_path}",
     import_external_macro_name = "{import_external_macro_name}",
     remote_resolver_url = "{remote_resolver_url}",
+    destination = "{destination}",
     resolver = "{resolver}",
 )
 """
@@ -102,6 +103,7 @@ def _impl(repository_ctx):
             import_external_rule_path = repository_ctx.attr.import_external_rule_path,
             import_external_macro_name = repository_ctx.attr.import_external_macro_name,
             remote_resolver_url = repository_ctx.attr.remote_resolver_url,
+            destination = repository_ctx.attr.destination,
             resolver = repository_ctx.attr.resolver,
         ),
     )
@@ -125,6 +127,10 @@ _managed_third_party = repository_rule(
             mandatory = False,
             doc = "remote resolver url if supported",
         ),
+        "destination": attr.string(
+            default = "third_party",
+            doc = "Destination path for generated .bzl files relative to workspace root",
+        ),
         "resolver": attr.string(
             default = "@rules_maven_third_party//private/synchronizer/cli/src/main/scala/com/wix/build/sync/cli",
             doc = "resolver binary target",
@@ -136,12 +142,14 @@ def managed_third_party(
         artifacts,
         name = "managed_third_party",
         remote_resolver_url = None,
+        destination = "third_party",
         **kwargs):
     artifacts_json = _artifacts_to_json(artifacts)
 
     _managed_third_party(
         name = name,
         remote_resolver_url = remote_resolver_url,
+        destination = destination,
         artifacts = artifacts_json,
         **kwargs
     )
