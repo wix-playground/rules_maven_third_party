@@ -18,7 +18,15 @@ def _impl(ctx):
         else:
             auto_path = auto_aggregator
             new_path = aggregator_name
-        rename_cmd = '\n\n# Rename aggregator file\nTARGET_REPO="${{DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}}"\nif [ -f "$TARGET_REPO/{auto_path}" ]; then\n  mv "$TARGET_REPO/{auto_path}" "$TARGET_REPO/{new_path}"\n  echo "Renamed {auto_path} -> {new_path}"\nfi\n'.format(
+        rename_cmd = """
+
+# Rename aggregator file
+TARGET_REPO="${DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}"
+if [ -f "$TARGET_REPO/{auto_path}" ]; then
+  mv "$TARGET_REPO/{auto_path}" "$TARGET_REPO/{new_path}"
+  echo "Renamed {auto_path} -> {new_path}"
+fi
+""".format(
             auto_path = auto_path,
             new_path = new_path,
         )
