@@ -28,7 +28,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
 
   def writeFromSratchDependencies(dependencyNodes: Set[BazelDependencyNode]): Set[String] = {
     localWorkspace.deleteAllThirdPartyImportTargetsFiles()
-    localWorkspace.overwriteThirdPartyReposFile("def dependencies():")
+    localWorkspace.overwriteThirdPartyReposFile("def managed_third_party_dependencies():")
     writeThirdPartyFolderContent(dependencyNodes, deleteOld = false, addRemapping = false)
     writeReceipt(dependencyNodes)
     writeThirdPartyReposFile(dependencyNodes, Set())
