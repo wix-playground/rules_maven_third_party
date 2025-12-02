@@ -37,7 +37,7 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
       ),
       importExternalLoadStatement = importExternalLoadStatement,
       failOnMissingArtifacts = failOnMissingArtifacts
-    ).writeFromSratchDependencies(dependenciesToUpdateWithChecksums)
+    ).writeDependencies(dependenciesToUpdateWithChecksums)
   }
 
   private def calcManagedNodesToSync(currentRepoDependencies: List[Dependency],
