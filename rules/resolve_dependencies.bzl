@@ -19,15 +19,10 @@ def _impl(ctx):
         else:
             auto_path = auto_aggregator
             new_path = aggregator_name
-        rename_cmd = """
-
-# Rename aggregator file
-TARGET_REPO="${{DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}}"
-if [ -f "$TARGET_REPO/%s" ]; then
-  mv "$TARGET_REPO/%s" "$TARGET_REPO/%s"
-  echo "Renamed %s -> %s"
-fi
-""" % (auto_path, auto_path, new_path, auto_path, new_path)
+        rename_cmd = '\n\n# Rename aggregator file\nTARGET_REPO="${{DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}}"\nif [ -f "$TARGET_REPO/{auto_path}" ]; then\n  mv "$TARGET_REPO/{auto_path}" "$TARGET_REPO/{new_path}"\n  echo "Renamed {auto_path} -> {new_path}"\nfi\n'.format(
+            auto_path = auto_path,
+            new_path = new_path,
+        )
 
     cmd_parts = [
         "#!/bin/bash\n\nset -euo pipefail\n\n",
@@ -46,7 +41,7 @@ fi
     cmd = "".join(cmd_parts).format(
         resolver = resolver,
         artifacts_file = artifacts_file.short_path,
-        target_repo = "${{DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}}",
+        target_repo = "${DESTINATION_DIRECTORY:-$BUILD_WORKING_DIRECTORY}",
         repository_urls = ",".join(ctx.attr.repository_urls),
         import_external_rule_path = ctx.attr.import_external_rule_path,
         import_external_macro_name = ctx.attr.import_external_macro_name,
