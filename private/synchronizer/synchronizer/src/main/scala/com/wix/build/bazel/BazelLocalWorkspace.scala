@@ -53,11 +53,13 @@ trait BazelLocalWorkspace {
 
 }
 
-class ThirdPartyPaths(destination: String, val destinationPackage: DestinationPackage) {
+class ThirdPartyPaths(destination: String, aggregatorPath: Option[String], val destinationPackage: DestinationPackage) {
   // TODO: remove after migration is finished
-  def this(destination: String) = this(destination, DestinationPackage.resolveFromDestination(destination))
+  def this(destination: String) = this(destination, None, DestinationPackage.resolveFromDestination(destination))
+  def this(destination: String, aggregatorPath: Option[String]) = this(destination, aggregatorPath, DestinationPackage.resolveFromDestination(destination))
+  def this(destination: String, destinationPackage: DestinationPackage) = this(destination, None, destinationPackage)
 
-  val thirdPartyReposFilePath: String = s"$destination.bzl"
+  val thirdPartyReposFilePath: String = aggregatorPath.getOrElse(s"$destination.bzl")
   val receiptPath: String = s"$destination-receipt.txt"
   val thirdPartyImportFilesPathRoot: String = s"$destination"
   val localArtifactOverridesFilePath: String = s"$destination/maven/local_artifact_overrides.bzl"

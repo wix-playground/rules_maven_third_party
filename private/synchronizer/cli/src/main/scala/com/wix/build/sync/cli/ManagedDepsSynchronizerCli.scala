@@ -54,6 +54,7 @@ abstract class SynchronizerCli {
       mavenResolver,
       localPath,
       config.destination,
+      config.aggregatorPath,
       config.destinationPackage,
       storage,
       managedDeps,
