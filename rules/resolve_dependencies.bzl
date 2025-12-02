@@ -5,13 +5,14 @@ def _impl(ctx):
 
     # Determine the auto-generated aggregator name from destination
     destination = ctx.attr.destination
-    auto_aggregator = destination.split("/")[-1] + ".bzl"
+    dest_parts = destination.split("/")
+    auto_aggregator = dest_parts[-1] + ".bzl"
     aggregator_name = ctx.attr.aggregator_name if ctx.attr.aggregator_name else auto_aggregator
 
     # Build rename command if aggregator_name differs from auto-generated name
     rename_cmd = ""
     if ctx.attr.aggregator_name and ctx.attr.aggregator_name != auto_aggregator:
-        dest_dir = "/".join(destination.split("/")[:-1]) if "/" in destination else ""
+        dest_dir = "/".join(dest_parts[:-1])
         if dest_dir:
             auto_path = dest_dir + "/" + auto_aggregator
             new_path = dest_dir + "/" + aggregator_name
