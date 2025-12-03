@@ -13,7 +13,7 @@ def _impl(ctx):
         " --import-external-macro-name=\"{import_external_macro_name}\"",
         " --remote-resolver-url=\"{remote_resolver_url}\"",
         " --destination=\"third_party/maven/resolved\"",
-        " --aggregator-path=\"third_party.bzl\"",
+        " --third-party-bzl-path=\"third_party.bzl\"",
         " $@\n",
     ]
 

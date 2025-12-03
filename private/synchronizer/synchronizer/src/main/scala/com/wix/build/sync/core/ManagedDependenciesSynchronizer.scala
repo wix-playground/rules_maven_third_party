@@ -11,7 +11,7 @@ import java.nio.file.Path
 class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyResolver,
                                       managedDependenciesRepoPath: Path,
                                       destination: String,
-                                      aggregatorPath: Option[String],
+                                      thirdPartyBzlPath: String,
                                       destinationPackage: DestinationPackage,
                                       dependenciesRemoteStorage: DependenciesRemoteStorage,
                                       managedDependencies: List[Dependency],
@@ -33,7 +33,7 @@ class ManagedDependenciesSynchronizer(mavenDependencyResolver: MavenDependencyRe
     new BazelDependenciesWriter(
       new FileSystemBazelLocalWorkspace(
         managedDependenciesRepoPath.toFile,
-        new ThirdPartyPaths(destination, aggregatorPath, destinationPackage),
+        new ThirdPartyPaths(destination, thirdPartyBzlPath, destinationPackage),
       ),
       importExternalLoadStatement = importExternalLoadStatement,
       failOnMissingArtifacts = failOnMissingArtifacts

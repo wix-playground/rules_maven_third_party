@@ -12,7 +12,7 @@ case class ManagedDepsSynchronizerConfig(pathToArtifactsFile: String,
                                          resolveLocally: Boolean,
                                          localWorkspaceRoot: String,
                                          destination: String,
-                                         aggregatorPath: Option[String],
+                                         thirdPartyBzlPath: String,
                                          pollingMaxAttempts: Int,
                                          millisBetweenPollings: Int,
                                          cacheChecksums: Boolean,
@@ -31,7 +31,7 @@ abstract class SynchronizerConfigParser {
     resolveLocally = false,
     localWorkspaceRoot = null,
     destination = "third_party",
-    aggregatorPath = None,
+    thirdPartyBzlPath = "third_party.bzl",
     pollingMaxAttempts = 200,
     millisBetweenPollings = 3000,
     cacheChecksums = true,
@@ -87,10 +87,10 @@ abstract class SynchronizerConfigParser {
       .text("Destination to output sync files. Default is value is third_party, which means outpust will be third_party/ and third_party.bzl")
       .action { case (destination, config) => config.copy(destination = destination) }
 
-    opt[String](name = "aggregator-path")
+    opt[String](name = "third-party-bzl-path")
       .optional()
-      .text("Path for the aggregator .bzl file. If not set, defaults to <destination>.bzl")
-      .action { case (path, config) => config.copy(aggregatorPath = Some(path)) }
+      .text("Path for the third_party.bzl file")
+      .action { case (path, config) => config.copy(thirdPartyBzlPath = path) }
 
     opt[Int](name = "polling-max-attempts")
       .optional()

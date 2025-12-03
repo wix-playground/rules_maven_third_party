@@ -11,7 +11,7 @@ import java.nio.file.{Files, Paths}
 //noinspection TypeAnnotation
 class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
   private val destination = "third_party"
-  val thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
+  val thirdPartyPaths = new ThirdPartyPaths(destination, s"$destination.bzl", DestinationPackage.resolveFromDestination(destination))
 
   "FileSystemBazelLocalWorkspace" should {
     "throw exception when given filepath does not exist" in {
@@ -218,7 +218,7 @@ class FileSystemBazelLocalWorkspaceIT extends SpecificationWithJUnit {
     val destination = "third_party"
     new FileSystemBazelLocalWorkspace(
       on,
-      new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
+      new ThirdPartyPaths(destination, s"$destination.bzl", DestinationPackage.resolveFromDestination(destination))
     )
   }
 }

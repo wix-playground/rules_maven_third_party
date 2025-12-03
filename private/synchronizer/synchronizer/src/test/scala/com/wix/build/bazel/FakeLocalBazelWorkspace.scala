@@ -5,7 +5,7 @@ import scala.collection.mutable
 
 class FakeLocalBazelWorkspace(sourceFiles: mutable.Map[String, String] = mutable.Map.empty,
                               val localWorkspaceName: String = "",
-                              val thirdPartyPaths: ThirdPartyPaths = new ThirdPartyPaths("third_party", DestinationPackage.resolveFromDestination("third_party")))
+                              val thirdPartyPaths: ThirdPartyPaths = new ThirdPartyPaths("third_party", "third_party.bzl", DestinationPackage.resolveFromDestination("third_party")))
   extends BazelLocalWorkspace {
 
   import thirdPartyPaths._

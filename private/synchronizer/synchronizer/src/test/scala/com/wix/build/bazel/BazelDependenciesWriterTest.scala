@@ -23,7 +23,7 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
       val thirdPartyPath = "third_party"
       val localWorkspace = new FakeLocalBazelWorkspace(
         localWorkspaceName = localWorkspaceName,
-        thirdPartyPaths = new ThirdPartyPaths(thirdPartyPath, DestinationPackage.resolveFromDestination(thirdPartyPath))
+        thirdPartyPaths = new ThirdPartyPaths(thirdPartyPath, s"$thirdPartyPath.bzl", DestinationPackage.resolveFromDestination(thirdPartyPath))
       )
 
       def writer = writerFor(localWorkspace)
@@ -436,7 +436,7 @@ class BazelDependenciesWriterTest extends SpecificationWithJUnit {
         val destination = "third_party"
         val localWorkspace = new FakeLocalBazelWorkspace(
           localWorkspaceName = localWorkspaceName,
-          thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination)))
+          thirdPartyPaths = new ThirdPartyPaths(destination, s"$destination.bzl", DestinationPackage.resolveFromDestination(destination)))
 
         val artifact = someCoordinates("some-artifact")
 
