@@ -84,7 +84,7 @@ abstract class SynchronizerConfigParser {
     opt[String](name = "destination")
       .required()
       .withFallback(() => "third_party")
-      .text("Destination to output sync files. Default is value is third_party, which means outpust will be third_party/ and third_party.bzl")
+      .text("Destination folder for resolved .bzl files (e.g., third_party/maven/resolved)")
       .action { case (destination, config) => config.copy(destination = destination) }
 
     opt[String](name = "third-party-bzl-path")
