@@ -13,7 +13,7 @@ import scala.util.Try
 
 class FakeRemoteRepository() {
   private val destination = "third_party"
-  val thirdPartyPaths = new ThirdPartyPaths(destination, DestinationPackage.resolveFromDestination(destination))
+  val thirdPartyPaths = new ThirdPartyPaths(destination, s"$destination.bzl", DestinationPackage.resolveFromDestination(destination))
 
   import thirdPartyPaths._
 

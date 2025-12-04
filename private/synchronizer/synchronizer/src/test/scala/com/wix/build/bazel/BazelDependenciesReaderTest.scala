@@ -205,7 +205,7 @@ class BazelDependenciesReaderTest extends SpecificationWithJUnit {
     val thirdPartyPath = "third_party"
     val localWorkspace: BazelLocalWorkspace = new FakeLocalBazelWorkspace(
       localWorkspaceName = localWorkspaceName,
-      thirdPartyPaths = new ThirdPartyPaths("third_party", DestinationPackage.resolveFromDestination("third_party"))
+      thirdPartyPaths = new ThirdPartyPaths("third_party", "third_party.bzl", DestinationPackage.resolveFromDestination("third_party"))
     )
     val reader = new BazelDependenciesReader(localWorkspace)
 

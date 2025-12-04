@@ -8,7 +8,7 @@ class NoPersistenceBazelRepository(local: File, thirdPartyDestination: String) e
   override def resetAndCheckoutMaster(): BazelLocalWorkspace =
     new FileSystemBazelLocalWorkspace(
       local,
-      new ThirdPartyPaths(thirdPartyDestination, DestinationPackage.resolveFromDestination(thirdPartyDestination))
+      new ThirdPartyPaths(thirdPartyDestination, s"$thirdPartyDestination.bzl", DestinationPackage.resolveFromDestination(thirdPartyDestination))
     )
 
   override def persist(branchName: String, message: String): Unit = ()
