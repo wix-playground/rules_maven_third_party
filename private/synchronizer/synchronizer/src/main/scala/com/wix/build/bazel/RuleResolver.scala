@@ -13,6 +13,7 @@ class RuleResolver(thirdPartyDestination: String) {
             srcChecksum: Option[String] = None,
             snapshotSources: Boolean = false,
             neverlink: Boolean = false,
+            testOnly: Boolean = false,
             aliases: Set[String] = Set.empty,
             tags: Set[String] = Set.empty,
             remapping: Map[String, String] = Map.empty): RuleToPersist =
@@ -30,6 +31,7 @@ class RuleResolver(thirdPartyDestination: String) {
           srcChecksum,
           snapshotSources,
           neverlink = neverlink,
+          testOnly = testOnly,
           remapping = remapping
         ),
         ImportExternalRule.ruleLocatorFrom(artifact)

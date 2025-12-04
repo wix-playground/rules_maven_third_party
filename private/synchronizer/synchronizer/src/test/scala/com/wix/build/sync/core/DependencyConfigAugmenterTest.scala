@@ -48,17 +48,30 @@ class DependencyConfigAugmenterTest extends SpecWithJUnit {
     DependencyConfigAugmenter.augment(deps, dependenciesConfig) mustEqual Set(node1WithTags, node2)
   }
 
+  "add testOnly" in {
+    val node1 = BazelDependencyNode(baseDependency = aDep("dep1"), Set())
+    val node2 = BazelDependencyNode(baseDependency = aDep("dep2"), Set())
+    val node1WithTestOnly = BazelDependencyNode(baseDependency = aDep("dep1", isTestOnly = true), Set())
+    val deps = Set(node1, node2)
+
+    val dependenciesConfig = List(aDep(artifactId = "dep1", isTestOnly = true))
+
+    DependencyConfigAugmenter.augment(deps, dependenciesConfig) mustEqual Set(node1WithTestOnly, node2)
+  }
+
   def aDep(artifactId: String,
            groupId: String = "group",
            version: String = "version",
            scope: MavenScope = MavenScope.Compile,
            aliases: Set[String] = Set.empty,
            tags: Set[String] = Set.empty,
-           flattenTransitiveDeps: Boolean = false): Dependency = Dependency(
+           flattenTransitiveDeps: Boolean = false,
+           isTestOnly: Boolean = false): Dependency = Dependency(
     coordinates = Coordinates(groupId = groupId, artifactId = artifactId, version = version),
     scope = scope,
     aliases = aliases,
     tags = tags,
-    flattenTransitiveDeps = flattenTransitiveDeps
+    flattenTransitiveDeps = flattenTransitiveDeps,
+    isTestOnly = isTestOnly
   )
 }

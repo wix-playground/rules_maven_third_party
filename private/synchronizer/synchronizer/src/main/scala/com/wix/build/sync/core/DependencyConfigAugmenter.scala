@@ -25,6 +25,7 @@ object DependencyConfigAugmenter {
           .map(node => addAliases(config, node))
           .map(node => addTags(config, node))
           .map(node => addNeverlink(config, node))
+          .map(node => addTestOnly(config, node))
       }
       .map(node => new CoordKey(node.baseDependency.coordinates) -> node)
   }
@@ -38,6 +39,15 @@ object DependencyConfigAugmenter {
     if (config.isNeverLink)
       dependencyNode.copy(
         baseDependency = dependencyNode.baseDependency.withIsNeverLink(config.isNeverLink)
+      )
+    else
+      dependencyNode
+  }
+
+  private def addTestOnly(config: Dependency, dependencyNode: BazelDependencyNode): BazelDependencyNode = {
+    if (config.isTestOnly)
+      dependencyNode.copy(
+        baseDependency = dependencyNode.baseDependency.withIsTestOnly(config.isTestOnly)
       )
     else
       dependencyNode

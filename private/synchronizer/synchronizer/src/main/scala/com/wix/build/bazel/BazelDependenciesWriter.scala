@@ -185,6 +185,7 @@ class BazelDependenciesWriter(localWorkspace: BazelLocalWorkspace,
       srcChecksum = dependencyNode.srcChecksum,
       snapshotSources = dependencyNode.snapshotSources,
       neverlink = dependencyNode.neverlink,
+      testOnly = dependencyNode.testOnly,
       remapping = if (overriddenLabels.nonEmpty) collectMappings(dependencyNode, overriddenLabels) else Map.empty
     )
 
@@ -217,7 +218,8 @@ case class AnnotatedDependencyNode(baseDependency: Dependency,
                                    checksum: Option[String] = None,
                                    srcChecksum: Option[String] = None,
                                    snapshotSources: Boolean = false,
-                                   neverlink: Boolean = false)
+                                   neverlink: Boolean = false,
+                                   testOnly: Boolean = false)
 
 
 class AnnotatedDependencyNodeTransformer(neverLinkResolver: NeverLinkResolver = new NeverLinkResolver(), thirdPartyPath: String) {
@@ -235,7 +237,8 @@ class AnnotatedDependencyNodeTransformer(neverLinkResolver: NeverLinkResolver = 
       checksum = dependencyNode.checksum,
       srcChecksum = dependencyNode.srcChecksum,
       snapshotSources = dependencyNode.snapshotSources,
-      neverlink = neverLinkResolver.isNeverLink(dependencyNode.baseDependency)
+      neverlink = neverLinkResolver.isNeverLink(dependencyNode.baseDependency),
+      testOnly = dependencyNode.baseDependency.isTestOnly
     )
   }
 

@@ -18,7 +18,7 @@ case class ImportExternalTargetsFilePartialDependencyNodesReader(content: String
       compileDeps = extractListByAttribute(CompileTimeDepsFilter, importExternalTarget)
       runtimeDeps = extractListByAttribute(RunTimeDepsFilter, importExternalTarget)
       isNeverLink = ImportExternalTargetsFileReader.extractNeverlink(importExternalTarget)
-    } yield PartialDependencyNode(name, Dependency(coordinates.coordinates, MavenScope.Compile, isNeverLink, exclusions),
+    } yield PartialDependencyNode(name, Dependency(coordinates = coordinates.coordinates, scope = MavenScope.Compile, isNeverLink = isNeverLink, exclusions = exclusions),
       compileDeps.flatMap(d => parseTargetDependency(d, MavenScope.Compile)) ++
         runtimeDeps.flatMap(d => parseTargetDependency(d, MavenScope.Runtime))
     )

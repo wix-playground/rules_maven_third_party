@@ -27,7 +27,7 @@ object MavenMakers {
                        artifactIdPrefix: String = defaultArtifactPrefix,
                        index: Int = Random.nextInt(),
                        withExclusions: Set[Exclusion] = Set.empty): Dependency =
-    Dependency(randomCoordinates(withVersion, artifactIdPrefix, index), withScope, false, withExclusions)
+    Dependency(coordinates = randomCoordinates(withVersion, artifactIdPrefix, index), scope = withScope, exclusions = withExclusions)
 
   def someCoordinates(artifactId: String, packaging: Packaging = Packaging("jar")): Coordinates =
     Coordinates("some.group", artifactId, "some-version", packaging)
@@ -38,18 +38,18 @@ object MavenMakers {
   def aDependency(artifactId: String,
                   scope: MavenScope = MavenScope.Compile,
                   exclusions: Set[Exclusion] = Set.empty): Dependency =
-    Dependency(someCoordinates(artifactId), scope, false, exclusions)
+    Dependency(coordinates = someCoordinates(artifactId), scope = scope, exclusions = exclusions)
 
   def aPomArtifactDependency(artifactId: String,
                              scope: MavenScope = MavenScope.Compile,
                              exclusions: Set[Exclusion] = Set.empty): Dependency =
-    Dependency(someCoordinates(artifactId).copy(packaging = Packaging("pom")), scope, false, exclusions)
+    Dependency(coordinates = someCoordinates(artifactId).copy(packaging = Packaging("pom")), scope = scope, exclusions = exclusions)
 
   def asCompileDependency(artifact: Coordinates, exclusions: Set[Exclusion] = Set.empty): Dependency =
-    Dependency(artifact, MavenScope.Compile, false, exclusions)
+    Dependency(coordinates = artifact, scope = MavenScope.Compile, exclusions = exclusions)
 
   def asRuntimeDependency(artifact: Coordinates, exclusions: Set[Exclusion] = Set.empty): Dependency =
-    Dependency(artifact, MavenScope.Runtime, false, exclusions)
+    Dependency(coordinates = artifact, scope = MavenScope.Runtime, exclusions = exclusions)
 
   def aTestArchiveTarDependency(artifactId: String): Dependency = Dependency(someCoordinates(artifactId)
     .copy(packaging = Packaging("tar.gz")), MavenScope.Test)

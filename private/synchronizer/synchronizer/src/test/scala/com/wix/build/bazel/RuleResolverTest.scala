@@ -107,6 +107,17 @@ class RuleResolverTest extends SpecificationWithJUnit {
         )
       )
     }
+
+    "return import external rule with testOnly flag" in new Context {
+      ruleResolver.`for`(artifact, runtimeDependencies, compileDependencies, checksum = someChecksum, testOnly = true) must containImportExternalRule(importExternalRule(
+        name = artifact.workspaceRuleName,
+        anArtifact = be_===(artifact.serialized),
+        runtimeDeps = contain(allOf(runtimeDependencies.map(_.toLabel))),
+        compileDeps = contain(allOf(compileDependencies.map(_.toLabel))),
+        checksum = be_===(someChecksum),
+        testOnly = beTrue
+      ))
+    }
   }
 
   trait Context extends Scope with Mockito with MustThrownExpectations {
