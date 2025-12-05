@@ -12,8 +12,6 @@ def _impl(ctx):
         " --import-external-rule-path=\"{import_external_rule_path}\"",
         " --import-external-macro-name=\"{import_external_macro_name}\"",
         " --remote-resolver-url=\"{remote_resolver_url}\"",
-        " --destination=\"third_party/maven/resolved\"",
-        " --third-party-bzl-path=\"third_party.bzl\"",
         " $@\n",
     ]
 
