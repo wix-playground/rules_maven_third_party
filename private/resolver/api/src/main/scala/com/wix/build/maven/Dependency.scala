@@ -3,6 +3,7 @@ package com.wix.build.maven
 case class Dependency(coordinates: Coordinates,
                       scope: MavenScope,
                       isNeverLink: Boolean = false,
+                      isTestOnly: Boolean = false,
                       exclusions: Set[Exclusion] = Set.empty,
                       aliases: Set[String] = Set.empty,
                       tags: Set[String] = Set.empty,
@@ -24,6 +25,8 @@ case class Dependency(coordinates: Coordinates,
   def withScope(scope: MavenScope): Dependency = copy(scope = scope)
 
   def withIsNeverLink(isNeverLink: Boolean): Dependency = copy(isNeverLink = isNeverLink)
+
+  def withIsTestOnly(isTestOnly: Boolean): Dependency = copy(isTestOnly = isTestOnly)
 
   def equalsOnCoordinatesIgnoringVersion(dependency: Dependency): Boolean =
     dependency.coordinates.equalsIgnoringVersion(coordinates)

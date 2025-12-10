@@ -211,10 +211,10 @@ class BazelDependenciesReaderTest extends SpecificationWithJUnit {
 
     def defaultDependency(groupId: String, artifactId: String, version: String, exclusion: Set[Exclusion] = Set.empty) =
       Dependency(
-        Coordinates(groupId, artifactId, version),
-        MavenScope.Compile,
+        coordinates = Coordinates(groupId, artifactId, version),
+        scope = MavenScope.Compile,
         isNeverLink = false,
-        exclusion
+        exclusions = exclusion
       )
 
     val artifact = someCoordinates("some-dep")

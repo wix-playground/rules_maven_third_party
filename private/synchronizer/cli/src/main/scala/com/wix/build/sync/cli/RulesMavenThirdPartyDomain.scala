@@ -24,6 +24,7 @@ object RulesMavenThirdPartyDomain {
     ),
     scope = MavenScope.Compile,
     isNeverLink = d.neverLink.contains(true),
+    isTestOnly = d.testonly.contains(true),
     exclusions = d.exclusions.map(_.map(e => Exclusion(e.group, e.artifact))).getOrElse(Set.empty),
     tags = d.tags.getOrElse(Set.empty),
     aliases = d.aliases.getOrElse(Set.empty),
