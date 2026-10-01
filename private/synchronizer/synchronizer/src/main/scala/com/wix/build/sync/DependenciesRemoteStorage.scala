@@ -2,6 +2,10 @@ package com.wix.build.sync
 
 import com.wix.build.maven.{Coordinates, _}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+
 trait DependenciesRemoteStorage {
   def checksumFor(node: DependencyNode): Option[String]
 }
@@ -59,7 +63,8 @@ object ArtifactoryRemoteStorage {
   }
 
   def decorateNodesWithChecksum(closure: Set[DependencyNode])(dependenciesRemoteStorage: DependenciesRemoteStorage): Set[BazelDependencyNode] = {
-    closure.par.map(_.updateChecksumFrom(dependenciesRemoteStorage)).toList.toSet
+    val decoratedNodes = Future.traverse(closure.toList)(node => Future(node.updateChecksumFrom(dependenciesRemoteStorage)))
+    Await.result(decoratedNodes, Duration.Inf).toSet
   }
 }
 

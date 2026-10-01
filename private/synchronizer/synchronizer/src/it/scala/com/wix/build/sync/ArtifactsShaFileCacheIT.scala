@@ -52,7 +52,7 @@ class ArtifactsShaFileCacheIT extends SpecificationWithJUnit {
       val cache = new ArtifactsChecksumFileCache(fileAccessor)
       cache.setChecksum(artifact, NoChecksum)
 
-      cache.getChecksum(artifact) must beSome(NoChecksum)
+      cache.getChecksum(artifact) must beSome[ArtifactChecksum](NoChecksum)
     }
   }
 

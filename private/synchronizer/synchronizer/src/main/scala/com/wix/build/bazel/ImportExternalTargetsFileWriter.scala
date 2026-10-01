@@ -40,8 +40,6 @@ case class ImportExternalTargetsFileWriter(content: String) {
   }
 
   private def removeMatchedAndClearWhitespaces(matched: Match): ImportExternalTargetsFileWriter = {
-    import NewLinesParser._
-
     val contentAfterRemoval = removeMatched(content, matched)
 
     removeHeader(contentAfterRemoval) match {

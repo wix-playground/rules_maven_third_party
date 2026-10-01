@@ -83,7 +83,7 @@ object NewLinesParser {
     contentAfterRemoval
   }
 
-  implicit class NewLinesParser(val s: String) {
+  implicit class NewLinesStringOps(val s: String) {
     def containsOnlyNewLinesOrWhitespaces: Boolean = {
       s.dropWhile(_.isWhitespace).isEmpty
     }
